@@ -11,6 +11,7 @@ const filterFields = [
   { field: "ean", value: null },
   { field: "name", operator: "__contains", value: null },
   { field: "status", value: null },
+  { field: "product_type", value: null },
   { field: "state", value: null },
   { field: "brand", operator: "___name__lookalike", value: null },
 ];

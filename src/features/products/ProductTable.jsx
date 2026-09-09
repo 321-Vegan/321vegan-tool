@@ -1,5 +1,9 @@
 import { useSearchProducts } from "./useSearchProducts";
-import { PRODUCT_STATUSES, PRODUCT_STATES } from "@/utils/constants";
+import {
+  PRODUCT_STATUSES,
+  PRODUCT_STATES,
+  PRODUCT_TYPES,
+} from "@/utils/constants";
 
 import Table from "@/ui/Table";
 import Menus from "@/ui/Menus";
@@ -16,7 +20,7 @@ function ProductTable() {
 
   return (
     <Menus>
-      <Table columns="1.8fr 2fr 1.4fr 1.4fr 1.4fr 1.4fr 1.4fr 3.2rem">
+      <Table columns="1.8fr 2fr 1.4fr 1.4fr 1.4fr 1.4fr 1.4fr 1.4fr 3.2rem">
         <Filters>
           <SortBy>
             <Table.Header>
@@ -83,6 +87,26 @@ function ProductTable() {
                     options={[
                       { value: "all", label: "Tous" },
                       ...Object.entries(PRODUCT_STATES).map(([key, o]) => {
+                        return { value: key, label: o.label };
+                      }),
+                    ]}
+                  />
+                </Filters.Filter>
+              </div>
+
+              <div>
+                Type{" "}
+                <Filters.Filter>
+                  <Filters.Toggle
+                    id="filterProductType"
+                    filterField="product_type"
+                  />
+                  <Filters.List
+                    id="filterProductType"
+                    filterField="product_type"
+                    options={[
+                      { value: "all", label: "Tous" },
+                      ...Object.entries(PRODUCT_TYPES).map(([key, o]) => {
                         return { value: key, label: o.label };
                       }),
                     ]}

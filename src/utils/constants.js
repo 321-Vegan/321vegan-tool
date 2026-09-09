@@ -57,6 +57,12 @@ export const PRODUCT_STATUSES = {
   NON_VEGAN: { color: "red", label: "Non vegan" },
 };
 
+export const PRODUCT_TYPES = {
+  FOOD: { color: "grey", label: "Alimentaire" },
+  COSMETIC: { color: "grey", label: "Cosmétique" },
+  HOUSEHOLD: { color: "grey", label: "Entretien" },
+};
+
 export const INTERESTING_PRODUCT_TYPES = {
   popular: { color: "blue", label: "Populaire" },
   sponsored: { color: "yellow", label: "Sponsorisé" },

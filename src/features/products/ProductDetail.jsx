@@ -5,6 +5,7 @@ import { formatDate } from "@/utils/helpers";
 import {
   PRODUCT_STATUSES,
   PRODUCT_STATES,
+  PRODUCT_TYPES,
   S3_STORAGE_URL,
 } from "@/utils/constants";
 import { useCurrentUserContext } from "@/contexts/CurrentUserContext";
@@ -54,7 +55,8 @@ const SmallBox = styled.div`
 const InfoBox = styled.div`
   display: grid;
   grid-template-areas:
-    "state status off"
+    "state status type"
+    "off off off"
     "name name brand"
     "description description description"
     "old old biodynamic"
@@ -69,24 +71,27 @@ const InfoBox = styled.div`
     grid-area: status;
   }
   & div:nth-child(3) {
-    grid-area: off;
+    grid-area: type;
   }
   & div:nth-child(4) {
-    grid-area: name;
+    grid-area: off;
   }
   & div:nth-child(5) {
-    grid-area: brand;
+    grid-area: name;
   }
   & div:nth-child(6) {
-    grid-area: description;
+    grid-area: brand;
   }
   & div:nth-child(7) {
-    grid-area: old;
+    grid-area: description;
   }
   & div:nth-child(8) {
-    grid-area: biodynamic;
+    grid-area: old;
   }
   & div:nth-child(9) {
+    grid-area: biodynamic;
+  }
+  & div:nth-child(10) {
     grid-area: problem;
   }
 
@@ -126,6 +131,7 @@ function ProductDetail() {
     brand,
     status,
     state,
+    product_type,
     description,
     problem_description,
     created_from_off,
@@ -186,6 +192,16 @@ function ProductDetail() {
             >
               <Tag type={PRODUCT_STATUSES[status].color}>
                 {PRODUCT_STATUSES[status].label}
+              </Tag>
+            </DataItem>
+
+            <DataItem
+              icon={<HiOutlineCheckCircle />}
+              label="Type :"
+              type="horizontal"
+            >
+              <Tag type={PRODUCT_TYPES[product_type].color}>
+                {PRODUCT_TYPES[product_type].label}
               </Tag>
             </DataItem>
 

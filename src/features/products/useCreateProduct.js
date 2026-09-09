@@ -13,6 +13,7 @@ export function useCreateProduct() {
     mutationFn: async ({
       state,
       status,
+      product_type,
       brand_id,
       ean,
       name,
@@ -24,6 +25,7 @@ export function useCreateProduct() {
       let product = await createProductApi({
         state,
         status,
+        product_type,
         ean,
         name,
         description,

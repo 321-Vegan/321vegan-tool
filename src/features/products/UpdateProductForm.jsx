@@ -4,6 +4,7 @@ import { useController, useForm } from "react-hook-form";
 import {
   PRODUCT_STATUSES,
   PRODUCT_STATES,
+  PRODUCT_TYPES,
   S3_STORAGE_URL,
 } from "@/utils/constants";
 import { getBrandsForSelect } from "@/services/apiBrands";
@@ -46,6 +47,11 @@ function UpdateProductForm({ productToUpdate, onCloseModal }) {
   });
   const { field: statusField } = useController({
     name: "status",
+    control,
+    rules: { required: "Ce champ est obligatoire" },
+  });
+  const { field: productTypeField } = useController({
+    name: "product_type",
     control,
     rules: { required: "Ce champ est obligatoire" },
   });
@@ -119,6 +125,19 @@ function UpdateProductForm({ productToUpdate, onCloseModal }) {
           })}
           required={true}
           disabled={isUpdating || isStatusLocked}
+        />
+      </FormRow>
+      <FormRow label="Type" error={errors.product_type?.message}>
+        <Select
+          name="product_type"
+          onChange={productTypeField.onChange}
+          isSearchable={true}
+          defaultValue={[productTypeField.value]}
+          defaultOptions={Object.entries(PRODUCT_TYPES).map(([key, o]) => {
+            return { value: key, label: o.label };
+          })}
+          required={true}
+          disabled={isUpdating}
         />
       </FormRow>
       <FormRow label="Marque" error={errors.brand_id?.message}>

@@ -4,6 +4,7 @@ import { useController, useForm } from "react-hook-form";
 import {
   PRODUCT_STATUSES,
   PRODUCT_STATES,
+  PRODUCT_TYPES,
   S3_STORAGE_URL,
 } from "@/utils/constants";
 import { getBrandsForSelect } from "@/services/apiBrands";
@@ -68,6 +69,7 @@ function RegisterProductForm({ productToCheckedIn, onClose, onSelectBrand }) {
     "status",
     "problem_description",
     "brand_id",
+    "product_type",
   ]);
   const { field: brandField } = useController({
     name: "brand_id",
@@ -84,6 +86,11 @@ function RegisterProductForm({ productToCheckedIn, onClose, onSelectBrand }) {
   });
   const { field: statusField } = useController({
     name: "status",
+    control,
+    rules: { required: "Ce champ est obligatoire" },
+  });
+  const { field: productTypeField } = useController({
+    name: "product_type",
     control,
     rules: { required: "Ce champ est obligatoire" },
   });
@@ -201,6 +208,26 @@ function RegisterProductForm({ productToCheckedIn, onClose, onSelectBrand }) {
               value={key}
               color={o.color}
               disabled={isPending || (isStatusLocked && key !== "MAYBE_VEGAN")}
+            >
+              {o.label}
+            </Radios.RadioButton>
+          ))}
+        </Radios>
+      </FormRow>
+
+      <FormRow label="Type" error={errors.product_type?.message}>
+        <Radios
+          id="product_type"
+          onChange={productTypeField.onChange}
+          defaultValue={watchFields[4]}
+          required={true}
+        >
+          {Object.entries(PRODUCT_TYPES).map(([key, o]) => (
+            <Radios.RadioButton
+              key={key}
+              value={key}
+              color={o.color}
+              disabled={isPending}
             >
               {o.label}
             </Radios.RadioButton>

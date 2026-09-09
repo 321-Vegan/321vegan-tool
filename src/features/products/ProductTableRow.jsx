@@ -1,7 +1,11 @@
 import { useNavigate } from "react-router-dom";
 
 import { formatDistanceFromNow, formatDate } from "@/utils/helpers";
-import { PRODUCT_STATUSES, PRODUCT_STATES } from "@/utils/constants";
+import {
+  PRODUCT_STATUSES,
+  PRODUCT_STATES,
+  PRODUCT_TYPES,
+} from "@/utils/constants";
 import { useCurrentUserContext } from "@/contexts/CurrentUserContext";
 import { useDeleteProduct } from "./useDeleteProduct";
 
@@ -31,6 +35,7 @@ function ProductTableRow({ product }) {
     ean,
     status,
     state,
+    product_type,
     brand,
     created_at,
     updated_at,
@@ -85,6 +90,10 @@ function ProductTableRow({ product }) {
           {PRODUCT_STATES[state].label}
         </Tag>
       )}
+
+      <Tag type={PRODUCT_TYPES[product_type].color}>
+        {PRODUCT_TYPES[product_type].label}
+      </Tag>
 
       <Modal>
         <Menus.Menu>

@@ -1,7 +1,11 @@
 import { useEffect } from "react";
 import { useController, useForm } from "react-hook-form";
 
-import { PRODUCT_STATUSES, PRODUCT_STATES } from "@/utils/constants";
+import {
+  PRODUCT_STATUSES,
+  PRODUCT_STATES,
+  PRODUCT_TYPES,
+} from "@/utils/constants";
 import { useCurrentUserContext } from "@/contexts/CurrentUserContext";
 import { useCreateProduct } from "./useCreateProduct";
 import { getBrandsForSelect } from "@/services/apiBrands";
@@ -39,6 +43,12 @@ function CreateProductForm({ onCloseModal }) {
     name: "status",
     control,
     defaultValue: Object.keys(PRODUCT_STATUSES)[0],
+    rules: { required: "Ce champ est obligatoire" },
+  });
+  const { field: productTypeField } = useController({
+    name: "product_type",
+    control,
+    defaultValue: "FOOD",
     rules: { required: "Ce champ est obligatoire" },
   });
 
@@ -108,6 +118,19 @@ function CreateProductForm({ onCloseModal }) {
           })}
           required={true}
           disabled={isCreating || isStatusLocked}
+        />
+      </FormRow>
+      <FormRow label="Type" error={errors.product_type?.message}>
+        <Select
+          name="product_type"
+          onChange={productTypeField.onChange}
+          isSearchable={true}
+          defaultValue={[productTypeField.value]}
+          defaultOptions={Object.entries(PRODUCT_TYPES).map(([key, o]) => {
+            return { value: key, label: o.label };
+          })}
+          required={true}
+          disabled={isCreating}
         />
       </FormRow>
 
