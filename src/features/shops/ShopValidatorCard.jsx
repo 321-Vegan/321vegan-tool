@@ -36,10 +36,10 @@ const Details = styled.div`
   gap: 0.4rem;
 `;
 
-const ShopName = styled.h3`
-  font-size: 2rem;
+const NameInput = styled(Input)`
+  font-size: 1.8rem;
   font-weight: 600;
-  margin-bottom: 0.8rem;
+  padding: 1rem 1.4rem;
 `;
 
 const Actions = styled.div`
@@ -81,8 +81,9 @@ function Field({ label, htmlFor, children }) {
 }
 
 function ShopValidatorCard({ shop, onValidate, onDelete, isProcessing }) {
-  const { name, created_at } = shop;
+  const { created_at } = shop;
 
+  const [name, setName] = useState(shop.name || "");
   const [address, setAddress] = useState(shop.address || "");
   const [city, setCity] = useState(shop.city || "");
   const [country, setCountry] = useState(shop.country || "");
@@ -116,6 +117,7 @@ function ShopValidatorCard({ shop, onValidate, onDelete, isProcessing }) {
 
   function handleValidate() {
     onValidate({
+      name,
       address,
       city,
       country,
@@ -148,7 +150,15 @@ function ShopValidatorCard({ shop, onValidate, onDelete, isProcessing }) {
       </div>
 
       <Details>
-        <ShopName>{name}</ShopName>
+        <Field label="Nom" htmlFor="name">
+          <NameInput
+            id="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            disabled={isProcessing}
+            placeholder="Nom du lieu"
+          />
+        </Field>
 
         <DataItem icon={<HiOutlineCalendar />} label="Créé" type="horizontal">
           {formatDate(created_at)} ({formatDistanceFromNow(created_at)})
