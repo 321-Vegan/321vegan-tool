@@ -17,6 +17,7 @@ import {
   HiOutlineDocumentCheck,
   HiOutlinePercentBadge,
   HiOutlineBuildingStorefront,
+  HiOutlineMapPin,
   HiChevronDown,
   HiChevronUp,
 } from "react-icons/hi2";
@@ -159,6 +160,13 @@ function MainNav() {
                   </NestedNavLink>
                 </li>
               )}
+              {hasAccess("admin") && (
+                <li>
+                  <NestedNavLink to="/places">
+                    <HiOutlineMapPin /> <span>Lieux</span>
+                  </NestedNavLink>
+                </li>
+              )}
             </NavList>
           </NavSubItem>
         )}
@@ -177,17 +185,21 @@ function MainNav() {
                 <span>Produits</span>
               </NestedNavLink>
             </li>
-            <li>
-              <NestedNavLink to="/interesting-products">
-                <PiSparkle />
-                <span>Vegandex</span>
-              </NestedNavLink>
-            </li>
-            <li>
-              <NestedNavLink to="/categories">
-                <HiOutlineRectangleGroup /> <span>Catégories</span>
-              </NestedNavLink>
-            </li>
+            {hasAccess("admin") && (
+              <li>
+                <NestedNavLink to="/interesting-products">
+                  <PiSparkle />
+                  <span>Vegandex</span>
+                </NestedNavLink>
+              </li>
+            )}
+            {hasAccess("admin") && (
+              <li>
+                <NestedNavLink to="/categories">
+                  <HiOutlineRectangleGroup /> <span>Catégories</span>
+                </NestedNavLink>
+              </li>
+            )}
             <li>
               <NestedNavLink to="/brands">
                 <HiOutlineBuildingOffice />
@@ -239,7 +251,7 @@ function MainNav() {
           </NavSubItem>
         )}
 
-        {hasAccess("contributor") && (
+        {hasAccess("admin") && (
           <NavSubItem
             currentOpen={currentOpen}
             onOpen={setCurrentOpen}

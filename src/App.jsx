@@ -32,6 +32,7 @@ import PageNotFound from "@/pages/PageNotFound";
 import Partner from "@/pages/Partner";
 import PartnerCategories from "@/pages/PartnerCategories";
 import Partners from "@/pages/Partners";
+import PlacesValidator from "@/pages/PlacesValidator";
 import Product from "@/pages/Product";
 import ProductCategories from "@/pages/ProductCategories";
 import Products from "@/pages/Products";
@@ -109,9 +110,20 @@ function App() {
                 <Route path="products/:productId" element={<Product />} />
                 <Route
                   path="interesting-products"
-                  element={<InterestingProducts />}
+                  element={
+                    <ProtectedRouteRole role="admin">
+                      <InterestingProducts />
+                    </ProtectedRouteRole>
+                  }
                 />
-                <Route path="categories" element={<ProductCategories />} />
+                <Route
+                  path="categories"
+                  element={
+                    <ProtectedRouteRole role="admin">
+                      <ProductCategories />
+                    </ProtectedRouteRole>
+                  }
+                />
                 <Route path="brands" element={<Brands />} />
                 <Route
                   path="brands/:brandId"
@@ -188,7 +200,7 @@ function App() {
                 <Route
                   path="scoring/categories"
                   element={
-                    <ProtectedRouteRole role="contributor">
+                    <ProtectedRouteRole role="admin">
                       <ScoringCategories />
                     </ProtectedRouteRole>
                   }
@@ -206,6 +218,14 @@ function App() {
                   element={
                     <ProtectedRouteRole role="admin">
                       <ShopReviews />
+                    </ProtectedRouteRole>
+                  }
+                />
+                <Route
+                  path="places"
+                  element={
+                    <ProtectedRouteRole role="admin">
+                      <PlacesValidator />
                     </ProtectedRouteRole>
                   }
                 />

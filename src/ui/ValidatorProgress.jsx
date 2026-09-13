@@ -36,16 +36,16 @@ const ButtonGroup = styled.div`
   gap: 2.4rem;
 `;
 
-// This shows a progress bar for the product validation mode.
-// Also adds a button to skip the current product, and a button to quit the validation mode.
-function ValidatorProgress({ current, total, onSkip, onQuit }) {
+// Generic progress bar for one-by-one validation tools (products, shops, ...).
+// Also adds a button to skip the current item, and a button to quit the validation mode.
+function ValidatorProgress({ current, total, onSkip, onQuit, label = "Élément" }) {
   const percent = total > 0 ? Math.round(((current + 1) / total) * 100) : 0;
 
   return (
     <ProgressContainer>
       <Row type="horizontal">
         <ProgressText>
-          Produit {current + 1} sur {total}
+          {label} {current + 1} sur {total}
         </ProgressText>
         <ButtonGroup>
           <Button $variation="secondary" $size="small" onClick={onSkip}>

@@ -8,7 +8,7 @@ import Spinner from "@/ui/Spinner";
 import { useCurrentUserContext } from "@/contexts/CurrentUserContext";
 import { useValidatorProducts } from "./useValidatorProducts";
 import ValidatorSetup from "./ValidatorSetup";
-import ValidatorProgress from "./ValidatorProgress";
+import ValidatorProgress from "@/ui/ValidatorProgress";
 import ProductRegister from "./ProductRegister";
 
 const CompletedContainer = styled.div`
@@ -131,6 +131,7 @@ function ProductValidatorTool() {
         total={productSnapshot.length}
         onSkip={handleSkip}
         onQuit={handleQuit}
+        label="Produit"
       />
       <ProductRegister
         key={currentProduct.ean}

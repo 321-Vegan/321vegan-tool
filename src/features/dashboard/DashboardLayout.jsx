@@ -1,5 +1,8 @@
+import { useCurrentUserContext } from "@/contexts/CurrentUserContext";
+
 import ErrorReportsStats from "./ErrorReportsStats";
 import ShopReviewsStats from "./ShopReviewsStats";
+import PlacesStats from "./PlacesStats";
 import ProductStatesAllTimeStats from "./ProductStatesAllTimeStats";
 import ProductStatusesAllTimeStats from "./ProductStatusesAllTimeStats";
 
@@ -12,10 +15,13 @@ const StyledDashboardLayout = styled.div`
 `;
 
 function DashboardLayout() {
+  const { hasAccess } = useCurrentUserContext();
+
   return (
     <StyledDashboardLayout>
       <ErrorReportsStats />
-      <ShopReviewsStats />
+      {hasAccess("admin") && <ShopReviewsStats />}
+      {hasAccess("admin") && <PlacesStats />}
       <ProductStatesAllTimeStats />
       <ProductStatusesAllTimeStats />
     </StyledDashboardLayout>
