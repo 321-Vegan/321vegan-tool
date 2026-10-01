@@ -61,7 +61,8 @@ const InfoBox = styled.div`
     "description description description"
     "old old biodynamic"
     "problem problem problem"
-    "img img img";
+    "img img img"
+    "answer answer answer";
   gap: 4rem;
 
   & div:first-child {
@@ -95,8 +96,12 @@ const InfoBox = styled.div`
     grid-area: problem;
   }
 
-  & div:last-child {
+  & div:nth-child(11) {
     grid-area: img;
+  }
+
+  & div:last-child {
+    grid-area: answer;
     padding-bottom: 4rem;
   }
 `;
@@ -139,6 +144,7 @@ function ProductDetail() {
     has_non_vegan_old_receipe,
     biodynamic,
     image,
+    brand_answer,
   } = product;
 
   return (
@@ -284,6 +290,22 @@ function ProductDetail() {
               {image ? (
                 <ImageZoom
                   src={`${S3_STORAGE_URL}/${image}`}
+                  height={40}
+                  width={80}
+                />
+              ) : (
+                <NoDataItem>--</NoDataItem>
+              )}
+            </DataItem>
+
+            <DataItem
+              icon={<HiOutlineCheckCircle />}
+              label="Réponse de la marque :"
+              type="horizontal"
+            >
+              {brand_answer ? (
+                <ImageZoom
+                  src={`${S3_STORAGE_URL}/${brand_answer}`}
                   height={40}
                   width={80}
                 />

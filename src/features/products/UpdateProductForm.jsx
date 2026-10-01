@@ -80,6 +80,11 @@ function UpdateProductForm({ productToUpdate, onCloseModal }) {
     control,
     defaultValue: productToUpdate.image || null,
   });
+  const { field: brandAnswerField } = useController({
+    name: "brand_answer",
+    control,
+    defaultValue: productToUpdate.brand_answer || null,
+  });
 
   function onSubmit(data) {
     if (data.state === "TO_INVESTIGATE") data.status = "MAYBE_VEGAN";
@@ -233,6 +238,19 @@ function UpdateProductForm({ productToUpdate, onCloseModal }) {
           onUpload={imageField.onChange}
           disabled={isUpdating}
           defaultValue={imageField.value}
+          previewBaseUrl={S3_STORAGE_URL}
+        />
+      </FormRow>
+
+      <FormRow
+        label="Réponse de la marque"
+        error={errors.brand_answer?.message}
+      >
+        <ImageUploader
+          id="brand_answer"
+          onUpload={brandAnswerField.onChange}
+          disabled={isUpdating}
+          defaultValue={brandAnswerField.value}
           previewBaseUrl={S3_STORAGE_URL}
         />
       </FormRow>

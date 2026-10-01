@@ -251,6 +251,65 @@ export async function deleteProductImage(id) {
   }
 }
 
+export async function uploadProductBrandAnswer(id, imageFile) {
+  try {
+    const formData = new FormData();
+    formData.append("file", imageFile);
+
+    const res = await axiosInstance.post(
+      `${API_URL}/products/${id}/brand-answer`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
+    );
+    const data = await res.data;
+    return data;
+  } catch (error) {
+    if (error.response) {
+      if (error.response.status === 401) throw error;
+      throw new Error(
+        `Couldn't upload brand answer for product # ${id}. Response status: ${error.response.status}`,
+      );
+    } else if (error.request) {
+      throw new Error(
+        `Couldn't upload brand answer for product # ${id}. Request error: ${error.request}`,
+      );
+    } else {
+      throw new Error(
+        `Couldn't upload brand answer for product # ${id}. Error: ${error.message}`,
+      );
+    }
+  }
+}
+
+export async function deleteProductBrandAnswer(id) {
+  try {
+    const res = await axiosInstance.delete(
+      `${API_URL}/products/${id}/brand-answer`,
+    );
+    const data = await res.data;
+    return data;
+  } catch (error) {
+    if (error.response) {
+      if (error.response.status === 401) throw error;
+      throw new Error(
+        `Couldn't delete brand answer for product # ${id}. Response status: ${error.response.status}`,
+      );
+    } else if (error.request) {
+      throw new Error(
+        `Couldn't delete brand answer for product # ${id}. Request error: ${error.request}`,
+      );
+    } else {
+      throw new Error(
+        `Couldn't delete brand answer for product # ${id}. Error: ${error.message}`,
+      );
+    }
+  }
+}
+
 export async function getProductsForSelect(filters = []) {
   try {
     const sortBy = "name-asc";
