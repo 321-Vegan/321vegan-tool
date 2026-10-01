@@ -14,16 +14,19 @@ export function useUpdateProduct() {
 
   const { isPending: isUpdating, mutate: updateProduct } = useMutation({
     mutationFn: async ({ id, newData }) => {
-      const { image, brand_answer } = newData;
-      const newProductData = {
-        ...newData,
-        brand_id: newData?.brand_id || newData?.brand?.id || null,
-      };
+      const { image, brand_answer, ...rest } = newData;
 
       const imageIsUnchanged =
         typeof image === "string" || image instanceof String;
       const brandAnswerIsUnchanged =
         typeof brand_answer === "string" || brand_answer instanceof String;
+
+      const newProductData = {
+        ...rest,
+        brand_id: newData?.brand_id || newData?.brand?.id || null,
+        ...(imageIsUnchanged && { image }),
+        ...(brandAnswerIsUnchanged && { brand_answer }),
+      };
 
       const fileRequests = [];
       if (!imageIsUnchanged) {
