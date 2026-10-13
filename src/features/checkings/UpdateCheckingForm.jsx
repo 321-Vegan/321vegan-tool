@@ -1,6 +1,6 @@
 import { useController, useForm } from "react-hook-form";
 
-import { CHECKING_STATUSES } from "@/utils/constants";
+import { CHECKING_STATUSES, S3_STORAGE_URL } from "@/utils/constants";
 import { toDatetimeLocal } from "@/utils/helpers";
 import { useUpdateProduct } from "@/features/products/useUpdateProduct";
 import { useUpdateChecking } from "./useUpdateChecking";
@@ -13,6 +13,7 @@ import Textarea from "@/ui/Textarea";
 import Checkbox from "@/ui/Checkbox";
 import Radios from "@/ui/Radios";
 import Spinner from "@/ui/Spinner";
+import ImageUploader from "@/ui/ImageUploader";
 
 function UpdateCheckingForm({ checkingToUpdate, product, onCloseModal }) {
   const { id: updateId, ...updateValues } = checkingToUpdate;
@@ -47,6 +48,11 @@ function UpdateCheckingForm({ checkingToUpdate, product, onCloseModal }) {
     control,
     defaultValue: product.has_non_vegan_old_receipe,
   });
+  const { field: brandAnswerField } = useController({
+    name: "brand_answer",
+    control,
+    defaultValue: product.brand_answer || null,
+  });
 
   const showProblemField = ["MAYBE_VEGAN", "NON_VEGAN"].includes(
     watchFields[0],
@@ -60,9 +66,11 @@ function UpdateCheckingForm({ checkingToUpdate, product, onCloseModal }) {
       biodynamic: data.biodynamic,
       has_non_vegan_old_receipe: data.has_non_vegan_old_receipe,
       problem_description: showProblemField ? data.problem_description : null,
+      brand_answer: data.brand_answer,
     };
+    const { brand_answer: _brandAnswer, ...checkingData } = data;
     updateChecking(
-      { newData: { ...data, product_id: product.id }, id: updateId },
+      { newData: { ...checkingData, product_id: product.id }, id: updateId },
       {
         onSuccess: () => {
           updateProduct(
@@ -165,6 +173,19 @@ function UpdateCheckingForm({ checkingToUpdate, product, onCloseModal }) {
           value={hasNonVeganOldReceipeField.value}
           $inputRef={hasNonVeganOldReceipeField.ref}
           disabled={isPending}
+        />
+      </FormRow>
+
+      <FormRow
+        label="Réponse de la marque"
+        error={errors.brand_answer?.message}
+      >
+        <ImageUploader
+          id="brand_answer"
+          onUpload={brandAnswerField.onChange}
+          disabled={isPending}
+          defaultValue={brandAnswerField.value}
+          previewBaseUrl={S3_STORAGE_URL}
         />
       </FormRow>
 
