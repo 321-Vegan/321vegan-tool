@@ -10,4 +10,5 @@ export const shopsKeys = {
   ],
   counts: () => [...shopsKeys.all(), "count"],
   count: (filters) => [...shopsKeys.counts(), filters],
+  inArea: (bounds) => [...shopsKeys.all(), "in-area", bounds],
 };

@@ -52,6 +52,35 @@ export async function getSearchShops({ filters, sortBy, page, size }) {
   }
 }
 
+// Returns every non-deleted shop (validated or not) inside the bounding box,
+// capped at 300 by the API.
+export async function getShopsInArea({ minLat, maxLat, minLng, maxLng }) {
+  try {
+    const params = new URLSearchParams({
+      min_lat: minLat,
+      max_lat: maxLat,
+      min_lng: minLng,
+      max_lng: maxLng,
+    });
+    const res = await axiosInstance.get(`${API_URL}/shops/in-area?${params}`);
+    const data = await res.data;
+    return data;
+  } catch (error) {
+    if (error.response) {
+      if (error.response.status === 401) throw error;
+      throw new Error(
+        `Couldn't load shops in area. Response status: ${error.response.status}`,
+      );
+    } else if (error.request) {
+      throw new Error(
+        `Couldn't load shops in area. Request error: ${error.request}`,
+      );
+    } else {
+      throw new Error(`Couldn't load shops in area. Error: ${error.message}`);
+    }
+  }
+}
+
 export async function updateShop(id, shop) {
   try {
     const res = await axiosInstance.put(`${API_URL}/shops/${id}`, shop);

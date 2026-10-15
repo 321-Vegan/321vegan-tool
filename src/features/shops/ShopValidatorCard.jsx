@@ -130,7 +130,11 @@ function ShopValidatorCard({ shop, onValidate, onDelete, isProcessing }) {
   return (
     <Card>
       <div>
-        <ShopMap position={position} onPositionChange={setPosition} />
+        <ShopMap
+          shopId={shop.id}
+          position={position}
+          onPositionChange={setPosition}
+        />
 
         <FetchAddressRow>
           <Button
