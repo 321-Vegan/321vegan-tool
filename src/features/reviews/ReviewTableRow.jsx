@@ -2,6 +2,7 @@ import { formatDistanceFromNow, formatDate } from "@/utils/helpers";
 import { REVIEWS_STATUSES } from "@/utils/constants";
 import { useUpdateReviewStatus } from "./useUpdateReviewStatus";
 import { useDeleteReview } from "./useDeleteReview";
+import RatingStars from "./RatingStars";
 
 import Tag from "@/ui/Tag";
 import Table from "@/ui/Table";
@@ -14,11 +15,6 @@ import Tooltip from "@/ui/Tooltip";
 
 import { HiTrash, HiXMark, HiCheck } from "react-icons/hi2";
 import styled from "styled-components";
-
-const Rating = styled.div`
-  font-weight: 600;
-  color: var(--color-brand-700);
-`;
 
 const ActionCell = styled.div`
   display: flex;
@@ -42,7 +38,7 @@ function ReviewTableRow({ resource, review, subject }) {
 
   return (
     <Table.Row>
-      <Rating>{rating}/5</Rating>
+      <RatingStars rating={rating} name={`review-${reviewId}`} />
       <Stacked>{comment || <NoDataItem>--</NoDataItem>}</Stacked>
 
       <Stacked>{subject.render(review)}</Stacked>

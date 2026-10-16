@@ -8,6 +8,7 @@ import Pagination from "@/ui/Pagination";
 import Filters from "@/ui/Filters";
 import SortBy from "@/ui/SortBy";
 import ReviewTableRow from "./ReviewTableRow";
+import RatingStars from "./RatingStars";
 
 /**
  * Moderation table for any reviewed resource.
@@ -15,10 +16,9 @@ import ReviewTableRow from "./ReviewTableRow";
  * @param {String} resource: API prefix, e.g. "shop-reviews"
  * @param {Object} subject: the reviewed item column
  *   { label, filterField, toFilter: (value) => filter, render: (review) => node }
- * @param {Number} minRating: lowest rating allowed by the API
  * @param {String} defaultStatus: status filter applied when none is selected
  * */
-function ReviewTable({ resource, subject, minRating = 1, defaultStatus }) {
+function ReviewTable({ resource, subject, defaultStatus }) {
   const { isPending, reviews, count } = useSearchReviews(
     resource,
     subject,
@@ -43,13 +43,20 @@ function ReviewTable({ resource, subject, minRating = 1, defaultStatus }) {
                     filterField="rating"
                     options={[
                       { value: "all", label: "Tous" },
-                      ...Array.from(
-                        { length: 6 - minRating },
-                        (_, i) => i + minRating,
-                      ).map((i) => {
-                        // String values: compared to search params, and "0" must stay truthy
-                        return { value: String(i), label: `${i}/5` };
-                      }),
+                      ...Array.from({ length: 5 }, (_, i) => i + 1).map(
+                        (i) => {
+                          // String values: compared to search params
+                          return {
+                            value: String(i),
+                            label: (
+                              <RatingStars
+                                rating={i}
+                                name={`filter-rating-${i}`}
+                              />
+                            ),
+                          };
+                        },
+                      ),
                     ]}
                   />
                 </Filters.Filter>

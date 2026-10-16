@@ -46,7 +46,6 @@ function ProductReviews() {
       <ReviewTable
         resource="product-reviews"
         subject={productSubject}
-        minRating={0}
         defaultStatus="PENDING"
       />
     </>
