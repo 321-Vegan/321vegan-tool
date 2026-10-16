@@ -1,7 +1,7 @@
 import { useCurrentUserContext } from "@/contexts/CurrentUserContext";
 
 import ErrorReportsStats from "./ErrorReportsStats";
-import ShopReviewsStats from "./ShopReviewsStats";
+import ReviewsStats from "./ReviewsStats";
 import PlacesStats from "./PlacesStats";
 import ProductStatesAllTimeStats from "./ProductStatesAllTimeStats";
 import ProductStatusesAllTimeStats from "./ProductStatusesAllTimeStats";
@@ -20,8 +20,18 @@ function DashboardLayout() {
   return (
     <StyledDashboardLayout>
       <ErrorReportsStats />
-      {hasAccess("admin") && <ShopReviewsStats />}
-      {hasAccess("admin") && <PlacesStats />}
+      {hasAccess("admin") && (
+        <>
+          <ReviewsStats resource="shop-reviews" title="Avis sur les magasins" />
+          {/* Ratings without comment are auto-approved: not moderation work */}
+          <ReviewsStats
+            resource="product-reviews"
+            title="Avis sur les produits"
+            filters={[{ field: "comment__isnull", value: false }]}
+          />
+          <PlacesStats />
+        </>
+      )}
       <ProductStatesAllTimeStats />
       <ProductStatusesAllTimeStats />
     </StyledDashboardLayout>

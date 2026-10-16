@@ -35,6 +35,7 @@ import Partners from "@/pages/Partners";
 import PlacesValidator from "@/pages/PlacesValidator";
 import Product from "@/pages/Product";
 import ProductCategories from "@/pages/ProductCategories";
+import ProductReviews from "@/pages/ProductReviews";
 import Products from "@/pages/Products";
 import Register from "@/pages/Register";
 import ResetPassword from "@/pages/ResetPassword";
@@ -218,6 +219,14 @@ function App() {
                   element={
                     <ProtectedRouteRole role="admin">
                       <ShopReviews />
+                    </ProtectedRouteRole>
+                  }
+                />
+                <Route
+                  path="product-reviews"
+                  element={
+                    <ProtectedRouteRole role="admin">
+                      <ProductReviews />
                     </ProtectedRouteRole>
                   }
                 />

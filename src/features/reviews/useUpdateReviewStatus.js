@@ -1,23 +1,23 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { updateShopReviewStatus as updateShopReviewStatusApi } from "@/services/apiShopReviews";
-import { shopReviewsKeys } from "./queryKeyFactory";
+import { updateReviewStatus as updateReviewStatusApi } from "@/services/apiReviews";
+import { reviewsKeys } from "./queryKeyFactory";
 import toast from "react-hot-toast";
 
-export function useUpdateShopReviewStatus() {
+export function useUpdateReviewStatus(resource) {
   const queryClient = useQueryClient();
 
-  const { isPending: isUpdatingStatus, mutate: updateShopReviewStatus } =
+  const { isPending: isUpdatingStatus, mutate: updateReviewStatus } =
     useMutation({
       mutationFn: ({ id, newStatus }) =>
-        updateShopReviewStatusApi(id, newStatus),
+        updateReviewStatusApi(resource, id, newStatus),
       onSuccess: () => {
         toast.success("Le statut de l'avis a bien été modifié");
         queryClient.invalidateQueries({
-          queryKey: shopReviewsKeys.all(),
+          queryKey: reviewsKeys.all(resource),
         });
       },
       onError: (err) => toast.error(err.message),
     });
 
-  return { isUpdatingStatus, updateShopReviewStatus };
+  return { isUpdatingStatus, updateReviewStatus };
 }

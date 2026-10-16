@@ -23,7 +23,7 @@ import {
 } from "react-icons/hi2";
 import { PiHandSoap, PiPlant, PiSparkle, PiSprayBottle } from "react-icons/pi";
 import { GiForkKnifeSpoon } from "react-icons/gi";
-import { MdOutlineReviews } from "react-icons/md";
+import { MdOutlineReviews, MdOutlineRateReview } from "react-icons/md";
 
 import styled from "styled-components";
 import { useState } from "react";
@@ -156,7 +156,14 @@ function MainNav() {
               {hasAccess("admin") && (
                 <li>
                   <NestedNavLink to="/shop-reviews">
-                    <MdOutlineReviews /> <span>Avis</span>
+                    <MdOutlineReviews /> <span>Avis magasins</span>
+                  </NestedNavLink>
+                </li>
+              )}
+              {hasAccess("admin") && (
+                <li>
+                  <NestedNavLink to="/product-reviews">
+                    <MdOutlineRateReview /> <span>Avis produits</span>
                   </NestedNavLink>
                 </li>
               )}

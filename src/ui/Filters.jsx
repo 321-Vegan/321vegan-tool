@@ -112,10 +112,10 @@ function Filter({ children }) {
   return <StyledFilter>{children}</StyledFilter>;
 }
 
-function Toggle({ id, filterField }) {
+function Toggle({ id, filterField, defaultValue }) {
   const { openId, close, open, setPosition, searchParams } =
     useContext(FiltersContext);
-  const currentFilter = searchParams.get(filterField) || null;
+  const currentFilter = searchParams.get(filterField) || defaultValue || null;
   const isActive = currentFilter && currentFilter !== "all";
 
   function handleClick(e) {
@@ -135,14 +135,20 @@ function Toggle({ id, filterField }) {
   );
 }
 
-function List({ id, filterField, options }) {
+/**
+ * With a defaultValue, selecting it clears the URL param and "all" is
+ * kept in the URL, so that the default can be overridden.
+ * */
+function List({ id, filterField, options, defaultValue }) {
   const { openId, position, close, searchParams, setSearchParams } =
     useContext(FiltersContext);
   const ref = useClickOutside(close, false);
-  const currentFilter = searchParams.get(filterField) || options.at(0).value;
+  const currentFilter =
+    searchParams.get(filterField) || defaultValue || options.at(0).value;
+  const resetValue = defaultValue || "all";
 
   function handleClick(value) {
-    if (value && value !== "all") {
+    if (value && value !== resetValue) {
       searchParams.set(filterField, value);
     } else {
       if (currentFilter) searchParams.delete(filterField);

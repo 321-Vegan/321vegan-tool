@@ -118,18 +118,19 @@ export const getLastDateOfMonth = (date = new Date()) =>
 /**
  * Build an object from search params.
  *
- * @param {Array} allowedFilters: allowed filters to 'sanitize' the search params
+ * @param {Array} allowedFilters: allowed filters to 'sanitize' the search params,
+ *   an optional defaultValue applies when the param is missing ("all" overrides it)
  * @param {Object} searchParams: the params from react-router-dom
  * @return {Array} filters designed to refine the search
  * */
 export const buildQueryFilters = function (allowedFilters, searchParams) {
   return allowedFilters
     .map((f) => {
-      const value = searchParams.get(f.field);
+      const value = searchParams.get(f.field) ?? f.defaultValue ?? null;
       const fieldName = f.operator ? `${f.field}${f.operator}` : f.field;
       return { field: fieldName, value: value };
     })
-    .filter((f) => f.value !== null);
+    .filter((f) => f.value !== null && f.value !== "all");
 };
 
 /**

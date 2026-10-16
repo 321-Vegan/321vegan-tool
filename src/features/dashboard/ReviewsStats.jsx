@@ -1,4 +1,4 @@
-import { useShopReviewsCount } from "./useShopReviewsCount";
+import { useReviewsCount } from "./useReviewsCount";
 
 import Heading from "@/ui/Heading";
 import Stat from "./Stat";
@@ -9,7 +9,7 @@ import { MdOutlineReviews } from "react-icons/md";
 import styled from "styled-components";
 
 const StyledDashboardBox = styled(DashboardBox)`
-  grid-column: 3 / span 2;
+  grid-column: span 2;
 `;
 
 const GroupStats = styled.div`
@@ -17,15 +17,25 @@ const GroupStats = styled.div`
   grid-template-columns: repeat(2, 1fr);
   gap: 2.4rem;
 `;
-function ShopReviewsStats() {
+
+/**
+ * @param {Array} filters: optional extra filters applied to both counts
+ * */
+function ReviewsStats({ resource, title, filters = [] }) {
   const { isPending: isPendingUntreated, count: untreatedCount } =
-    useShopReviewsCount("PENDING");
+    useReviewsCount(resource, [
+      { field: "status", value: "PENDING" },
+      ...filters,
+    ]);
   const { isPending: isPendingTreated, count: treatedCount } =
-    useShopReviewsCount("PENDING", "__ne");
+    useReviewsCount(resource, [
+      { field: "status__ne", value: "PENDING" },
+      ...filters,
+    ]);
 
   return (
     <StyledDashboardBox>
-      <Heading as="h2">Avis sur les magasins</Heading>
+      <Heading as="h2">{title}</Heading>
       <GroupStats>
         <Stat
           title="Avis non traités"
@@ -46,4 +56,4 @@ function ShopReviewsStats() {
   );
 }
 
-export default ShopReviewsStats;
+export default ReviewsStats;

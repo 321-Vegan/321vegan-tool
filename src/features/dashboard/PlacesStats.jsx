@@ -8,6 +8,10 @@ import { HiOutlineMapPin } from "react-icons/hi2";
 
 import styled from "styled-components";
 
+const StyledDashboardBox = styled(DashboardBox)`
+  grid-column: 3 / span 2;
+`;
+
 const GroupStats = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -21,7 +25,7 @@ function PlacesStats() {
     usePlacesCount(true);
 
   return (
-    <DashboardBox>
+    <StyledDashboardBox>
       <Heading as="h2">Lieux</Heading>
       <GroupStats>
         <Stat
@@ -39,7 +43,7 @@ function PlacesStats() {
           isPending={isPendingValidated}
         />
       </GroupStats>
-    </DashboardBox>
+    </StyledDashboardBox>
   );
 }
 

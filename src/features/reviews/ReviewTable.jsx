@@ -1,5 +1,5 @@
-import { useSearchShopReviews } from "./useSearchShopReviews";
-import { SHOP_REVIEWS_STATUSES } from "@/utils/constants";
+import { useSearchReviews } from "./useSearchReviews";
+import { REVIEWS_STATUSES } from "@/utils/constants";
 
 import Table from "@/ui/Table";
 import Menus from "@/ui/Menus";
@@ -7,16 +7,29 @@ import Spinner from "@/ui/Spinner";
 import Pagination from "@/ui/Pagination";
 import Filters from "@/ui/Filters";
 import SortBy from "@/ui/SortBy";
-import ShopReviewTableRow from "./ShopReviewTableRow";
+import ReviewTableRow from "./ReviewTableRow";
 
-function ShopReviewTable() {
-  const { isPending, shopReviews, count } = useSearchShopReviews();
+/**
+ * Moderation table for any reviewed resource.
+ *
+ * @param {String} resource: API prefix, e.g. "shop-reviews"
+ * @param {Object} subject: the reviewed item column
+ *   { label, filterField, toFilter: (value) => filter, render: (review) => node }
+ * @param {Number} minRating: lowest rating allowed by the API
+ * @param {String} defaultStatus: status filter applied when none is selected
+ * */
+function ReviewTable({ resource, subject, minRating = 1, defaultStatus }) {
+  const { isPending, reviews, count } = useSearchReviews(
+    resource,
+    subject,
+    defaultStatus,
+  );
 
   if (isPending) return <Spinner />;
 
   return (
     <Menus>
-      <Table columns="1.4fr 2fr 1.4fr 1.8fr 1.4fr 1.4fr 3.2rem">
+      <Table columns="1.4fr 2fr 1.6fr 1.6fr 1.4fr 1.4fr 3.2rem">
         <Filters>
           <SortBy>
             <Table.Header>
@@ -30,8 +43,12 @@ function ShopReviewTable() {
                     filterField="rating"
                     options={[
                       { value: "all", label: "Tous" },
-                      ...Array.from({ length: 5 }, (_, i) => i).map((i) => {
-                        return { value: i + 1, label: i + 1 };
+                      ...Array.from(
+                        { length: 6 - minRating },
+                        (_, i) => i + minRating,
+                      ).map((i) => {
+                        // String values: compared to search params, and "0" must stay truthy
+                        return { value: String(i), label: `${i}/5` };
                       }),
                     ]}
                   />
@@ -47,10 +64,16 @@ function ShopReviewTable() {
               </div>
 
               <div>
-                Shop
+                {subject.label}
                 <Filters.Filter>
-                  <Filters.Toggle id="filterShop" filterField="shop" />
-                  <Filters.Search id="filterShop" filterField="shop" />
+                  <Filters.Toggle
+                    id="filterSubject"
+                    filterField={subject.filterField}
+                  />
+                  <Filters.Search
+                    id="filterSubject"
+                    filterField={subject.filterField}
+                  />
                 </Filters.Filter>
               </div>
 
@@ -70,17 +93,20 @@ function ShopReviewTable() {
               <div>
                 Status{" "}
                 <Filters.Filter>
-                  <Filters.Toggle id="filterStatus" filterField="status" />
+                  <Filters.Toggle
+                    id="filterStatus"
+                    filterField="status"
+                    defaultValue={defaultStatus}
+                  />
                   <Filters.List
                     id="filterStatus"
                     filterField="status"
+                    defaultValue={defaultStatus}
                     options={[
                       { value: "all", label: "Tous" },
-                      ...Object.entries(SHOP_REVIEWS_STATUSES).map(
-                        ([key, o]) => {
-                          return { value: key, label: o.label };
-                        },
-                      ),
+                      ...Object.entries(REVIEWS_STATUSES).map(([key, o]) => {
+                        return { value: key, label: o.label };
+                      }),
                     ]}
                   />
                 </Filters.Filter>
@@ -92,9 +118,14 @@ function ShopReviewTable() {
         </Filters>
 
         <Table.Body
-          data={shopReviews}
-          render={(shopReview) => (
-            <ShopReviewTableRow key={shopReview.id} shopReview={shopReview} />
+          data={reviews}
+          render={(review) => (
+            <ReviewTableRow
+              key={review.id}
+              resource={resource}
+              review={review}
+              subject={subject}
+            />
           )}
         />
 
@@ -106,4 +137,4 @@ function ShopReviewTable() {
   );
 }
 
-export default ShopReviewTable;
+export default ReviewTable;
