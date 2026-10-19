@@ -153,20 +153,16 @@ function MainNav() {
                 </NestedNavLink>
               </li>
 
-              {hasAccess("admin") && (
-                <li>
-                  <NestedNavLink to="/shop-reviews">
-                    <MdOutlineReviews /> <span>Avis magasins</span>
-                  </NestedNavLink>
-                </li>
-              )}
-              {hasAccess("admin") && (
-                <li>
-                  <NestedNavLink to="/product-reviews">
-                    <MdOutlineRateReview /> <span>Avis produits</span>
-                  </NestedNavLink>
-                </li>
-              )}
+              <li>
+                <NestedNavLink to="/shop-reviews">
+                  <MdOutlineReviews /> <span>Avis magasins</span>
+                </NestedNavLink>
+              </li>
+              <li>
+                <NestedNavLink to="/product-reviews">
+                  <MdOutlineRateReview /> <span>Avis produits</span>
+                </NestedNavLink>
+              </li>
               {hasAccess("admin") && (
                 <li>
                   <NestedNavLink to="/places">

@@ -217,7 +217,7 @@ function App() {
                 <Route
                   path="shop-reviews"
                   element={
-                    <ProtectedRouteRole role="admin">
+                    <ProtectedRouteRole role="contributor">
                       <ShopReviews />
                     </ProtectedRouteRole>
                   }
@@ -225,7 +225,7 @@ function App() {
                 <Route
                   path="product-reviews"
                   element={
-                    <ProtectedRouteRole role="admin">
+                    <ProtectedRouteRole role="contributor">
                       <ProductReviews />
                     </ProtectedRouteRole>
                   }
