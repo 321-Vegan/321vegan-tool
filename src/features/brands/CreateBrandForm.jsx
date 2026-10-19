@@ -8,7 +8,6 @@ import FormRow from "@/ui/FormRow";
 import Input from "@/ui/Input";
 import Select from "@/ui/Select";
 import Textarea from "@/ui/Textarea";
-import ImageUploader from "@/ui/ImageUploader";
 import Checkbox from "@/ui/Checkbox";
 import Spinner from "@/ui/Spinner";
 
@@ -18,7 +17,6 @@ function CreateBrandForm({ prefillName, onCloseModal, onCreateOption }) {
     defaultValues: {
       parent_id: null,
       name: prefillName || null,
-      logo_path: null,
       boycott: false,
       email: null,
       background: null,
@@ -28,11 +26,6 @@ function CreateBrandForm({ prefillName, onCloseModal, onCreateOption }) {
 
   const { field: parentField } = useController({
     name: "parent_id",
-    control,
-  });
-
-  const { field: logoField } = useController({
-    name: "logo_path",
     control,
   });
 
@@ -87,14 +80,6 @@ function CreateBrandForm({ prefillName, onCloseModal, onCreateOption }) {
               message: "Adresse e-mail invalide",
             },
           })}
-          disabled={isCreating}
-        />
-      </FormRow>
-
-      <FormRow label="Logo" error={errors.logo_path?.message}>
-        <ImageUploader
-          id="logo_path"
-          onUpload={logoField.onChange}
           disabled={isCreating}
         />
       </FormRow>

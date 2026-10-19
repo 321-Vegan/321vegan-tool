@@ -9,7 +9,6 @@ import FormRow from "@/ui/FormRow";
 import Input from "@/ui/Input";
 import Textarea from "@/ui/Textarea";
 import Select from "@/ui/Select";
-import ImageUploader from "@/ui/ImageUploader";
 import Checkbox from "@/ui/Checkbox";
 import Spinner from "@/ui/Spinner";
 
@@ -26,11 +25,6 @@ function UpdateBrandForm({ brandToUpdate, onCloseModal }) {
 
   const { field: parentField } = useController({
     name: "parent_id",
-    control,
-  });
-
-  const { field: logoField } = useController({
-    name: "logo_path",
     control,
   });
 
@@ -102,15 +96,6 @@ function UpdateBrandForm({ brandToUpdate, onCloseModal }) {
             },
           })}
           disabled={isUpdating}
-        />
-      </FormRow>
-
-      <FormRow label="Logo" error={errors.logo_path?.message}>
-        <ImageUploader
-          id="logo_path"
-          onUpload={logoField.onChange}
-          disabled={isUpdating}
-          defaultValue={logoField.value}
         />
       </FormRow>
 
