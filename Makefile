@@ -23,4 +23,4 @@ down:  ## Shutdown Docker Compose services
 	docker compose -f docker-compose.dev.yml down
 
 build:  ## Build and run Docker Compose services for production
-	docker-compose -f docker-compose.yml up --build -d
+	docker compose -f docker-compose.yml up --build -d
