@@ -6,6 +6,7 @@ import ExportAction from "@/ui/ExportAction";
 
 import CreateProductForm from "./CreateProductForm";
 import ValidatorAction from "./ValidatorAction";
+import PublisherAction from "./PublisherAction";
 
 function ProductListOperations() {
   const { hasAccess } = useCurrentUserContext();
@@ -13,6 +14,7 @@ function ProductListOperations() {
   return (
     <ListOperations>
       {hasAccess("contributor") && <ValidatorAction />}
+      {hasAccess("admin") && <PublisherAction />}
       {hasAccess("admin") && <ExportAction />}
       <AddAction
         id="product-create-form"

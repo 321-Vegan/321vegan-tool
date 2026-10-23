@@ -28,8 +28,28 @@ const CompletedText = styled.p`
   color: var(--color-grey-600);
 `;
 
+// "validate" goes through scanned products (CREATED),
+// "publish" goes through products waiting to be published (WAITING_PUBLISH, admin only).
+const MODES = {
+  validate: {
+    state: "CREATED",
+    title: "Vérification des produits scannés",
+    actionLabel: "Commencer la vérification",
+    countLabel: "à vérifier",
+    completedTitle: "Validation terminée",
+  },
+  publish: {
+    state: "WAITING_PUBLISH",
+    title: "Publication des produits",
+    actionLabel: "Commencer la publication",
+    countLabel: "à publier",
+    completedTitle: "Publication terminée",
+  },
+};
+
 // 3 phases managed by the "phase" state : setup -> validating -> completed
-function ProductValidatorTool() {
+function ProductValidatorTool({ mode = "validate" }) {
+  const { state, title, actionLabel, countLabel, completedTitle } = MODES[mode];
   const { hasAccess } = useCurrentUserContext();
   const defaultState = hasAccess("admin") ? "PUBLISHED" : "WAITING_PUBLISH";
   const [phase, setPhase] = useState("setup");
@@ -37,7 +57,11 @@ function ProductValidatorTool() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [productSnapshot, setProductSnapshot] = useState([]);
 
-  const { isPending, products } = useValidatorProducts(selectedStatuses, true);
+  const { isPending, products } = useValidatorProducts(
+    selectedStatuses,
+    true,
+    state,
+  );
 
   // Shuffle to reduce collision risk when multiple contributors validate at the same time
   function handleStart(statuses) {
@@ -101,6 +125,9 @@ function ProductValidatorTool() {
         onStart={handleStart}
         products={products}
         isPending={isPending}
+        title={title}
+        actionLabel={actionLabel}
+        countLabel={countLabel}
       />
     );
   }
@@ -108,7 +135,7 @@ function ProductValidatorTool() {
   if (phase === "completed") {
     return (
       <CompletedContainer>
-        <Heading as="h2">Validation terminée</Heading>
+        <Heading as="h2">{completedTitle}</Heading>
         <CompletedText>
           La session est terminée. Merci infiniement pour votre contribution 💚
         </CompletedText>
@@ -138,6 +165,7 @@ function ProductValidatorTool() {
         ean={currentProduct.ean}
         onClose={handleProductComplete}
         defaultState={defaultState}
+        expectedState={state}
       />
     </>
   );

@@ -37,6 +37,7 @@ import Product from "@/pages/Product";
 import ProductCategories from "@/pages/ProductCategories";
 import ProductReviews from "@/pages/ProductReviews";
 import Products from "@/pages/Products";
+import Publisher from "@/pages/Publisher";
 import Register from "@/pages/Register";
 import ResetPassword from "@/pages/ResetPassword";
 import ScoringCategories from "@/pages/ScoringCategories";
@@ -148,6 +149,14 @@ function App() {
                   element={
                     <ProtectedRouteRole role="contributor">
                       <Validator />
+                    </ProtectedRouteRole>
+                  }
+                />
+                <Route
+                  path="publications"
+                  element={
+                    <ProtectedRouteRole role="admin">
+                      <Publisher />
                     </ProtectedRouteRole>
                   }
                 />

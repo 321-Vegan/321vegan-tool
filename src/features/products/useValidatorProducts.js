@@ -7,8 +7,12 @@ import { productsKeys } from "./queryKeyFactory";
 // 100 products to validate for a single session is already a lot for the contributor anyway !
 const VALIDATOR_PAGE_SIZE = 100;
 
-export function useValidatorProducts(statuses, enabled = false) {
-  const filters = [{ field: "state", value: "CREATED" }];
+export function useValidatorProducts(
+  statuses,
+  enabled = false,
+  state = "CREATED",
+) {
+  const filters = [{ field: "state", value: state }];
   const sortBy = "created_at-asc";
 
   const {

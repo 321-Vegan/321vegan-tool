@@ -38,7 +38,14 @@ const CountText = styled.p`
 
 // This method is used to select product's status to validate.
 // It also shows the count of products for each status, and the total count of products to validate.
-function ValidatorSetup({ onStart, products, isPending }) {
+function ValidatorSetup({
+  onStart,
+  products,
+  isPending,
+  title = "Vérification des produits scannés",
+  actionLabel = "Commencer la vérification",
+  countLabel = "à vérifier",
+}) {
   const [selectedStatuses, setSelectedStatuses] = useState([]);
 
   function handleToggle(status) {
@@ -56,12 +63,12 @@ function ValidatorSetup({ onStart, products, isPending }) {
 
   return (
     <SetupContainer>
-      <Heading as="h2">Vérification des produits scannés</Heading>
+      <Heading as="h2">{title}</Heading>
       <p>
-        Sélectionnez les statuts des produits que vous souhaitez vérifier. Les
+        Sélectionnez les statuts des produits que vous souhaitez traiter. Les
         produits seront présentés un par un. <br />
         Si aucun statut n'est sélectionné, tous les produits seront inclus dans
-        la validation. <br />
+        la session. <br />
         Merci pour votre contribution ! 💚
       </p>
 
@@ -87,14 +94,14 @@ function ValidatorSetup({ onStart, products, isPending }) {
       </StatusList>
 
       <CountText>
-        {filteredCount} produit{filteredCount !== 1 ? "s" : ""} à vérifier
+        {filteredCount} produit{filteredCount !== 1 ? "s" : ""} {countLabel}
       </CountText>
 
       <Button
         onClick={() => onStart(selectedStatuses)}
         disabled={filteredCount === 0 || isPending}
       >
-        Commencer la vérification
+        {actionLabel}
       </Button>
     </SetupContainer>
   );

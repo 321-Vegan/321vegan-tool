@@ -42,7 +42,12 @@ const HelperBox = styled.div`
   gap: 1.2rem;
 `;
 
-function ProductRegister({ ean, onClose, defaultState }) {
+function ProductRegister({
+  ean,
+  onClose,
+  defaultState,
+  expectedState = "CREATED",
+}) {
   const { productEan } = useParams();
   const finalEan = ean || productEan;
   const { isPending, product } = useProductByEan(finalEan);
@@ -128,7 +133,7 @@ function ProductRegister({ ean, onClose, defaultState }) {
   // Check if the product has been verified while we are on validator mode
   // Because we fetched the products at the start of the session
   const isAlreadyVerified =
-    !isPending && product && product.state !== "CREATED" && onClose;
+    !isPending && product && product.state !== expectedState && onClose;
   useEffect(() => {
     if (isAlreadyVerified) onClose();
   }, [isAlreadyVerified, onClose]);

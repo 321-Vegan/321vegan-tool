@@ -15,6 +15,7 @@ import {
   HiOutlineCheckCircle,
   HiOutlineShieldCheck,
   HiOutlineDocumentCheck,
+  HiOutlineSparkles,
   HiOutlinePercentBadge,
   HiOutlineBuildingStorefront,
   HiOutlineMapPin,
@@ -142,6 +143,13 @@ function MainNav() {
                   <HiOutlineDocumentCheck /> <span>Validations</span>
                 </NestedNavLink>
               </li>
+              {hasAccess("admin") && (
+                <li>
+                  <NestedNavLink to="/publications">
+                    <HiOutlineSparkles /> <span>Publications</span>
+                  </NestedNavLink>
+                </li>
+              )}
               <li>
                 <NestedNavLink to="/checkings">
                   <HiOutlineEnvelope /> <span>Contacts</span>
