@@ -38,6 +38,7 @@ function ProductStatusesAllTimeStats() {
             color={o.color}
             icon={ICON_COMPONENTS[key]}
             filters={[{ field: "status", value: key }]}
+            to={`/products?status=${key}`}
           />
         ))}
       </GroupStats>

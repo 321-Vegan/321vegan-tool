@@ -37,6 +37,7 @@ const MODES = {
     actionLabel: "Commencer la vérification",
     countLabel: "à vérifier",
     completedTitle: "Validation terminée",
+    showBrandAnswer: false,
   },
   publish: {
     state: "WAITING_PUBLISH",
@@ -44,12 +45,20 @@ const MODES = {
     actionLabel: "Commencer la publication",
     countLabel: "à publier",
     completedTitle: "Publication terminée",
+    showBrandAnswer: true,
   },
 };
 
 // 3 phases managed by the "phase" state : setup -> validating -> completed
 function ProductValidatorTool({ mode = "validate" }) {
-  const { state, title, actionLabel, countLabel, completedTitle } = MODES[mode];
+  const {
+    state,
+    title,
+    actionLabel,
+    countLabel,
+    completedTitle,
+    showBrandAnswer,
+  } = MODES[mode];
   const { hasAccess } = useCurrentUserContext();
   const defaultState = hasAccess("admin") ? "PUBLISHED" : "WAITING_PUBLISH";
   const [phase, setPhase] = useState("setup");
@@ -166,6 +175,7 @@ function ProductValidatorTool({ mode = "validate" }) {
         onClose={handleProductComplete}
         defaultState={defaultState}
         expectedState={state}
+        showBrandAnswer={showBrandAnswer}
       />
     </>
   );

@@ -27,11 +27,10 @@ function ReviewsStats({ resource, title, filters = [] }) {
       { field: "status", value: "PENDING" },
       ...filters,
     ]);
-  const { isPending: isPendingTreated, count: treatedCount } =
-    useReviewsCount(resource, [
-      { field: "status__ne", value: "PENDING" },
-      ...filters,
-    ]);
+  const { isPending: isPendingTreated, count: treatedCount } = useReviewsCount(
+    resource,
+    [{ field: "status__ne", value: "PENDING" }, ...filters],
+  );
 
   return (
     <StyledDashboardBox>
@@ -43,6 +42,7 @@ function ReviewsStats({ resource, title, filters = [] }) {
           icon={<MdOutlineReviews />}
           value={untreatedCount}
           isPending={isPendingUntreated}
+          to={`/${resource}?status=PENDING`}
         />
         <Stat
           title="Avis traités"
@@ -50,6 +50,8 @@ function ReviewsStats({ resource, title, filters = [] }) {
           icon={<MdOutlineReviews />}
           value={treatedCount}
           isPending={isPendingTreated}
+          // The list filter can't exclude PENDING: show every status instead
+          to={`/${resource}?status=all`}
         />
       </GroupStats>
     </StyledDashboardBox>

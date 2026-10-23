@@ -1,6 +1,8 @@
+import { Link } from "react-router-dom";
+
 import LoaderDots from "@/ui/LoaderDots";
 
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 const StyledStat = styled.div`
   background-color: var(--color-grey-0);
@@ -13,6 +15,17 @@ const StyledStat = styled.div`
   grid-template-rows: auto auto;
   column-gap: 1.6rem;
   row-gap: 0.4rem;
+
+  ${(props) =>
+    props.to &&
+    css`
+      transition: all 0.2s;
+
+      &:hover {
+        border-color: var(--color-grey-300);
+        box-shadow: var(--shadow-sm);
+      }
+    `}
 `;
 
 const Icon = styled.div`
@@ -47,9 +60,10 @@ const Value = styled.p`
   font-weight: 500;
 `;
 
-function Stat({ icon, title, value, color, isPending }) {
+// When "to" is given, the whole card links to the corresponding page.
+function Stat({ icon, title, value, color, isPending, to }) {
   return (
-    <StyledStat>
+    <StyledStat {...(to && { as: Link, to })}>
       <Icon color={color}>{icon}</Icon>
       <Title>{title}</Title>
       {isPending ? <LoaderDots /> : <Value>{value}</Value>}

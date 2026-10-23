@@ -1,4 +1,5 @@
 import { PRODUCT_STATES } from "@/utils/constants";
+import { useCurrentUserContext } from "@/contexts/CurrentUserContext";
 
 import Heading from "@/ui/Heading";
 
@@ -31,7 +32,21 @@ const ICON_COMPONENTS = {
   PUBLISHED: <HiOutlineCheck />,
 };
 
+// States with a dedicated one-by-one tool link to it, others to the filtered product list.
+const STATE_TOOLS = {
+  CREATED: { to: "/verifications", role: "contributor" },
+  WAITING_PUBLISH: { to: "/publications", role: "admin" },
+};
+
 function ProductStatesAllTimeStats() {
+  const { hasAccess } = useCurrentUserContext();
+
+  function getLink(state) {
+    const tool = STATE_TOOLS[state];
+    if (tool && hasAccess(tool.role)) return tool.to;
+    return `/products?state=${state}`;
+  }
+
   return (
     <DashboardBox>
       <Heading as="h2">États des produits</Heading>
@@ -43,6 +58,7 @@ function ProductStatesAllTimeStats() {
             color={o.color}
             icon={ICON_COMPONENTS[key]}
             filters={[{ field: "state", value: key }]}
+            to={getLink(key)}
           />
         ))}
       </GroupStats>

@@ -31,6 +31,7 @@ import SearchProductAction from "./SearchProductAction";
 import { PiPlant } from "react-icons/pi";
 import {
   HiMiniQrCode,
+  HiOutlineCheckCircle,
   HiOutlineInformationCircle,
   HiPhoto,
 } from "react-icons/hi2";
@@ -47,6 +48,7 @@ function ProductRegister({
   onClose,
   defaultState,
   expectedState = "CREATED",
+  showBrandAnswer = false,
 }) {
   const { productEan } = useParams();
   const finalEan = ean || productEan;
@@ -141,7 +143,7 @@ function ProductRegister({
   if (isPending || isPendingOff || isPendingBrand || isAlreadyVerified)
     return <Spinner />;
 
-  const { created_at, name, status, state, image } = product;
+  const { created_at, name, status, state, image, brand_answer } = product;
 
   const {
     brands,
@@ -218,6 +220,26 @@ function ProductRegister({
             )}
           </DataItem>
         </Section>
+
+        {showBrandAnswer && (
+          <Section>
+            <DataItem
+              icon={<HiOutlineCheckCircle />}
+              label="Réponse de la marque"
+              type={brand_answer ? "vertical" : "horizontal"}
+            >
+              {brand_answer ? (
+                <ImageZoom
+                  src={`${S3_STORAGE_URL}/${brand_answer}`}
+                  height={40}
+                  width={80}
+                />
+              ) : (
+                <NoDataItem>--</NoDataItem>
+              )}
+            </DataItem>
+          </Section>
+        )}
 
         <Section>
           <DataItem

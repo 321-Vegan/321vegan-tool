@@ -34,6 +34,7 @@ function PlacesStats() {
           icon={<HiOutlineMapPin />}
           value={toValidateCount}
           isPending={isPendingToValidate}
+          to="/places"
         />
         <Stat
           title="Lieux validés"

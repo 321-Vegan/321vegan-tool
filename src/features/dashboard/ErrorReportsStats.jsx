@@ -1,3 +1,4 @@
+import { useCurrentUserContext } from "@/contexts/CurrentUserContext";
 import { useErrorReportsCount } from "./useErrorReportsCount";
 
 import Heading from "@/ui/Heading";
@@ -18,6 +19,8 @@ const GroupStats = styled.div`
 `;
 
 function ErrorReportsStats() {
+  const { hasAccess } = useCurrentUserContext();
+  const canOpen = hasAccess("contributor");
   const { isPending: isPendingUntreated, count: untreatedCount } =
     useErrorReportsCount(false);
   const { isPending: isPendingTreated, count: treatedCount } =
@@ -33,6 +36,7 @@ function ErrorReportsStats() {
           icon={<HiOutlineExclamationTriangle />}
           value={untreatedCount}
           isPending={isPendingUntreated}
+          to={canOpen && "/error-reports?handled=false"}
         />
         <Stat
           title="Erreurs traitées"
@@ -40,6 +44,7 @@ function ErrorReportsStats() {
           icon={<HiOutlineExclamationTriangle />}
           value={treatedCount}
           isPending={isPendingTreated}
+          to={canOpen && "/error-reports?handled=true"}
         />
       </GroupStats>
     </StyledDashboardBox>
