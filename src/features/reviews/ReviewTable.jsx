@@ -17,8 +17,9 @@ import RatingStars from "./RatingStars";
  * @param {Object} subject: the reviewed item column
  *   { label, filterField, toFilter: (value) => filter, render: (review) => node }
  * @param {String} defaultStatus: status filter applied when none is selected
+ * @param {Function} renderDetails: optional (review) => node shown under the comment
  * */
-function ReviewTable({ resource, subject, defaultStatus }) {
+function ReviewTable({ resource, subject, defaultStatus, renderDetails }) {
   const { isPending, reviews, count } = useSearchReviews(
     resource,
     subject,
@@ -132,6 +133,7 @@ function ReviewTable({ resource, subject, defaultStatus }) {
               resource={resource}
               review={review}
               subject={subject}
+              renderDetails={renderDetails}
             />
           )}
         />

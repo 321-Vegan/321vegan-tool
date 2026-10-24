@@ -1,0 +1,30 @@
+export const restaurantsKeys = {
+  all: () => ["restaurants"],
+  lists: () => [...restaurantsKeys.all(), "list"],
+  list: (filters, sortBy, page, size) => [
+    ...restaurantsKeys.lists(),
+    filters,
+    sortBy,
+    page,
+    size,
+  ],
+  counts: () => [...restaurantsKeys.all(), "count"],
+  count: (filters) => [...restaurantsKeys.counts(), filters],
+  nearby: (latitude, longitude, radius) => [
+    ...restaurantsKeys.all(),
+    "nearby",
+    latitude,
+    longitude,
+    radius,
+  ],
+  photos: () => [...restaurantsKeys.all(), "photos"],
+  photoList: (filters, sortBy, page, size) => [
+    ...restaurantsKeys.photos(),
+    "list",
+    filters,
+    sortBy,
+    page,
+    size,
+  ],
+  photoCount: (filters) => [...restaurantsKeys.photos(), "count", filters],
+};

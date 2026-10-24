@@ -22,7 +22,7 @@ const ActionCell = styled.div`
   gap: 1.2rem;
 `;
 
-function ReviewTableRow({ resource, review, subject }) {
+function ReviewTableRow({ resource, review, subject, renderDetails }) {
   const { id: reviewId, user, rating, comment, status, created_at } = review;
   const { isUpdatingStatus, updateReviewStatus } =
     useUpdateReviewStatus(resource);
@@ -39,7 +39,10 @@ function ReviewTableRow({ resource, review, subject }) {
   return (
     <Table.Row>
       <RatingStars rating={rating} name={`review-${reviewId}`} />
-      <Stacked>{comment || <NoDataItem>--</NoDataItem>}</Stacked>
+      <Stacked>
+        {comment || <NoDataItem>--</NoDataItem>}
+        {renderDetails?.(review)}
+      </Stacked>
 
       <Stacked>{subject.render(review)}</Stacked>
 

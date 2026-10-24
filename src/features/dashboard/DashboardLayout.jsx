@@ -29,6 +29,10 @@ function DashboardLayout() {
             title="Avis sur les produits"
             filters={[{ field: "comment__isnull", value: false }]}
           />
+          <ReviewsStats
+            resource="restaurant-reviews"
+            title="Avis sur les restaurants"
+          />
           <PlacesStats />
         </>
       )}
