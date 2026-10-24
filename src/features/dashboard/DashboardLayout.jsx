@@ -19,6 +19,7 @@ function DashboardLayout() {
 
   return (
     <StyledDashboardLayout>
+      <ProductStatesAllTimeStats />
       <ErrorReportsStats />
       {hasAccess("admin") && (
         <>
@@ -36,7 +37,6 @@ function DashboardLayout() {
           <PlacesStats />
         </>
       )}
-      <ProductStatesAllTimeStats />
       <ProductStatusesAllTimeStats />
     </StyledDashboardLayout>
   );
