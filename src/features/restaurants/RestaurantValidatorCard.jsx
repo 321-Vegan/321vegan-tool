@@ -32,6 +32,7 @@ import {
   DUPLICATE_RADIUS_METERS,
   OPERATING_STATUSES,
   RESTAURANT_TAGS,
+  SERVICE_OPTIONS,
   VEGAN_STATUSES,
 } from "./restaurantConstants";
 
@@ -384,6 +385,17 @@ function RestaurantValidatorCard({
                 <Tags>{contacts}</Tags>
               ) : (
                 <NoDataItem>--</NoDataItem>
+              )}
+            </DataItem>
+            <DataItem label="Possibilités">
+              {restaurant.service_options?.length ? (
+                SERVICE_OPTIONS.filter((o) =>
+                  restaurant.service_options.includes(o.value),
+                )
+                  .map((o) => o.label)
+                  .join(", ")
+              ) : (
+                <NoDataItem>Inconnues</NoDataItem>
               )}
             </DataItem>
             <DataItem label="Lait végétal">

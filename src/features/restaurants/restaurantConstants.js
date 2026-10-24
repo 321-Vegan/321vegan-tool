@@ -13,6 +13,12 @@ export const RESTAURANT_TAGS = [
   { value: "hostel", label: "Auberge de jeunesse" },
 ];
 
+export const SERVICE_OPTIONS = [
+  { value: "dine_in", label: "Sur place" },
+  { value: "takeaway", label: "À emporter" },
+  { value: "delivery", label: "Livraison" },
+];
+
 export const VEGAN_STATUSES = {
   FULLY_VEGAN: { color: "green", label: "100 % végane" },
   VEGAN_OPTIONS: { color: "yellow", label: "Options véganes" },

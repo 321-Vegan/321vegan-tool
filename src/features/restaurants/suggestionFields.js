@@ -2,12 +2,13 @@ import {
   DAYS,
   OPERATING_STATUSES,
   RESTAURANT_TAGS,
+  SERVICE_OPTIONS,
   VEGAN_STATUSES,
 } from "./restaurantConstants";
 
 export const SUGGESTION_KINDS = {
   EDIT: { color: "blue", label: "Modification" },
-  NO_VEGAN_OPTION: { color: "red", label: "Plus d'option végane" },
+  NO_VEGAN_OPTION: { color: "red", label: "Fin des options véganes" },
   DUPLICATE: { color: "orange", label: "Doublon" },
 };
 
@@ -31,6 +32,7 @@ export const SUGGESTION_FIELDS = {
   vegan_status: { label: "Statut végane" },
   vegan_options_details: { label: "Options véganes", input: "textarea" },
   tags: { label: "Types" },
+  service_options: { label: "Possibilités" },
   plant_milk_surcharge: { label: "Supplément lait végétal", input: "number" },
   has_storefront: { label: "Avec boutique" },
   service_area: { label: "Zone servie", input: "text" },
@@ -60,6 +62,12 @@ export function formatSuggestionValue(field, value) {
       return OPERATING_STATUSES[value]?.label || value;
     case "tags":
       return value.map(tagLabel).join(", ") || "—";
+    case "service_options":
+      return (
+        value
+          .map((v) => SERVICE_OPTIONS.find((o) => o.value === v)?.label || v)
+          .join(", ") || "—"
+      );
     case "has_storefront":
       return value ? "Oui" : "Non";
     case "plant_milk_surcharge":
