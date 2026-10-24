@@ -41,6 +41,7 @@ import Publisher from "@/pages/Publisher";
 import Register from "@/pages/Register";
 import ResetPassword from "@/pages/ResetPassword";
 import RestaurantReviews from "@/pages/RestaurantReviews";
+import RestaurantSuggestions from "@/pages/RestaurantSuggestions";
 import ScoringCategories from "@/pages/ScoringCategories";
 import ShopReviews from "@/pages/ShopReviews";
 import Users from "@/pages/Users";
@@ -245,6 +246,14 @@ function App() {
                   element={
                     <ProtectedRouteRole role="contributor">
                       <RestaurantReviews />
+                    </ProtectedRouteRole>
+                  }
+                />
+                <Route
+                  path="restaurant-suggestions"
+                  element={
+                    <ProtectedRouteRole role="contributor">
+                      <RestaurantSuggestions />
                     </ProtectedRouteRole>
                   }
                 />

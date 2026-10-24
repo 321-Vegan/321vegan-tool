@@ -27,4 +27,18 @@ export const restaurantsKeys = {
     size,
   ],
   photoCount: (filters) => [...restaurantsKeys.photos(), "count", filters],
+  suggestions: () => [...restaurantsKeys.all(), "suggestions"],
+  suggestionList: (filters, sortBy, page, size) => [
+    ...restaurantsKeys.suggestions(),
+    "list",
+    filters,
+    sortBy,
+    page,
+    size,
+  ],
+  suggestionCount: (filters) => [
+    ...restaurantsKeys.suggestions(),
+    "count",
+    filters,
+  ],
 };

@@ -5,7 +5,11 @@ import Heading from "@/ui/Heading";
 import Stat from "./Stat";
 import DashboardBox from "./DashboardBox";
 
-import { HiOutlineMapPin, HiOutlinePhoto } from "react-icons/hi2";
+import {
+  HiOutlineMapPin,
+  HiOutlinePencilSquare,
+  HiOutlinePhoto,
+} from "react-icons/hi2";
 import { MdOutlineRestaurant } from "react-icons/md";
 
 import styled from "styled-components";
@@ -25,8 +29,14 @@ function PlacesStats() {
     usePlacesCount(false);
   const { isPending: isPendingValidated, count: validatedCount } =
     usePlacesCount(true);
-  const { isPendingRestaurants, restaurantsCount, isPendingPhotos, photosCount } =
-    useRestaurantsToModerateCount();
+  const {
+    isPendingRestaurants,
+    restaurantsCount,
+    isPendingPhotos,
+    photosCount,
+    isPendingSuggestions,
+    suggestionsCount,
+  } = useRestaurantsToModerateCount();
 
   return (
     <StyledDashboardBox>
@@ -62,6 +72,14 @@ function PlacesStats() {
           value={photosCount}
           isPending={isPendingPhotos}
           to="/places?tab=restaurant-photos"
+        />
+        <Stat
+          title="Propositions restos"
+          color="yellow"
+          icon={<HiOutlinePencilSquare />}
+          value={suggestionsCount}
+          isPending={isPendingSuggestions}
+          to="/restaurant-suggestions"
         />
       </GroupStats>
     </StyledDashboardBox>

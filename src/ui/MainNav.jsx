@@ -19,6 +19,7 @@ import {
   HiOutlinePercentBadge,
   HiOutlineBuildingStorefront,
   HiOutlineMapPin,
+  HiOutlinePencilSquare,
   HiChevronDown,
   HiChevronUp,
 } from "react-icons/hi2";
@@ -178,6 +179,11 @@ function MainNav() {
               <li>
                 <NestedNavLink to="/restaurant-reviews">
                   <MdOutlineRestaurant /> <span>Avis restaurants</span>
+                </NestedNavLink>
+              </li>
+              <li>
+                <NestedNavLink to="/restaurant-suggestions">
+                  <HiOutlinePencilSquare /> <span>Propositions restos</span>
                 </NestedNavLink>
               </li>
               {hasAccess("admin") && (

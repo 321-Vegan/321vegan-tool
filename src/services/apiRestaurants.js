@@ -150,3 +150,64 @@ export async function featureRestaurantPhoto({ restaurantId, photoId }) {
     throw toError(`Couldn't feature restaurant photo # ${photoId}`, error);
   }
 }
+
+// ── Suggestions ─────────────────────────────────────────────────────────────
+
+export async function countRestaurantSuggestions(filters) {
+  try {
+    const params = buildURLSearchParams(filters);
+    const res = await axiosInstance.get(
+      [`${API_URL}/restaurant-suggestions/count`, params]
+        .filter(Boolean)
+        .join("?"),
+    );
+    return res.data.total;
+  } catch (error) {
+    throw toError("Couldn't load restaurant suggestions count", error);
+  }
+}
+
+export async function getSearchRestaurantSuggestions({
+  filters,
+  sortBy,
+  page,
+  size,
+}) {
+  try {
+    const params = buildURLSearchParams(filters, sortBy, page, size);
+    const res = await axiosInstance.get(
+      [`${API_URL}/restaurant-suggestions/search`, params]
+        .filter(Boolean)
+        .join("?"),
+    );
+    return { data: res.data.items, count: res.data.total };
+  } catch (error) {
+    throw toError("Couldn't load restaurant suggestions", error);
+  }
+}
+
+// fields: the proposed fields to apply (all when omitted), values: the
+// retouched ones.
+export async function applyRestaurantSuggestion({ id, fields, values }) {
+  try {
+    const res = await axiosInstance.post(
+      `${API_URL}/restaurant-suggestions/${id}/apply`,
+      { fields, values },
+    );
+    return res.data;
+  } catch (error) {
+    throw toError(`Couldn't apply suggestion # ${id}`, error);
+  }
+}
+
+export async function rejectRestaurantSuggestion({ id, rejectionReason }) {
+  try {
+    const res = await axiosInstance.post(
+      `${API_URL}/restaurant-suggestions/${id}/reject`,
+      { rejection_reason: rejectionReason },
+    );
+    return res.data;
+  } catch (error) {
+    throw toError(`Couldn't reject suggestion # ${id}`, error);
+  }
+}
