@@ -138,3 +138,15 @@ export async function deleteRestaurantPhoto({ restaurantId, photoId }) {
     throw toError(`Couldn't delete restaurant photo # ${photoId}`, error);
   }
 }
+
+// The photo shown first on the restaurant page (replaces the previous one).
+export async function featureRestaurantPhoto({ restaurantId, photoId }) {
+  try {
+    const res = await axiosInstance.patch(
+      `${API_URL}/restaurants/${restaurantId}/photos/${photoId}/featured`,
+    );
+    return res.data;
+  } catch (error) {
+    throw toError(`Couldn't feature restaurant photo # ${photoId}`, error);
+  }
+}

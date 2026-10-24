@@ -27,6 +27,7 @@ import NearbyRestaurantsLayer from "./NearbyRestaurantsLayer";
 import OpeningHoursList from "./OpeningHoursList";
 import RestaurantPhotoGallery from "./RestaurantPhotoGallery";
 import { useNearbyRestaurants } from "./useNearbyRestaurants";
+import { useFeatureRestaurantPhoto } from "./useFeatureRestaurantPhoto";
 import {
   DUPLICATE_RADIUS_METERS,
   OPERATING_STATUSES,
@@ -147,6 +148,19 @@ function RestaurantValidatorCard({
     lat: restaurant.latitude,
     lng: restaurant.longitude,
   });
+
+  // Kept locally: the validator works on a snapshot of the restaurants
+  const [featuredId, setFeaturedId] = useState(
+    photos.find((photo) => photo.is_featured)?.id,
+  );
+  const { featurePhoto, isFeaturing } = useFeatureRestaurantPhoto();
+
+  function handleFeature(photo) {
+    featurePhoto(
+      { restaurantId: restaurant.id, photoId: photo.id },
+      { onSuccess: () => setFeaturedId(photo.id) },
+    );
+  }
 
   const { restaurants: closeOnes } = useNearbyRestaurants(
     restaurant,
@@ -402,7 +416,12 @@ function RestaurantValidatorCard({
         </InfoGrid>
 
         <Heading as="h3">Photos</Heading>
-        <RestaurantPhotoGallery photos={photos} />
+        <RestaurantPhotoGallery
+          photos={photos}
+          featuredId={featuredId}
+          onFeature={handleFeature}
+          disabled={isProcessing || isFeaturing}
+        />
       </FullWidth>
     </Card>
   );
