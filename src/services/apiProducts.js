@@ -79,6 +79,29 @@ export async function getSearchProducts({ filters, sortBy, page, size }) {
   }
 }
 
+// Creation and changes of the product, newest first (contributors).
+export async function getProductHistory(id) {
+  try {
+    const res = await axiosInstance.get(`${API_URL}/products/${id}/history`);
+    return res.data;
+  } catch (error) {
+    if (error.response) {
+      if (error.response.status === 401) throw error;
+      throw new Error(
+        `Couldn't load product #${id} history. Response status: ${error.response.status}`,
+      );
+    } else if (error.request) {
+      throw new Error(
+        `Couldn't load product #${id} history. Request error: ${error.request}`,
+      );
+    } else {
+      throw new Error(
+        `Couldn't load product #${id} history. Error: ${error.message}`,
+      );
+    }
+  }
+}
+
 export async function getProduct(id) {
   try {
     const res = await axiosInstance.get(`${API_URL}/products/${id}`);

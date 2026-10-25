@@ -32,6 +32,7 @@ import Spinner from "@/ui/Spinner";
 import ImageZoom from "@/ui/ImageZoom";
 
 import UpdateProductForm from "./UpdateProductForm";
+import ProductHistory from "./ProductHistory";
 import CheckingTable from "@/features/checkings/CheckingTable";
 import CreateCheckingForm from "@/features/checkings/CreateCheckingForm";
 import GenerateCheckingMessage from "@/features/checkings/GenerateCheckingMessage";
@@ -325,6 +326,18 @@ function ProductDetail() {
             <CheckingTable checkings={checkings} product={product} />
           </DataItem>
         </Section>
+
+        {hasAccess("contributor") && (
+          <Section>
+            <DataItem
+              icon={<HiOutlineCheckCircle />}
+              label="Historique :"
+              type="vertical"
+            >
+              <ProductHistory productId={productId} />
+            </DataItem>
+          </Section>
+        )}
       </ProductDataBox>
 
       <Modal>
