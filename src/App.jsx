@@ -40,7 +40,9 @@ import Products from "@/pages/Products";
 import Publisher from "@/pages/Publisher";
 import Register from "@/pages/Register";
 import ResetPassword from "@/pages/ResetPassword";
+import Restaurant from "@/pages/Restaurant";
 import RestaurantReviews from "@/pages/RestaurantReviews";
+import Restaurants from "@/pages/Restaurants";
 import RestaurantSuggestions from "@/pages/RestaurantSuggestions";
 import ScoringCategories from "@/pages/ScoringCategories";
 import ShopReviews from "@/pages/ShopReviews";
@@ -254,6 +256,22 @@ function App() {
                   element={
                     <ProtectedRouteRole role="contributor">
                       <RestaurantSuggestions />
+                    </ProtectedRouteRole>
+                  }
+                />
+                <Route
+                  path="restaurants"
+                  element={
+                    <ProtectedRouteRole role="contributor">
+                      <Restaurants />
+                    </ProtectedRouteRole>
+                  }
+                />
+                <Route
+                  path="restaurants/:restaurantId"
+                  element={
+                    <ProtectedRouteRole role="contributor">
+                      <Restaurant />
                     </ProtectedRouteRole>
                   }
                 />

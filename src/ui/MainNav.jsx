@@ -256,6 +256,15 @@ function MainNav() {
           </StyledNavLink>
         </li>
 
+        {hasAccess("contributor") && (
+          <li>
+            <StyledNavLink to="/restaurants">
+              <HiOutlineBuildingStorefront />
+              <span>Lieux</span>
+            </StyledNavLink>
+          </li>
+        )}
+
         {hasAccess("admin") && (
           <NavSubItem
             currentOpen={currentOpen}

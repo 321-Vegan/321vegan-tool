@@ -47,6 +47,26 @@ export async function getSearchRestaurants({ filters, sortBy, page, size }) {
   }
 }
 
+// With all its place and menu photos, whatever their status (moderators).
+export async function getRestaurant(id) {
+  try {
+    const res = await axiosInstance.get(`${API_URL}/restaurants/${id}`);
+    return res.data;
+  } catch (error) {
+    throw toError(`Couldn't load restaurant # ${id}`, error);
+  }
+}
+
+// Changes applied to the restaurant, newest first.
+export async function getRestaurantHistory(id) {
+  try {
+    const res = await axiosInstance.get(`${API_URL}/restaurants/${id}/history`);
+    return res.data;
+  } catch (error) {
+    throw toError(`Couldn't load restaurant # ${id} history`, error);
+  }
+}
+
 // Validated and pending restaurants around a point, closest first.
 export async function getNearbyRestaurants({ latitude, longitude, radius }) {
   try {

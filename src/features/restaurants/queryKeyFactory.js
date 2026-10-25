@@ -8,6 +8,9 @@ export const restaurantsKeys = {
     page,
     size,
   ],
+  details: () => [...restaurantsKeys.all(), "detail"],
+  detail: (id) => [...restaurantsKeys.details(), id],
+  history: (id) => [...restaurantsKeys.detail(id), "history"],
   counts: () => [...restaurantsKeys.all(), "count"],
   count: (filters) => [...restaurantsKeys.counts(), filters],
   nearby: (latitude, longitude, radius) => [

@@ -35,6 +35,12 @@ export const PHOTO_KINDS = {
   MENU: { color: "indigo", label: "Menu" },
 };
 
+export const PHOTO_STATUSES = {
+  PENDING: { color: "silver", label: "En attente" },
+  APPROVED: { color: "green", label: "Approuvée" },
+  REJECTED: { color: "red", label: "Refusée" },
+};
+
 // Opening slots use 0 = monday
 export const DAYS = [
   "Lundi",

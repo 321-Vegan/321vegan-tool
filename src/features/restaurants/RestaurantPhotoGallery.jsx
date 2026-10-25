@@ -1,13 +1,21 @@
 import styled from "styled-components";
-import { HiOutlineStar, HiStar } from "react-icons/hi2";
+import {
+  HiCheck,
+  HiOutlineStar,
+  HiOutlineTrash,
+  HiStar,
+  HiXMark,
+} from "react-icons/hi2";
 
 import { S3_STORAGE_URL } from "@/utils/constants";
 
 import Button from "@/ui/Button";
+import ConfirmAction from "@/ui/ConfirmAction";
 import ImageZoom from "@/ui/ImageZoom";
+import Modal from "@/ui/Modal";
 import NoDataItem from "@/ui/NoDataItem";
 import Tag from "@/ui/Tag";
-import { PHOTO_KINDS } from "./restaurantConstants";
+import { PHOTO_KINDS, PHOTO_STATUSES } from "./restaurantConstants";
 
 const Gallery = styled.div`
   display: grid;
@@ -27,6 +35,12 @@ const Tags = styled.div`
   gap: 0.6rem;
 `;
 
+const Actions = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+`;
+
 // Same default as the API: the oldest place photo when none is featured.
 function effectiveFeaturedId(photos, featuredId) {
   if (featuredId) return featuredId;
@@ -38,12 +52,22 @@ function effectiveFeaturedId(photos, featuredId) {
 
 /**
  * Place and menu photos, menu first (they are the proof of the vegan
- * options). With onFeature, each photo can be made the featured one.
+ * options). With onFeature, each photo can be made the featured one; with
+ * onModerate and onDelete, approved, rejected or deleted.
  *
  * @param {Number} featuredId: the photo chosen as featured, if any
  * @param {Function} onFeature: optional (photo) => void
+ * @param {Function} onModerate: optional (photo, status) => void
+ * @param {Function} onDelete: optional (photo) => void
  * */
-function RestaurantPhotoGallery({ photos, featuredId, onFeature, disabled }) {
+function RestaurantPhotoGallery({
+  photos,
+  featuredId,
+  onFeature,
+  onModerate,
+  onDelete,
+  disabled,
+}) {
   if (!photos.length) return <NoDataItem>Aucune photo</NoDataItem>;
 
   const sorted = [...photos].sort((a, b) =>
@@ -71,6 +95,11 @@ function RestaurantPhotoGallery({ photos, featuredId, onFeature, disabled }) {
                 {featuredId ? "Principale" : "Principale par défaut"}
               </Tag>
             )}
+            {photo.status !== "APPROVED" && PHOTO_STATUSES[photo.status] && (
+              <Tag type={PHOTO_STATUSES[photo.status].color}>
+                {PHOTO_STATUSES[photo.status].label}
+              </Tag>
+            )}
           </Tags>
           {onFeature && photo.id !== featuredId && (
             <Button
@@ -86,6 +115,52 @@ function RestaurantPhotoGallery({ photos, featuredId, onFeature, disabled }) {
             <Button $size="small" disabled>
               <HiStar /> Photo principale
             </Button>
+          )}
+          {(onModerate || onDelete) && (
+            <Actions>
+              {onModerate && photo.status !== "APPROVED" && (
+                <Button
+                  $size="small"
+                  disabled={disabled}
+                  onClick={() => onModerate(photo, "APPROVED")}
+                >
+                  <HiCheck /> Approuver
+                </Button>
+              )}
+              {onModerate && photo.status !== "REJECTED" && (
+                <Button
+                  $variation="secondary"
+                  $size="small"
+                  disabled={disabled}
+                  onClick={() => onModerate(photo, "REJECTED")}
+                >
+                  <HiXMark /> Refuser
+                </Button>
+              )}
+              {onDelete && (
+                <Modal>
+                  <Modal.Open opens="delete-photo">
+                    <Button
+                      $variation="danger"
+                      $size="small"
+                      disabled={disabled}
+                    >
+                      <HiOutlineTrash />
+                    </Button>
+                  </Modal.Open>
+                  <Modal.Window name="delete-photo">
+                    <ConfirmAction
+                      variation="delete"
+                      title="Supprimer cette photo"
+                      message="La photo sera définitivement supprimée."
+                      btnText="Supprimer"
+                      onConfirm={() => onDelete(photo)}
+                      disabled={disabled}
+                    />
+                  </Modal.Window>
+                </Modal>
+              )}
+            </Actions>
           )}
         </Photo>
       ))}
