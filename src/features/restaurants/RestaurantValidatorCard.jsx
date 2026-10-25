@@ -215,6 +215,11 @@ function RestaurantValidatorCard({
         Instagram
       </ExternalLink>
     ),
+    restaurant.menu_url && (
+      <ExternalLink key="menu" href={restaurant.menu_url}>
+        Menu
+      </ExternalLink>
+    ),
   ].filter(Boolean);
 
   return (

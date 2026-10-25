@@ -171,6 +171,7 @@ function toFormValues(restaurant) {
     website: text(restaurant.website),
     facebook: text(restaurant.facebook),
     instagram: text(restaurant.instagram),
+    menu_url: text(restaurant.menu_url),
     operating_status: restaurant.operating_status,
     closed_from: text(restaurant.closed_from),
     closed_until: text(restaurant.closed_until),
@@ -206,6 +207,7 @@ function toPayload(values) {
     website: text(values.website),
     facebook: text(values.facebook),
     instagram: text(values.instagram),
+    menu_url: text(values.menu_url),
     operating_status: values.operating_status,
     closed_from: temporarilyClosed ? values.closed_from || null : null,
     closed_until: temporarilyClosed ? values.closed_until || null : null,
@@ -566,6 +568,14 @@ function RestaurantEditForm({ restaurant, history }) {
             id="instagram"
             value={values.instagram}
             onChange={setFromEvent("instagram")}
+            disabled={isWorking}
+          />
+        </Field>
+        <Field label="Lien du menu" htmlFor="menu_url">
+          <Input
+            id="menu_url"
+            value={values.menu_url}
+            onChange={setFromEvent("menu_url")}
             disabled={isWorking}
           />
         </Field>

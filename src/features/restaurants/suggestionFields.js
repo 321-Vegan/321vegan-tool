@@ -42,6 +42,7 @@ export const SUGGESTION_FIELDS = {
   website: { label: "Site web", input: "text" },
   facebook: { label: "Facebook", input: "text" },
   instagram: { label: "Instagram", input: "text" },
+  menu_url: { label: "Lien du menu", input: "text" },
   operating_status: { label: "Ouverture" },
   closed_from: { label: "Fermé du", input: "date" },
   closed_until: { label: "Fermé jusqu'au", input: "date" },
