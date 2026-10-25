@@ -8,6 +8,7 @@ export const RESTAURANT_TAGS = [
   { value: "ice_cream", label: "Glacier" },
   { value: "bar", label: "Bar" },
   { value: "caterer", label: "Traiteur" },
+  { value: "grocery", label: "Épicerie" },
   { value: "hotel", label: "Hôtel" },
   { value: "guesthouse", label: "Chambre d'hôtes" },
   { value: "hostel", label: "Auberge de jeunesse" },
