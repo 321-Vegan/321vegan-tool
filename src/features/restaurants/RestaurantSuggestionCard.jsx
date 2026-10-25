@@ -161,6 +161,18 @@ function ProposedInput({ field, value, onChange, disabled }) {
  * (before, now, proposed), each can be left out or retouched before being
  * applied.
  * */
+// Photo fields: shown as thumbnails, never edited by hand
+const PHOTO_FIELDS = ["remove_photo_ids", "featured_photo_id"];
+
+function PhotoLink({ photo }) {
+  const url = `${S3_STORAGE_URL}/${photo.path}`;
+  return (
+    <a href={url} target="_blank" rel="noreferrer">
+      <img src={url} alt="" />
+    </a>
+  );
+}
+
 function RestaurantSuggestionCard({ suggestion, onApply, onReject, isWorking }) {
   const {
     kind,
@@ -171,6 +183,8 @@ function RestaurantSuggestionCard({ suggestion, onApply, onReject, isWorking }) 
     base_values: baseValues = {},
     current_values: currentValues = {},
     photos_to_remove: photosToRemove = [],
+    proposed_featured_photo: proposedFeaturedPhoto,
+    current_featured_photo: currentFeaturedPhoto,
   } = suggestion;
   const proposedFields = Object.keys(changes || {});
   const isPending = status === "PENDING";
@@ -265,14 +279,24 @@ function RestaurantSuggestionCard({ suggestion, onApply, onReject, isWorking }) 
                 {SUGGESTION_FIELDS[field]?.label || field}
               </div>,
               <Value key={`${field}-base`} $muted>
-                {field === "remove_photo_ids"
+                {PHOTO_FIELDS.includes(field)
                   ? "—"
                   : formatSuggestionValue(field, baseValues?.[field])}
               </Value>,
               <Value key={`${field}-current`}>
-                {field === "remove_photo_ids"
-                  ? "—"
-                  : formatSuggestionValue(field, currentValues?.[field])}
+                {field === "featured_photo_id" ? (
+                  <Thumbnails>
+                    {currentFeaturedPhoto ? (
+                      <PhotoLink photo={currentFeaturedPhoto} />
+                    ) : (
+                      "Aucune"
+                    )}
+                  </Thumbnails>
+                ) : field === "remove_photo_ids" ? (
+                  "—"
+                ) : (
+                  formatSuggestionValue(field, currentValues?.[field])
+                )}
                 {changedSince && field !== "remove_photo_ids" && (
                   <>
                     {" "}
@@ -284,16 +308,17 @@ function RestaurantSuggestionCard({ suggestion, onApply, onReject, isWorking }) 
                 {field === "remove_photo_ids" ? (
                   <Thumbnails>
                     {photosToRemove.map((photo) => (
-                      <a
-                        key={photo.id}
-                        href={`${S3_STORAGE_URL}/${photo.path}`}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        <img src={`${S3_STORAGE_URL}/${photo.path}`} alt="" />
-                      </a>
+                      <PhotoLink key={photo.id} photo={photo} />
                     ))}
                     {!photosToRemove.length && "Déjà retirées"}
+                  </Thumbnails>
+                ) : field === "featured_photo_id" ? (
+                  <Thumbnails>
+                    {proposedFeaturedPhoto ? (
+                      <PhotoLink photo={proposedFeaturedPhoto} />
+                    ) : (
+                      "Photo retirée"
+                    )}
                   </Thumbnails>
                 ) : isPending ? (
                   <ProposedInput

@@ -47,6 +47,7 @@ export const SUGGESTION_FIELDS = {
   closed_until: { label: "Fermé jusqu'au", input: "date" },
   closure_note: { label: "Note fermeture", input: "text" },
   remove_photo_ids: { label: "Photos à retirer" },
+  featured_photo_id: { label: "Photo principale" },
 };
 
 const tagLabel = (value) =>
