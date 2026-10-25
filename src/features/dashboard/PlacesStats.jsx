@@ -14,21 +14,15 @@ import { MdOutlineRestaurant } from "react-icons/md";
 
 import styled from "styled-components";
 
-const StyledDashboardBox = styled(DashboardBox)`
-  grid-column: 3 / span 2;
-`;
-
 const GroupStats = styled.div`
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 2.4rem;
 `;
 
 function PlacesStats() {
   const { isPending: isPendingToValidate, count: toValidateCount } =
     usePlacesCount(false);
-  const { isPending: isPendingValidated, count: validatedCount } =
-    usePlacesCount(true);
   const {
     isPendingRestaurants,
     restaurantsCount,
@@ -39,7 +33,7 @@ function PlacesStats() {
   } = useRestaurantsToModerateCount();
 
   return (
-    <StyledDashboardBox>
+    <DashboardBox>
       <Heading as="h2">Lieux</Heading>
       <GroupStats>
         <Stat
@@ -49,13 +43,6 @@ function PlacesStats() {
           value={toValidateCount}
           isPending={isPendingToValidate}
           to="/places"
-        />
-        <Stat
-          title="Lieux validés"
-          color="green"
-          icon={<HiOutlineMapPin />}
-          value={validatedCount}
-          isPending={isPendingValidated}
         />
         <Stat
           title="Restaurants à valider"
@@ -82,7 +69,7 @@ function PlacesStats() {
           to="/restaurant-suggestions"
         />
       </GroupStats>
-    </StyledDashboardBox>
+    </DashboardBox>
   );
 }
 
