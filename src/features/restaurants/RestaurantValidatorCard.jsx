@@ -403,6 +403,13 @@ function RestaurantValidatorCard({
                 <NoDataItem>Inconnues</NoDataItem>
               )}
             </DataItem>
+            <DataItem label="Sans gluten">
+              {restaurant.has_gluten_free_options ? (
+                "Options sans gluten"
+              ) : (
+                <NoDataItem>Non indiqué</NoDataItem>
+              )}
+            </DataItem>
             <DataItem label="Lait végétal">
               {formatSurcharge(restaurant.plant_milk_surcharge) ||
                 (restaurant.serves_hot_drinks === false ? (

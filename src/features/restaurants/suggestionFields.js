@@ -31,6 +31,7 @@ export const SUGGESTION_FIELDS = {
   description: { label: "Description", input: "textarea" },
   vegan_status: { label: "Statut végane" },
   vegan_options_details: { label: "Options véganes", input: "textarea" },
+  has_gluten_free_options: { label: "Options sans gluten" },
   tags: { label: "Types" },
   service_options: { label: "Possibilités" },
   plant_milk_surcharge: { label: "Supplément lait végétal", input: "number" },
@@ -72,6 +73,7 @@ export function formatSuggestionValue(field, value) {
           .join(", ") || "—"
       );
     case "has_storefront":
+    case "has_gluten_free_options":
     case "serves_hot_drinks":
       return value ? "Oui" : "Non";
     case "plant_milk_surcharge":

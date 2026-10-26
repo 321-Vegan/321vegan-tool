@@ -157,6 +157,7 @@ function toFormValues(restaurant) {
     description: text(restaurant.description),
     vegan_status: restaurant.vegan_status,
     vegan_options_details: text(restaurant.vegan_options_details),
+    has_gluten_free_options: restaurant.has_gluten_free_options,
     tags: restaurant.tags,
     service_options: restaurant.service_options || [],
     plant_milk_surcharge:
@@ -203,6 +204,7 @@ function toPayload(values) {
     description: text(values.description),
     vegan_status: values.vegan_status,
     vegan_options_details: text(values.vegan_options_details),
+    has_gluten_free_options: values.has_gluten_free_options,
     tags: values.tags,
     service_options: values.service_options,
     plant_milk_surcharge: fullyVegan || !surcharge ? null : Number(surcharge),
@@ -475,6 +477,16 @@ function RestaurantEditForm({ restaurant, history }) {
             onChange={setFromEvent("vegan_options_details")}
             disabled={isWorking}
           />
+        </Field>
+        <Field label="Sans gluten">
+          <Checkbox
+            name="has_gluten_free_options"
+            checked={values.has_gluten_free_options}
+            onChange={(e) => set("has_gluten_free_options")(e.target.checked)}
+            disabled={isWorking}
+          >
+            Au moins une option végane est aussi sans gluten
+          </Checkbox>
         </Field>
         <Field label="Description" htmlFor="description">
           <Textarea
