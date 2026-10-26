@@ -6,6 +6,7 @@ import {
   HiOutlineArrowUturnLeft,
   HiOutlineTrash,
   HiCheck,
+  HiOutlineMapPin,
 } from "react-icons/hi2";
 
 import { formatDate, formatDistanceFromNow } from "@/utils/helpers";
@@ -31,9 +32,16 @@ import { useReverseGeocode } from "@/features/shops/useReverseGeocode";
 
 import NearbyRestaurantsLayer from "./NearbyRestaurantsLayer";
 import OpeningHoursEditor from "./OpeningHoursEditor";
-import { openingHoursError } from "./openingHours";
+import {
+  MAX_STOPS,
+  openingHoursError,
+  sortSlots,
+  withKey,
+  withoutKey,
+} from "./openingHours";
 import RestaurantHistory from "./RestaurantHistory";
 import RestaurantPhotoGallery from "./RestaurantPhotoGallery";
+import StopsEditor from "./StopsEditor";
 import { useRestaurant } from "./useRestaurant";
 import { useUpdateRestaurant } from "./useUpdateRestaurant";
 import { useDeleteRestaurant } from "./useDeleteRestaurant";
@@ -141,6 +149,9 @@ function Field({ label, htmlFor, hint, children }) {
   );
 }
 
+// Trimmed text, null when empty
+const text = (value) => value?.trim() || null;
+
 const toOptions = (statuses) =>
   Object.entries(statuses).map(([value, { label }]) => ({ value, label }));
 
@@ -169,6 +180,7 @@ function toFormValues(restaurant) {
     service_area: text(restaurant.service_area),
     opening_hours: restaurant.opening_hours || [],
     opening_hours_note: text(restaurant.opening_hours_note),
+    stops: (restaurant.stops || []).map(withKey),
     phone: text(restaurant.phone),
     website: text(restaurant.website),
     facebook: text(restaurant.facebook),
@@ -183,8 +195,18 @@ function toFormValues(restaurant) {
 }
 
 // Form values → PUT body. The fields that don't apply any more are cleared.
+// With stops, the first one is the position and the hours are all of
+// theirs, as the API sets them anyway.
 function toPayload(values) {
-  const text = (value) => value.trim() || null;
+  const stops = values.stops.map((stop) => ({
+    ...withoutKey(stop),
+    label: text(stop.label),
+    address: text(stop.address),
+    city: text(stop.city),
+    note: text(stop.note),
+  }));
+  const firstStop = stops[0];
+  const stopSlots = sortSlots(stops.flatMap((stop) => stop.opening_hours));
   const fullyVegan = values.vegan_status === "FULLY_VEGAN";
   const temporarilyClosed = values.operating_status === "TEMPORARILY_CLOSED";
   const surcharge = values.no_hot_drinks
@@ -196,10 +218,10 @@ function toPayload(values) {
   else if (!fullyVegan && surcharge) servesHotDrinks = true;
   return {
     name: values.name.trim(),
-    latitude: values.latitude,
-    longitude: values.longitude,
-    address: text(values.address),
-    city: text(values.city),
+    latitude: firstStop ? firstStop.latitude : values.latitude,
+    longitude: firstStop ? firstStop.longitude : values.longitude,
+    address: firstStop ? firstStop.address : text(values.address),
+    city: firstStop ? firstStop.city || text(values.city) : text(values.city),
     country: text(values.country),
     description: text(values.description),
     vegan_status: values.vegan_status,
@@ -211,8 +233,15 @@ function toPayload(values) {
     serves_hot_drinks: servesHotDrinks,
     has_storefront: values.has_storefront,
     service_area: values.has_storefront ? null : text(values.service_area),
-    opening_hours: values.opening_hours.length ? values.opening_hours : null,
+    opening_hours: firstStop
+      ? stopSlots.length
+        ? stopSlots
+        : null
+      : values.opening_hours.length
+        ? values.opening_hours
+        : null,
     opening_hours_note: text(values.opening_hours_note),
+    stops: firstStop ? stops : null,
     phone: text(values.phone),
     website: text(values.website),
     facebook: text(values.facebook),
@@ -266,8 +295,21 @@ function findProblems(payload) {
     payload.closed_from > payload.closed_until
   )
     problems.push("La date de fin de fermeture est avant la date de début.");
+  if (payload.stops) {
+    if (!payload.tags.includes("food_truck"))
+      problems.push("Seul un food truck peut avoir des emplacements.");
+    if (!payload.has_storefront)
+      problems.push("Un lieu sans boutique ne peut pas avoir d'emplacements.");
+    if (payload.stops.length > MAX_STOPS)
+      problems.push(`${MAX_STOPS} emplacements au plus.`);
+  }
   const hoursError = openingHoursError(payload.opening_hours);
-  if (hoursError) problems.push(`Horaires : ${hoursError}.`);
+  if (hoursError)
+    problems.push(
+      payload.stops
+        ? `Horaires des emplacements : ${hoursError} (il ne peut pas être à deux endroits à la fois).`
+        : `Horaires : ${hoursError}.`,
+    );
   return problems;
 }
 
@@ -303,6 +345,23 @@ function RestaurantEditForm({ restaurant, history }) {
 
   const featuredId = restaurant.photos.find((photo) => photo.is_featured)?.id;
   const fullyVegan = values.vegan_status === "FULLY_VEGAN";
+  const hasStops = values.stops.length > 0;
+  const isFoodTruck = values.tags.includes("food_truck");
+
+  // The current place and hours become its first stop
+  function handleSwitchToStops() {
+    set("stops")([
+      withKey({
+        label: null,
+        address: text(values.address),
+        city: text(values.city),
+        latitude: values.latitude,
+        longitude: values.longitude,
+        opening_hours: values.opening_hours,
+        note: null,
+      }),
+    ]);
+  }
 
   function toggleServiceOption(option) {
     set("service_options")(
@@ -363,83 +422,111 @@ function RestaurantEditForm({ restaurant, history }) {
         {restaurant.osm_id && <span>OSM {restaurant.osm_id}</span>}
       </Meta>
 
-      <Card>
-        <Heading as="h3">Emplacement</Heading>
-        <Columns>
-          <div>
-            <ShopMap
-              shopId={restaurant.id}
-              position={{ lat: values.latitude, lng: values.longitude }}
-              onPositionChange={({ lat, lng }) =>
-                setValues((current) => ({
-                  ...current,
-                  latitude: lat,
-                  longitude: lng,
-                }))
-              }
-              existingLayer={<NearbyRestaurantsLayer restaurant={restaurant} />}
+      {hasStops ? (
+        <Card>
+          <Heading as="h3">Le food truck</Heading>
+          <Admonition variation="info" icon="hint">
+            Il change de lieu selon les jours : la position, l&apos;adresse et
+            les horaires se modifient dans ses emplacements, plus bas.
+          </Admonition>
+          <Field label="Nom" htmlFor="name">
+            <Input
+              id="name"
+              value={values.name}
+              onChange={setFromEvent("name")}
+              disabled={isWorking}
             />
-          </div>
-          <div>
-            <Field label="Nom" htmlFor="name">
-              <Input
-                id="name"
-                value={values.name}
-                onChange={setFromEvent("name")}
-                disabled={isWorking}
+          </Field>
+          <Field label="Pays" htmlFor="country">
+            <Input
+              id="country"
+              value={values.country}
+              onChange={setFromEvent("country")}
+              disabled={isWorking}
+            />
+          </Field>
+        </Card>
+      ) : (
+        <Card>
+          <Heading as="h3">Emplacement</Heading>
+          <Columns>
+            <div>
+              <ShopMap
+                shopId={restaurant.id}
+                position={{ lat: values.latitude, lng: values.longitude }}
+                onPositionChange={({ lat, lng }) =>
+                  setValues((current) => ({
+                    ...current,
+                    latitude: lat,
+                    longitude: lng,
+                  }))
+                }
+                existingLayer={
+                  <NearbyRestaurantsLayer restaurant={restaurant} />
+                }
               />
-            </Field>
-            <Field label="Adresse" htmlFor="address">
-              <Input
-                id="address"
-                value={values.address}
-                onChange={setFromEvent("address")}
-                disabled={isWorking}
-              />
-            </Field>
-            <Field label="Ville" htmlFor="city">
-              <Input
-                id="city"
-                value={values.city}
-                onChange={setFromEvent("city")}
-                disabled={isWorking}
-              />
-            </Field>
-            <Field label="Pays" htmlFor="country">
-              <Input
-                id="country"
-                value={values.country}
-                onChange={setFromEvent("country")}
-                disabled={isWorking}
-              />
-            </Field>
-            <Field
-              label="Position"
-              hint="Déplacez le repère sur la carte pour la corriger"
-            >
-              <span>
-                {values.latitude.toFixed(5)}, {values.longitude.toFixed(5)}
-              </span>
-            </Field>
-            <CenteredRow>
-              <Button
-                type="button"
-                $variation="secondary"
-                $size="small"
-                onClick={handleFetchAddress}
-                disabled={isWorking || isFetchingAddress}
+            </div>
+            <div>
+              <Field label="Nom" htmlFor="name">
+                <Input
+                  id="name"
+                  value={values.name}
+                  onChange={setFromEvent("name")}
+                  disabled={isWorking}
+                />
+              </Field>
+              <Field label="Adresse" htmlFor="address">
+                <Input
+                  id="address"
+                  value={values.address}
+                  onChange={setFromEvent("address")}
+                  disabled={isWorking}
+                />
+              </Field>
+              <Field label="Ville" htmlFor="city">
+                <Input
+                  id="city"
+                  value={values.city}
+                  onChange={setFromEvent("city")}
+                  disabled={isWorking}
+                />
+              </Field>
+              <Field label="Pays" htmlFor="country">
+                <Input
+                  id="country"
+                  value={values.country}
+                  onChange={setFromEvent("country")}
+                  disabled={isWorking}
+                />
+              </Field>
+              <Field
+                label="Position"
+                hint="Déplacez le repère sur la carte pour la corriger"
               >
-                {isFetchingAddress ? (
-                  <SpinnerMini size="xs" />
-                ) : (
-                  <HiOutlineArrowDownTray />
-                )}
-                Récupérer l&apos;adresse depuis le repère
-              </Button>
-            </CenteredRow>
-          </div>
-        </Columns>
-      </Card>
+                <span>
+                  {values.latitude.toFixed(5)}, {values.longitude.toFixed(5)}
+                </span>
+              </Field>
+              <CenteredRow>
+                <Button
+                  type="button"
+                  $variation="secondary"
+                  $size="small"
+                  onClick={handleFetchAddress}
+                  disabled={isWorking || isFetchingAddress}
+                >
+                  {isFetchingAddress ? (
+                    <SpinnerMini size="xs" />
+                  ) : (
+                    <HiOutlineArrowDownTray />
+                  )}
+                  Récupérer l&apos;adresse depuis le repère
+                </Button>
+              </CenteredRow>
+            </div>
+          </Columns>
+        </Card>
+      )}
 
       <Card key={`place-${resetCount}`}>
         <Heading as="h3">Le lieu</Heading>
@@ -610,12 +697,37 @@ function RestaurantEditForm({ restaurant, history }) {
       </Card>
 
       <Card>
-        <Heading as="h3">Horaires</Heading>
-        <OpeningHoursEditor
-          value={values.opening_hours}
-          onChange={set("opening_hours")}
-          disabled={isWorking}
-        />
+        <Heading as="h3">{hasStops ? "Emplacements" : "Horaires"}</Heading>
+        {hasStops ? (
+          <StopsEditor
+            restaurantId={restaurant.id}
+            value={values.stops}
+            onChange={set("stops")}
+            disabled={isWorking}
+          />
+        ) : (
+          <>
+            <OpeningHoursEditor
+              value={values.opening_hours}
+              onChange={set("opening_hours")}
+              disabled={isWorking}
+            />
+            {isFoodTruck && (
+              <div>
+                <Button
+                  type="button"
+                  $variation="secondary"
+                  $size="small"
+                  onClick={handleSwitchToStops}
+                  disabled={isWorking}
+                >
+                  <HiOutlineMapPin /> Il change de lieu selon les jours : passer
+                  aux emplacements
+                </Button>
+              </div>
+            )}
+          </>
+        )}
         <Field
           label="Note"
           htmlFor="opening_hours_note"

@@ -120,7 +120,14 @@ function ExistingShops({ excludeId }) {
 // Draggable marker: the pin's position can be corrected by moving it,
 // the new coordinates are reported back through onPositionChange.
 // existingLayer replaces the surrounding shops by other places (e.g. restaurants).
-function ShopMap({ shopId, position, onPositionChange, existingLayer }) {
+// draggable false: shown only, when the position is changed elsewhere.
+function ShopMap({
+  shopId,
+  position,
+  onPositionChange,
+  existingLayer,
+  draggable = true,
+}) {
   const markerRef = useRef(null);
   const center = useMemo(() => [position.lat, position.lng], [position.lat, position.lng]);
 
@@ -142,7 +149,7 @@ function ShopMap({ shopId, position, onPositionChange, existingLayer }) {
         <Marker
           position={center}
           icon={markerDefaultIcon}
-          draggable
+          draggable={draggable}
           eventHandlers={{ dragend: handleDragEnd }}
           ref={markerRef}
         />

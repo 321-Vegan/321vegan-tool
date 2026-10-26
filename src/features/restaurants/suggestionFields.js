@@ -5,6 +5,7 @@ import {
   SERVICE_OPTIONS,
   VEGAN_STATUSES,
 } from "./restaurantConstants";
+import { stopDaysText, stopTitle } from "./openingHours";
 
 export const SUGGESTION_KINDS = {
   EDIT: { color: "blue", label: "Modification" },
@@ -40,6 +41,7 @@ export const SUGGESTION_FIELDS = {
   service_area: { label: "Zone servie", input: "text" },
   opening_hours: { label: "Horaires" },
   opening_hours_note: { label: "Note horaires", input: "text" },
+  stops: { label: "Emplacements" },
   phone: { label: "Téléphone", input: "text" },
   website: { label: "Site web", input: "text" },
   facebook: { label: "Facebook", input: "text" },
@@ -86,6 +88,14 @@ export function formatSuggestionValue(field, value) {
           .map((slot) => `${slot.open}–${slot.close}`);
         return `${day.slice(0, 3)} ${slots.length ? slots.join(", ") : "fermé"}`;
       }).join(" · ");
+    case "stops":
+      if (!value.length) return "—";
+      return value
+        .map(
+          (stop) =>
+            `${stopTitle(stop)} (${stopDaysText(stop.opening_hours)}${stop.note ? `, ${stop.note}` : ""})`,
+        )
+        .join(" ; ");
     case "remove_photo_ids":
       return value.length ? `${value.length} photo(s)` : "—";
     default:

@@ -25,6 +25,7 @@ import { useReverseGeocode } from "@/features/shops/useReverseGeocode";
 import DeleteRestaurantWindow from "./DeleteRestaurantWindow";
 import NearbyRestaurantsLayer from "./NearbyRestaurantsLayer";
 import OpeningHoursList from "./OpeningHoursList";
+import StopsList from "./StopsList";
 import RestaurantPhotoGallery from "./RestaurantPhotoGallery";
 import { useNearbyRestaurants } from "./useNearbyRestaurants";
 import { useFeatureRestaurantPhoto } from "./useFeatureRestaurantPhoto";
@@ -182,17 +183,22 @@ function RestaurantValidatorCard({
     });
   }
 
+  // A food truck's position and address come from its first stop
+  const hasStops = restaurant.stops?.length > 0;
+
   function handleValidate() {
     onValidate({
       name,
-      address,
-      city,
+      ...(!hasStops && {
+        address,
+        city,
+        latitude: position.lat,
+        longitude: position.lng,
+      }),
       country,
       tags,
       vegan_status: veganStatus,
       vegan_options_details: veganOptionsDetails,
-      latitude: position.lat,
-      longitude: position.lng,
     });
   }
 
@@ -250,23 +256,31 @@ function RestaurantValidatorCard({
           position={position}
           onPositionChange={setPosition}
           existingLayer={<NearbyRestaurantsLayer restaurant={restaurant} />}
+          draggable={!hasStops}
         />
 
-        <FetchAddressRow>
-          <Button
-            $variation="secondary"
-            $size="small"
-            onClick={handleFetchAddress}
-            disabled={isProcessing || isFetchingAddress}
-          >
-            {isFetchingAddress ? (
-              <SpinnerMini size="xs" />
-            ) : (
-              <HiOutlineArrowDownTray />
-            )}
-            Récupérer l&apos;adresse
-          </Button>
-        </FetchAddressRow>
+        {hasStops ? (
+          <Admonition variation="info" icon="hint">
+            Food truck à {restaurant.stops.length} emplacements : la carte
+            montre le principal. Position et adresse se corrigent dans la fiche.
+          </Admonition>
+        ) : (
+          <FetchAddressRow>
+            <Button
+              $variation="secondary"
+              $size="small"
+              onClick={handleFetchAddress}
+              disabled={isProcessing || isFetchingAddress}
+            >
+              {isFetchingAddress ? (
+                <SpinnerMini size="xs" />
+              ) : (
+                <HiOutlineArrowDownTray />
+              )}
+              Récupérer l&apos;adresse
+            </Button>
+          </FetchAddressRow>
+        )}
       </div>
 
       <Details>
@@ -289,7 +303,7 @@ function RestaurantValidatorCard({
             id="address"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            disabled={isProcessing}
+            disabled={isProcessing || hasStops}
             placeholder={
               restaurant.has_storefront ? "Adresse du lieu" : "Non publiée"
             }
@@ -301,7 +315,7 @@ function RestaurantValidatorCard({
             id="city"
             value={city}
             onChange={(e) => setCity(e.target.value)}
-            disabled={isProcessing}
+            disabled={isProcessing || hasStops}
             placeholder="Ville"
           />
         </Field>
@@ -431,9 +445,15 @@ function RestaurantValidatorCard({
             </DataItem>
           </div>
           <div>
-            <DataItem label="Horaires">
-              <OpeningHoursList slots={restaurant.opening_hours} />
-            </DataItem>
+            {hasStops ? (
+              <DataItem label="Emplacements">
+                <StopsList stops={restaurant.stops} />
+              </DataItem>
+            ) : (
+              <DataItem label="Horaires">
+                <OpeningHoursList slots={restaurant.opening_hours} />
+              </DataItem>
+            )}
             {restaurant.opening_hours_note && (
               <DataItem label="Note">{restaurant.opening_hours_note}</DataItem>
             )}

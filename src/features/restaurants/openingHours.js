@@ -45,3 +45,40 @@ export function openingHoursError(slots) {
   }
   return null;
 }
+
+/** The slots in week order (monday first, then by opening time). */
+export const sortSlots = (slots) =>
+  [...slots].sort(
+    (a, b) =>
+      a.day * MINUTES_PER_DAY +
+      toMinutes(a.open) -
+      (b.day * MINUTES_PER_DAY + toMinutes(b.open)),
+  );
+
+/** A food truck stop's name: its label, else its address, else its city. */
+export const stopTitle = (stop) =>
+  stop.label || stop.address || stop.city || "Emplacement";
+
+/** "Mar 11:30–14:00 · Jeu 11:30–14:00", or "Jours variables". */
+export function stopDaysText(slots) {
+  if (!slots?.length) return "Jours variables";
+  return DAYS.map((day, index) => {
+    const times = sortSlots(slots.filter((slot) => slot.day === index)).map(
+      (slot) => `${slot.open}–${slot.close}`,
+    );
+    return times.length ? `${day.slice(0, 3)} ${times.join(", ")}` : null;
+  })
+    .filter(Boolean)
+    .join(" · ");
+}
+
+// As many as the API takes
+export const MAX_STOPS = 14;
+
+/**
+ * The stop with a key of its own, for the form only (the maps are not
+ * re-centered when the stops are reordered): `withoutKey` before sending.
+ * */
+export const withKey = (stop) => ({ ...stop, _key: crypto.randomUUID() });
+// eslint-disable-next-line no-unused-vars
+export const withoutKey = ({ _key, ...stop }) => stop;
