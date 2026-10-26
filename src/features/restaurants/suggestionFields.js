@@ -34,6 +34,7 @@ export const SUGGESTION_FIELDS = {
   tags: { label: "Types" },
   service_options: { label: "Possibilités" },
   plant_milk_surcharge: { label: "Supplément lait végétal", input: "number" },
+  serves_hot_drinks: { label: "Boissons chaudes" },
   has_storefront: { label: "Avec boutique" },
   service_area: { label: "Zone servie", input: "text" },
   opening_hours: { label: "Horaires" },
@@ -71,6 +72,7 @@ export function formatSuggestionValue(field, value) {
           .join(", ") || "—"
       );
     case "has_storefront":
+    case "serves_hot_drinks":
       return value ? "Oui" : "Non";
     case "plant_milk_surcharge":
       return `${value > 0 ? "+" : ""}${String(value).replace(".", ",")} €`;

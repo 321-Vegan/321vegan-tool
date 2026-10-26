@@ -55,6 +55,7 @@ function UserTableRow({ user }) {
         <Stacked>
           <span>{nickname}</span>
           <span>{email}</span>
+          {user.friend_code && <span>Code ami : {user.friend_code}</span>}
         </Stacked>
       </UserBox>
 

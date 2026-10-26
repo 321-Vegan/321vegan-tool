@@ -163,6 +163,7 @@ function toFormValues(restaurant) {
       restaurant.plant_milk_surcharge === null
         ? ""
         : String(restaurant.plant_milk_surcharge),
+    no_hot_drinks: restaurant.serves_hot_drinks === false,
     has_storefront: restaurant.has_storefront,
     service_area: text(restaurant.service_area),
     opening_hours: restaurant.opening_hours || [],
@@ -185,7 +186,13 @@ function toPayload(values) {
   const text = (value) => value.trim() || null;
   const fullyVegan = values.vegan_status === "FULLY_VEGAN";
   const temporarilyClosed = values.operating_status === "TEMPORARILY_CLOSED";
-  const surcharge = values.plant_milk_surcharge.trim().replace(",", ".");
+  const surcharge = values.no_hot_drinks
+    ? ""
+    : values.plant_milk_surcharge.trim().replace(",", ".");
+  // Known only when answered: no hot drinks, or a price (as the API assumes)
+  let servesHotDrinks = null;
+  if (!fullyVegan && values.no_hot_drinks) servesHotDrinks = false;
+  else if (!fullyVegan && surcharge) servesHotDrinks = true;
   return {
     name: values.name.trim(),
     latitude: values.latitude,
@@ -199,6 +206,7 @@ function toPayload(values) {
     tags: values.tags,
     service_options: values.service_options,
     plant_milk_surcharge: fullyVegan || !surcharge ? null : Number(surcharge),
+    serves_hot_drinks: servesHotDrinks,
     has_storefront: values.has_storefront,
     service_area: values.has_storefront ? null : text(values.service_area),
     opening_hours: values.opening_hours.length ? values.opening_hours : null,
@@ -503,10 +511,18 @@ function RestaurantEditForm({ restaurant, history }) {
               step="0.05"
               min={-MAX_PLANT_MILK_SURCHARGE}
               max={MAX_PLANT_MILK_SURCHARGE}
-              value={values.plant_milk_surcharge}
+              value={values.no_hot_drinks ? "" : values.plant_milk_surcharge}
               onChange={setFromEvent("plant_milk_surcharge")}
-              disabled={isWorking}
+              disabled={isWorking || values.no_hot_drinks}
             />
+            <Checkbox
+              name="no_hot_drinks"
+              checked={values.no_hot_drinks}
+              onChange={(e) => set("no_hot_drinks")(e.target.checked)}
+              disabled={isWorking}
+            >
+              Pas de boissons chaudes (pas de supplément à connaître)
+            </Checkbox>
           </Field>
         )}
         <Field label="Boutique">

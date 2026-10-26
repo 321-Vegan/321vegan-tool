@@ -404,9 +404,12 @@ function RestaurantValidatorCard({
               )}
             </DataItem>
             <DataItem label="Lait végétal">
-              {formatSurcharge(restaurant.plant_milk_surcharge) || (
-                <NoDataItem>Inconnu</NoDataItem>
-              )}
+              {formatSurcharge(restaurant.plant_milk_surcharge) ||
+                (restaurant.serves_hot_drinks === false ? (
+                  "Pas de boissons chaudes"
+                ) : (
+                  <NoDataItem>Inconnu</NoDataItem>
+                ))}
             </DataItem>
             {!restaurant.has_storefront && (
               <DataItem label="Sans boutique">
