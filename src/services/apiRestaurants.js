@@ -92,9 +92,12 @@ export async function updateRestaurant(id, restaurant) {
   }
 }
 
-export async function deleteRestaurant(id) {
+// A pending restaurant is refused: the reason is shown to its creator.
+export async function deleteRestaurant({ id, rejectionReason }) {
   try {
-    const res = await axiosInstance.delete(`${API_URL}/restaurants/${id}`);
+    const res = await axiosInstance.delete(`${API_URL}/restaurants/${id}`, {
+      data: { rejection_reason: rejectionReason || null },
+    });
     return res.data;
   } catch (error) {
     throw toError(`Couldn't delete restaurant # ${id}`, error);

@@ -16,7 +16,6 @@ import Admonition from "@/ui/Admonition";
 import Button from "@/ui/Button";
 import ButtonText from "@/ui/ButtonText";
 import Checkbox from "@/ui/Checkbox";
-import ConfirmAction from "@/ui/ConfirmAction";
 import Empty from "@/ui/Empty";
 import Heading from "@/ui/Heading";
 import Input from "@/ui/Input";
@@ -38,6 +37,7 @@ import RestaurantPhotoGallery from "./RestaurantPhotoGallery";
 import { useRestaurant } from "./useRestaurant";
 import { useUpdateRestaurant } from "./useUpdateRestaurant";
 import { useDeleteRestaurant } from "./useDeleteRestaurant";
+import DeleteRestaurantWindow from "./DeleteRestaurantWindow";
 import { useFeatureRestaurantPhoto } from "./useFeatureRestaurantPhoto";
 import { useModerateRestaurantPhoto } from "./useModerateRestaurantPhoto";
 import {
@@ -697,19 +697,18 @@ function RestaurantEditForm({ restaurant, history }) {
             <Modal>
               <Modal.Open opens="delete">
                 <Button $variation="danger" disabled={isWorking}>
-                  <HiOutlineTrash /> Supprimer
+                  <HiOutlineTrash />{" "}
+                  {restaurant.validated ? "Supprimer" : "Refuser"}
                 </Button>
               </Modal.Open>
               <Modal.Window name="delete">
-                <ConfirmAction
-                  variation="delete"
-                  title="Supprimer un lieu"
-                  message={`Êtes-vous sûr de vouloir supprimer "${restaurant.name}" ? Il ne sera plus visible dans l'appli.`}
-                  btnText="Supprimer"
-                  onConfirm={() =>
-                    deleteRestaurant(restaurant.id, {
-                      onSuccess: () => navigate("/restaurants"),
-                    })
+                <DeleteRestaurantWindow
+                  restaurant={restaurant}
+                  onDelete={(rejectionReason) =>
+                    deleteRestaurant(
+                      { id: restaurant.id, rejectionReason },
+                      { onSuccess: () => navigate("/restaurants") },
+                    )
                   }
                   disabled={isWorking}
                 />

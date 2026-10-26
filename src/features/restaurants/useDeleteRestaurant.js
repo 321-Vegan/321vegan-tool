@@ -9,8 +9,12 @@ export function useDeleteRestaurant() {
 
   const { isPending: isDeleting, mutate: deleteRestaurant } = useMutation({
     mutationFn: deleteRestaurantApi,
-    onSuccess: () => {
-      toast.success("Le restaurant a bien été supprimé");
+    onSuccess: (_, { rejectionReason }) => {
+      toast.success(
+        rejectionReason !== undefined
+          ? "Le restaurant a bien été refusé"
+          : "Le restaurant a bien été supprimé",
+      );
       queryClient.invalidateQueries({ queryKey: restaurantsKeys.all() });
     },
     onError: (err) => toast.error(err.message),

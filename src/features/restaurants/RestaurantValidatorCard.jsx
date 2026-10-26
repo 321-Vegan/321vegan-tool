@@ -19,10 +19,10 @@ import Select from "@/ui/Select";
 import Tag from "@/ui/Tag";
 import Textarea from "@/ui/Textarea";
 import Modal from "@/ui/Modal";
-import ConfirmAction from "@/ui/ConfirmAction";
 import SpinnerMini from "@/ui/SpinnerMini";
 import ShopMap from "@/features/shops/ShopMap";
 import { useReverseGeocode } from "@/features/shops/useReverseGeocode";
+import DeleteRestaurantWindow from "./DeleteRestaurantWindow";
 import NearbyRestaurantsLayer from "./NearbyRestaurantsLayer";
 import OpeningHoursList from "./OpeningHoursList";
 import RestaurantPhotoGallery from "./RestaurantPhotoGallery";
@@ -357,16 +357,14 @@ function RestaurantValidatorCard({
           <Modal>
             <Modal.Open opens="delete">
               <Button $variation="danger" disabled={isProcessing}>
-                <HiOutlineTrash /> Supprimer
+                <HiOutlineTrash /> Refuser
               </Button>
             </Modal.Open>
             <Modal.Window name="delete">
-              <ConfirmAction
-                variation="delete"
-                title="Supprimer ce restaurant"
-                message={`Êtes-vous sûr de vouloir supprimer "${name}" ?`}
-                btnText="Supprimer"
-                onConfirm={onDelete}
+              <DeleteRestaurantWindow
+                restaurant={restaurant}
+                name={name}
+                onDelete={onDelete}
                 disabled={isProcessing}
               />
             </Modal.Window>

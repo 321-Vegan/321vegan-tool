@@ -97,8 +97,11 @@ function RestaurantValidatorTool() {
             { onSuccess: advance },
           )
         }
-        onDelete={() =>
-          deleteRestaurant(currentRestaurant.id, { onSuccess: advance })
+        onDelete={(rejectionReason) =>
+          deleteRestaurant(
+            { id: currentRestaurant.id, rejectionReason },
+            { onSuccess: advance },
+          )
         }
       />
     </>

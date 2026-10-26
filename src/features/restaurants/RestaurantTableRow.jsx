@@ -12,7 +12,7 @@ import Tag from "@/ui/Tag";
 import NoDataItem from "@/ui/NoDataItem";
 import ImageDetail from "@/ui/ImageDetail";
 import Modal from "@/ui/Modal";
-import ConfirmAction from "@/ui/ConfirmAction";
+import DeleteRestaurantWindow from "./DeleteRestaurantWindow";
 
 import {
   OPERATING_STATUSES,
@@ -96,19 +96,20 @@ function RestaurantTableRow({ restaurant }) {
 
             {hasAccess("admin") && (
               <Modal.Open opens="delete">
-                <Menus.Button icon={<HiTrash />}>Supprimer</Menus.Button>
+                <Menus.Button icon={<HiTrash />}>
+                  {validated ? "Supprimer" : "Refuser"}
+                </Menus.Button>
               </Modal.Open>
             )}
           </Menus.List>
         </Menus.Menu>
 
         <Modal.Window name="delete">
-          <ConfirmAction
-            variation="delete"
-            title="Supprimer un lieu"
-            message={`Êtes-vous sûr de vouloir supprimer "${name}" ? Il ne sera plus visible dans l'appli.`}
-            btnText="Supprimer"
-            onConfirm={() => deleteRestaurant(restaurantId)}
+          <DeleteRestaurantWindow
+            restaurant={restaurant}
+            onDelete={(rejectionReason) =>
+              deleteRestaurant({ id: restaurantId, rejectionReason })
+            }
             disabled={isDeleting}
           />
         </Modal.Window>
