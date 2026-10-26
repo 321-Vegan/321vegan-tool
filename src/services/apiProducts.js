@@ -179,6 +179,10 @@ export async function updateProduct(id, product) {
       if (error.response.status === 401) throw error;
       if (error.response.status === 409)
         throw new Error(`Ce produit existe déjà.`);
+      if (error.response.status === 423)
+        throw new Error(
+          `Ce produit est en cours de vérification par ${error.response.data.detail.locked_by}.`,
+        );
       throw new Error(
         `Couldn't update product # ${id}. Response status: ${error.response.status}`,
       );
@@ -192,6 +196,63 @@ export async function updateProduct(id, product) {
       );
     }
   }
+}
+
+// Take or renew the validation lock of the product.
+// Returns null when we hold it, or the lock ({ locked_by, locked_at }) of the contributor already on it.
+export async function lockProduct(id) {
+  try {
+    await axiosInstance.post(`${API_URL}/products/${id}/lock`);
+    return null;
+  } catch (error) {
+    if (error.response) {
+      if (error.response.status === 401) throw error;
+      if (error.response.status === 423) return error.response.data.detail;
+      throw new Error(
+        `Couldn't lock product # ${id}. Response status: ${error.response.status}`,
+      );
+    } else if (error.request) {
+      throw new Error(
+        `Couldn't lock product # ${id}. Request error: ${error.request}`,
+      );
+    } else {
+      throw new Error(`Couldn't lock product # ${id}. Error: ${error.message}`);
+    }
+  }
+}
+
+export async function unlockProduct(id) {
+  try {
+    await axiosInstance.delete(`${API_URL}/products/${id}/lock`);
+  } catch (error) {
+    if (error.response) {
+      if (error.response.status === 401) throw error;
+      throw new Error(
+        `Couldn't unlock product # ${id}. Response status: ${error.response.status}`,
+      );
+    } else if (error.request) {
+      throw new Error(
+        `Couldn't unlock product # ${id}. Request error: ${error.request}`,
+      );
+    } else {
+      throw new Error(
+        `Couldn't unlock product # ${id}. Error: ${error.message}`,
+      );
+    }
+  }
+}
+
+// When the tab is closed, axios requests are cancelled: a keepalive fetch can outlive the page.
+// Best effort only, the lock expires on its own otherwise.
+export function unlockProductOnLeave(id) {
+  fetch(`${API_URL}/products/${id}/lock`, {
+    method: "DELETE",
+    keepalive: true,
+    credentials: "include",
+    headers: {
+      Authorization: axiosInstance.defaults.headers.common.Authorization,
+    },
+  }).catch(() => {});
 }
 
 export async function deleteProduct(id) {

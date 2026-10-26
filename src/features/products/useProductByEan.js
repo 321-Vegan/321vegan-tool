@@ -13,11 +13,12 @@ export function useProductByEan(ean) {
     isPending,
     data: product,
     error,
+    refetch,
   } = useQuery({
     queryKey: productsKeys.detail(ean || productEan),
     queryFn: () => getProductByEan(ean || productEan),
     retry: false,
   });
 
-  return { isPending, error, product };
+  return { isPending, error, product, refetch };
 }

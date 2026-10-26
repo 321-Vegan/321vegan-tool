@@ -8,6 +8,7 @@ import { useGoBack } from "@/hooks/useGoBack";
 import { getBrandLookalike } from "@/services/apiBrands";
 import { getProductData } from "@/services/apiOpenFoodFacts";
 import { useProductByEan } from "./useProductByEan";
+import { useProductLock } from "./useProductLock";
 
 import Row from "@/ui/Row";
 import Heading from "@/ui/Heading";
@@ -24,6 +25,7 @@ import ImageZoom from "@/ui/ImageZoom";
 
 import IsItVeganHelper from "./IsItVeganHelper";
 import OffDataBox from "./OffDataBox";
+import ProductLockedBox from "./ProductLockedBox";
 import RegisterProductForm from "./RegisterProductForm";
 import RegisterProductAdmonition from "./RegisterProductAdmonition";
 import SearchProductAction from "./SearchProductAction";
@@ -46,13 +48,14 @@ const HelperBox = styled.div`
 function ProductRegister({
   ean,
   onClose,
+  onSkip,
   defaultState,
   expectedState = "CREATED",
   showBrandAnswer = false,
 }) {
   const { productEan } = useParams();
   const finalEan = ean || productEan;
-  const { isPending, product } = useProductByEan(finalEan);
+  const { isPending, product, refetch } = useProductByEan(finalEan);
   const [isPendingOff, setIsPendingOff] = useState(false);
   const [isPendingBrand, setIsPendingBrand] = useState(true);
   const [errorOff, setErrorOff] = useState("");
@@ -140,8 +143,26 @@ function ProductRegister({
     if (isAlreadyVerified) onClose();
   }, [isAlreadyVerified, onClose]);
 
-  if (isPending || isPendingOff || isPendingBrand || isAlreadyVerified)
+  // In validator mode, lock the product so that no one else verifies it at the same time
+  const { isPending: isPendingLock, holder: lockHolder } = useProductLock(
+    product?.id,
+    {
+      enabled: Boolean(onClose && product && !isAlreadyVerified),
+      onFreed: refetch,
+    },
+  );
+
+  if (
+    isPending ||
+    isPendingOff ||
+    isPendingBrand ||
+    isPendingLock ||
+    isAlreadyVerified
+  )
     return <Spinner />;
+
+  if (lockHolder)
+    return <ProductLockedBox ean={finalEan} lock={lockHolder} onSkip={onSkip} />;
 
   const { created_at, name, status, state, image, brand_answer } = product;
 

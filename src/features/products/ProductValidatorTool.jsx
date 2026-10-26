@@ -173,6 +173,7 @@ function ProductValidatorTool({ mode = "validate" }) {
         key={currentProduct.ean}
         ean={currentProduct.ean}
         onClose={handleProductComplete}
+        onSkip={handleSkip}
         defaultState={defaultState}
         expectedState={state}
         showBrandAnswer={showBrandAnswer}
