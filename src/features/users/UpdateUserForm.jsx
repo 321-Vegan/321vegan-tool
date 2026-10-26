@@ -32,8 +32,16 @@ function UpdateUserForm({ userToUpdate, onCloseModal }) {
   });
 
   function onSubmit(data) {
+    const { friend_code: friendCode, ...newData } = data;
+    const friendCodeChanged =
+      (friendCode || "").trim().toUpperCase() !==
+      (userToUpdate.friend_code || "");
     updateUser(
-      { newData: data, id: updateId },
+      {
+        newData,
+        id: updateId,
+        friendCode: friendCodeChanged ? friendCode.trim() : undefined,
+      },
       {
         onSuccess: () => {
           reset();
@@ -85,6 +93,24 @@ function UpdateUserForm({ userToUpdate, onCloseModal }) {
           })}
           disabled={isUpdating}
           required
+        />
+      </FormRow>
+
+      <FormRow
+        label="Code ami"
+        hint="Mis en majuscules. Les codes réservés (ADMIN, 321VEGAN…) sont permis ici. Vide : un nouveau code est généré."
+        error={errors.friend_code?.message}
+      >
+        <Input
+          type="text"
+          id="friend_code"
+          {...register("friend_code", {
+            pattern: {
+              value: /^[A-Za-z0-9_]{4,16}$/,
+              message: "De 4 à 16 lettres, chiffres ou « _ »",
+            },
+          })}
+          disabled={isUpdating}
         />
       </FormRow>
 

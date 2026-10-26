@@ -110,6 +110,32 @@ export async function updateUser(id, user) {
   }
 }
 
+// Empty friendCode: the API generates a new one.
+export async function updateUserFriendCode(id, friendCode) {
+  try {
+    const res = await axiosInstance.put(`${API_URL}/users/${id}/friend-code`, {
+      friend_code: friendCode || null,
+    });
+    return res.data;
+  } catch (error) {
+    if (error.response) {
+      if (error.response.status === 401) throw error;
+      if (error.response.status === 409)
+        throw new Error("Ce code ami est déjà pris.");
+      if (error.response.status === 422)
+        throw new Error(
+          "Code ami invalide : de 4 à 16 lettres, chiffres ou « _ ».",
+        );
+      throw new Error(
+        `Couldn't update friend code of user # ${id}. Response status: ${error.response.status}`,
+      );
+    }
+    throw new Error(
+      `Couldn't update friend code of user # ${id}. Error: ${error.message}`,
+    );
+  }
+}
+
 export async function deleteUser(id) {
   try {
     const res = await axiosInstance.delete(`${API_URL}/users/${id}`);
