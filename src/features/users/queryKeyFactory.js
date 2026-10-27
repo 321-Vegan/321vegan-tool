@@ -8,4 +8,5 @@ export const usersKeys = {
     page,
     size,
   ],
+  brief: (id) => [...usersKeys.all(), "brief", id],
 };

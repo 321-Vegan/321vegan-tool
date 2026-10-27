@@ -5,6 +5,7 @@ import {
   HiOutlineArrowDownTray,
   HiOutlineArrowUturnLeft,
   HiOutlineTrash,
+  HiOutlineUser,
   HiCheck,
   HiOutlineMapPin,
 } from "react-icons/hi2";
@@ -17,6 +18,7 @@ import Admonition from "@/ui/Admonition";
 import Button from "@/ui/Button";
 import ButtonText from "@/ui/ButtonText";
 import Checkbox from "@/ui/Checkbox";
+import DataItem from "@/ui/DataItem";
 import Empty from "@/ui/Empty";
 import Heading from "@/ui/Heading";
 import Input from "@/ui/Input";
@@ -29,6 +31,7 @@ import Tag from "@/ui/Tag";
 import Textarea from "@/ui/Textarea";
 import ShopMap from "@/features/shops/ShopMap";
 import { useReverseGeocode } from "@/features/shops/useReverseGeocode";
+import UserInfo from "@/features/users/UserInfo";
 
 import NearbyRestaurantsLayer from "./NearbyRestaurantsLayer";
 import OpeningHoursEditor from "./OpeningHoursEditor";
@@ -413,7 +416,6 @@ function RestaurantEditForm({ restaurant, history }) {
         <span>
           Créé le {formatDate(restaurant.created_at)} (
           {formatDistanceFromNow(restaurant.created_at)})
-          {restaurant.created_by && ` par le compte #${restaurant.created_by}`}
         </span>
         <span>
           Modifié le {formatDate(restaurant.updated_at)} (
@@ -421,6 +423,12 @@ function RestaurantEditForm({ restaurant, history }) {
         </span>
         {restaurant.osm_id && <span>OSM {restaurant.osm_id}</span>}
       </Meta>
+
+      {restaurant.created_by && (
+        <DataItem icon={<HiOutlineUser />} label="Par" type="horizontal">
+          <UserInfo userId={restaurant.created_by} />
+        </DataItem>
+      )}
 
       {hasStops ? (
         <Card>

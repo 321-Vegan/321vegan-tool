@@ -66,6 +66,29 @@ export async function getUser(id) {
   }
 }
 
+// Public profile and contribution counts (moderators); null once the
+// account is deleted.
+export async function getUserBrief(id) {
+  try {
+    const res = await axiosInstance.get(`${API_URL}/users/${id}/brief`);
+    return res.data;
+  } catch (error) {
+    if (error.response) {
+      if (error.response.status === 401) throw error;
+      if (error.response.status === 404) return null;
+      throw new Error(
+        `Couldn't find user #${id}. Response status: ${error.response.status}`
+      );
+    } else if (error.request) {
+      throw new Error(
+        `Couldn't find user #${id}. Request error: ${error.request}`
+      );
+    } else {
+      throw new Error(`Couldn't find user #${id}. Error: ${error.message}`);
+    }
+  }
+}
+
 export async function createUser(user) {
   try {
     const res = await axiosInstance.post(`${API_URL}/users/`, user);

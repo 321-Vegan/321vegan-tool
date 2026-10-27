@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   HiOutlineCalendar,
+  HiOutlineUser,
   HiOutlineTrash,
   HiOutlineArrowDownTray,
   HiCheck,
@@ -21,6 +22,7 @@ import Textarea from "@/ui/Textarea";
 import Modal from "@/ui/Modal";
 import SpinnerMini from "@/ui/SpinnerMini";
 import ShopMap from "@/features/shops/ShopMap";
+import UserInfo from "@/features/users/UserInfo";
 import { useReverseGeocode } from "@/features/shops/useReverseGeocode";
 import DeleteRestaurantWindow from "./DeleteRestaurantWindow";
 import NearbyRestaurantsLayer from "./NearbyRestaurantsLayer";
@@ -296,6 +298,13 @@ function RestaurantValidatorCard({
 
         <DataItem icon={<HiOutlineCalendar />} label="Créé" type="horizontal">
           {formatDate(created_at)} ({formatDistanceFromNow(created_at)})
+        </DataItem>
+
+        <DataItem icon={<HiOutlineUser />} label="Par" type="horizontal">
+          <UserInfo
+            userId={restaurant.created_by}
+            emptyLabel="Import automatique"
+          />
         </DataItem>
 
         <Field label="Adresse" htmlFor="address">
