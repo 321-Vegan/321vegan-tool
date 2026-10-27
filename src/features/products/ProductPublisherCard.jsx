@@ -1,5 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { isToday } from "date-fns";
+import toast from "react-hot-toast";
 
 import {
   PRODUCT_STATUSES,
@@ -7,6 +8,7 @@ import {
   S3_STORAGE_URL,
 } from "@/utils/constants";
 import { formatDate } from "@/utils/helpers";
+import { getBrandsForSelect } from "@/services/apiBrands";
 import { useProductByEan } from "./useProductByEan";
 import { useProductLock } from "./useProductLock";
 import { useUpdateProduct } from "./useUpdateProduct";
@@ -18,13 +20,19 @@ import Section from "@/ui/Section";
 import DataBox from "@/ui/DataBox";
 import DataItem from "@/ui/DataItem";
 import NoDataItem from "@/ui/NoDataItem";
-import Tag from "@/ui/Tag";
+import Input from "@/ui/Input";
+import Textarea from "@/ui/Textarea";
+import Select from "@/ui/Select";
+import Radios from "@/ui/Radios";
+import Checkbox from "@/ui/Checkbox";
 import Button from "@/ui/Button";
 import ButtonGroup from "@/ui/ButtonGroup";
 import ImageZoom from "@/ui/ImageZoom";
 import Spinner from "@/ui/Spinner";
 import SpinnerMini from "@/ui/SpinnerMini";
 
+import CreateBrandForm from "@/features/brands/CreateBrandForm";
+import ProblemBox from "./ProblemBox";
 import ProductLockedBox from "./ProductLockedBox";
 
 import { PiPlant } from "react-icons/pi";
@@ -35,20 +43,28 @@ import {
 } from "react-icons/hi2";
 import styled from "styled-components";
 
-const InfoGrid = styled.div`
+const Fields = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+`;
+
+const FieldRow = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0 2.4rem;
+  grid-template-columns: 16rem 1fr;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 0.6rem 0;
 `;
 
-const FullWidth = styled.div`
-  grid-column: 1 / -1;
+const FieldLabel = styled.label`
+  font-weight: 500;
 `;
 
-const Tags = styled.div`
+const Checkboxes = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 0.6rem;
+  gap: 2.4rem;
 `;
 
 const Pictures = styled.div`
@@ -57,11 +73,19 @@ const Pictures = styled.div`
   gap: 4.8rem;
 `;
 
+function Field({ label, htmlFor, children }) {
+  return (
+    <FieldRow>
+      <FieldLabel htmlFor={htmlFor}>{label}</FieldLabel>
+      {children}
+    </FieldRow>
+  );
+}
+
 // Publication mode: the product has already been verified,
-// so we only show what was registered and publish it in one click.
+// so its fields can be adjusted on the fly and it is published in one click.
 function ProductPublisherCard({ ean, onClose, onSkip }) {
   const { isPending, product, refetch } = useProductByEan(ean);
-  const { isUpdating: isPublishing, updateProduct } = useUpdateProduct();
 
   // Someone may have published (or changed) the product since the session started
   const isAlreadyHandled =
@@ -80,24 +104,60 @@ function ProductPublisherCard({ ean, onClose, onSkip }) {
   if (lockHolder)
     return <ProductLockedBox ean={ean} lock={lockHolder} onSkip={onSkip} />;
 
-  const {
-    id,
-    created_at,
-    name,
-    brand,
-    status,
-    product_type,
-    description,
-    problem_description,
-    has_non_vegan_old_receipe,
-    biodynamic,
-    image,
-    brand_answer,
-  } = product;
+  return (
+    <PublisherForm
+      // Reset the fields when the product is reloaded after being freed
+      key={product.updated_at}
+      product={product}
+      onClose={onClose}
+      onSkip={onSkip}
+    />
+  );
+}
+
+function PublisherForm({ product, onClose, onSkip }) {
+  const { id, ean, created_at, image, brand_answer } = product;
+  const { isUpdating: isPublishing, updateProduct } = useUpdateProduct();
+
+  const [name, setName] = useState(product.name || "");
+  const [brandId, setBrandId] = useState(product.brand?.id || null);
+  const [status, setStatus] = useState(product.status);
+  const [productType, setProductType] = useState(product.product_type);
+  const [description, setDescription] = useState(product.description || "");
+  const [problems, setProblems] = useState(product.problem_description || "");
+  const [biodynamic, setBiodynamic] = useState(Boolean(product.biodynamic));
+  const [hasOldReceipe, setHasOldReceipe] = useState(
+    Boolean(product.has_non_vegan_old_receipe),
+  );
+
+  const isKnown = status !== "NOT_FOUND";
+  const shouldShowProblems = ["MAYBE_VEGAN", "NON_VEGAN"].includes(status);
 
   function publish() {
+    if (isKnown && !name.trim()) return toast.error("Le nom est obligatoire");
+    if (isKnown && !brandId) return toast.error("La marque est obligatoire");
+    if (shouldShowProblems && !problems.trim())
+      return toast.error(
+        "Les problèmes sont obligatoires pour un produit maybe vegan ou non vegan",
+      );
+
     updateProduct(
-      { newData: { ...product, state: "PUBLISHED" }, id },
+      {
+        newData: {
+          ...product,
+          state: "PUBLISHED",
+          name,
+          brand: null,
+          brand_id: brandId,
+          status,
+          product_type: productType,
+          description,
+          problem_description: shouldShowProblems ? problems : null,
+          biodynamic,
+          has_non_vegan_old_receipe: hasOldReceipe,
+        },
+        id,
+      },
       { onSuccess: () => onClose() },
     );
   }
@@ -105,7 +165,7 @@ function ProductPublisherCard({ ean, onClose, onSkip }) {
   return (
     <>
       <Row type="horizontal">
-        <Heading as="h1">{name || `Produit #${ean}`}</Heading>
+        <Heading as="h1">{product.name || `Produit #${ean}`}</Heading>
       </Row>
 
       <DataBox>
@@ -126,78 +186,114 @@ function ProductPublisherCard({ ean, onClose, onSkip }) {
         </HeaderDetail>
 
         <Section>
-          <InfoGrid>
-            <DataItem label="Statut :" type="horizontal">
-              <Tag type={PRODUCT_STATUSES[status].color}>
-                {PRODUCT_STATUSES[status].label}
-              </Tag>
-            </DataItem>
+          <Fields>
+            <Field label="Statut">
+              <Radios id="status" onChange={setStatus} defaultValue={status}>
+                {Object.entries(PRODUCT_STATUSES).map(([key, o]) => (
+                  <Radios.RadioButton
+                    key={key}
+                    value={key}
+                    color={o.color}
+                    disabled={isPublishing}
+                  >
+                    {o.label}
+                  </Radios.RadioButton>
+                ))}
+              </Radios>
+            </Field>
 
-            <DataItem label="Marque :" type="horizontal">
-              {brand?.name || <NoDataItem>--</NoDataItem>}
-            </DataItem>
+            <Field label="Type">
+              <Radios
+                id="product_type"
+                onChange={setProductType}
+                defaultValue={productType}
+              >
+                {Object.entries(PRODUCT_TYPES).map(([key, o]) => (
+                  <Radios.RadioButton
+                    key={key}
+                    value={key}
+                    color={o.color}
+                    disabled={isPublishing}
+                  >
+                    {o.label}
+                  </Radios.RadioButton>
+                ))}
+              </Radios>
+            </Field>
 
-            <DataItem label="Type :" type="horizontal">
-              <Tag type={PRODUCT_TYPES[product_type].color}>
-                {PRODUCT_TYPES[product_type].label}
-              </Tag>
-            </DataItem>
+            <Field label="Nom" htmlFor="name">
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                disabled={isPublishing}
+              />
+            </Field>
 
-            <DataItem label="Particularités :" type="horizontal">
-              {has_non_vegan_old_receipe || biodynamic ? (
-                <Tags>
-                  {has_non_vegan_old_receipe && (
-                    <Tag type="orange">Ancienne recette non vegan</Tag>
-                  )}
-                  {biodynamic && <Tag type="orange">Biodynamie</Tag>}
-                </Tags>
-              ) : (
-                <NoDataItem>--</NoDataItem>
-              )}
-            </DataItem>
+            <Field label="Marque" htmlFor="brand_id">
+              <Select
+                name="brand_id"
+                onChange={setBrandId}
+                getOptions={getBrandsForSelect}
+                defaultOptions={
+                  product.brand
+                    ? [{ value: product.brand.id, label: product.brand.name }]
+                    : []
+                }
+                defaultValue={[brandId]}
+                disabled={isPublishing}
+                isSearchable={true}
+                isNullable={true}
+                createComponent={<CreateBrandForm prefillName={name} />}
+              />
+            </Field>
 
-            <FullWidth>
-              <DataItem label="Description :" type="horizontal">
-                {description || <NoDataItem>--</NoDataItem>}
-              </DataItem>
-            </FullWidth>
+            <Field label="Description" htmlFor="description">
+              <Textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                disabled={isPublishing}
+              />
+            </Field>
 
-            {problem_description && (
-              <FullWidth>
-                <DataItem label="Problèmes :" type="horizontal">
-                  {problem_description}
-                </DataItem>
-              </FullWidth>
+            {shouldShowProblems && (
+              <Field label="Problèmes" htmlFor="problem_description">
+                <ProblemBox
+                  defaultValue={problems}
+                  onChange={(_, value) => setProblems(value)}
+                >
+                  <Textarea
+                    id="problem_description"
+                    value={problems}
+                    onChange={(e) => setProblems(e.target.value)}
+                    disabled={isPublishing}
+                  />
+                </ProblemBox>
+              </Field>
             )}
-          </InfoGrid>
-        </Section>
 
-        <Section>
-          <Pictures>
-            <DataItem label="Photo">
-              {image ? (
-                <ImageZoom
-                  src={`${S3_STORAGE_URL}/${image}`}
-                  height={30}
-                  width={60}
-                />
-              ) : (
-                <NoDataItem>--</NoDataItem>
-              )}
-            </DataItem>
-
-            <DataItem label="Réponse de la marque">
-              {brand_answer ? (
-                <ImageZoom
-                  src={`${S3_STORAGE_URL}/${brand_answer}`}
-                  height={30}
-                  width={60}
-                />
-              ) : (
-                <NoDataItem>--</NoDataItem>
-              )}
-            </DataItem>
-          </Pictures>
+            <Field label="Particularités">
+              <Checkboxes>
+                <Checkbox
+                  name="has_non_vegan_old_receipe"
+                  checked={hasOldReceipe}
+                  onChange={(e) => setHasOldReceipe(e.target.checked)}
+                  disabled={isPublishing}
+                >
+                  Ancienne recette non vegan
+                </Checkbox>
+                <Checkbox
+                  name="biodynamic"
+                  checked={biodynamic}
+                  onChange={(e) => setBiodynamic(e.target.checked)}
+                  disabled={isPublishing}
+                >
+                  Biodynamie
+                </Checkbox>
+              </Checkboxes>
+            </Field>
+          </Fields>
         </Section>
 
         <Section>
@@ -227,6 +323,34 @@ function ProductPublisherCard({ ean, onClose, onSkip }) {
               {isPublishing ? <SpinnerMini size="xs" /> : <HiCheck />} Publier
             </Button>
           </ButtonGroup>
+        </Section>
+
+        <Section>
+          <Pictures>
+            <DataItem label="Photo">
+              {image ? (
+                <ImageZoom
+                  src={`${S3_STORAGE_URL}/${image}`}
+                  height={30}
+                  width={60}
+                />
+              ) : (
+                <NoDataItem>--</NoDataItem>
+              )}
+            </DataItem>
+
+            <DataItem label="Réponse de la marque">
+              {brand_answer ? (
+                <ImageZoom
+                  src={`${S3_STORAGE_URL}/${brand_answer}`}
+                  height={30}
+                  width={60}
+                />
+              ) : (
+                <NoDataItem>--</NoDataItem>
+              )}
+            </DataItem>
+          </Pictures>
         </Section>
       </DataBox>
     </>
