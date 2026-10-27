@@ -10,6 +10,7 @@ import { useValidatorProducts } from "./useValidatorProducts";
 import ValidatorSetup from "./ValidatorSetup";
 import ValidatorProgress from "@/ui/ValidatorProgress";
 import ProductRegister from "./ProductRegister";
+import ProductPublisherCard from "./ProductPublisherCard";
 
 const CompletedContainer = styled.div`
   display: flex;
@@ -37,7 +38,6 @@ const MODES = {
     actionLabel: "Commencer la vérification",
     countLabel: "à vérifier",
     completedTitle: "Validation terminée",
-    showBrandAnswer: false,
   },
   publish: {
     state: "WAITING_PUBLISH",
@@ -45,20 +45,12 @@ const MODES = {
     actionLabel: "Commencer la publication",
     countLabel: "à publier",
     completedTitle: "Publication terminée",
-    showBrandAnswer: true,
   },
 };
 
 // 3 phases managed by the "phase" state : setup -> validating -> completed
 function ProductValidatorTool({ mode = "validate" }) {
-  const {
-    state,
-    title,
-    actionLabel,
-    countLabel,
-    completedTitle,
-    showBrandAnswer,
-  } = MODES[mode];
+  const { state, title, actionLabel, countLabel, completedTitle } = MODES[mode];
   const { hasAccess } = useCurrentUserContext();
   const defaultState = hasAccess("admin") ? "PUBLISHED" : "WAITING_PUBLISH";
   const [phase, setPhase] = useState("setup");
@@ -169,15 +161,23 @@ function ProductValidatorTool({ mode = "validate" }) {
         onQuit={handleQuit}
         label="Produit"
       />
-      <ProductRegister
-        key={currentProduct.ean}
-        ean={currentProduct.ean}
-        onClose={handleProductComplete}
-        onSkip={handleSkip}
-        defaultState={defaultState}
-        expectedState={state}
-        showBrandAnswer={showBrandAnswer}
-      />
+      {mode === "publish" ? (
+        <ProductPublisherCard
+          key={currentProduct.ean}
+          ean={currentProduct.ean}
+          onClose={handleProductComplete}
+          onSkip={handleSkip}
+        />
+      ) : (
+        <ProductRegister
+          key={currentProduct.ean}
+          ean={currentProduct.ean}
+          onClose={handleProductComplete}
+          onSkip={handleSkip}
+          defaultState={defaultState}
+          expectedState={state}
+        />
+      )}
     </>
   );
 }
