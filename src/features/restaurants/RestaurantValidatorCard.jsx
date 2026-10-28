@@ -4,6 +4,7 @@ import {
   HiOutlineUser,
   HiOutlineTrash,
   HiOutlineArrowDownTray,
+  HiOutlineArrowTopRightOnSquare,
   HiOutlinePhoto,
   HiCheck,
 } from "react-icons/hi2";
@@ -13,12 +14,11 @@ import { formatDate, formatDistanceFromNow } from "@/utils/helpers";
 
 import Admonition from "@/ui/Admonition";
 import Button from "@/ui/Button";
+import Checkbox from "@/ui/Checkbox";
 import DataItem from "@/ui/DataItem";
 import Heading from "@/ui/Heading";
 import Input from "@/ui/Input";
-import NoDataItem from "@/ui/NoDataItem";
 import Select from "@/ui/Select";
-import Tag from "@/ui/Tag";
 import Textarea from "@/ui/Textarea";
 import Modal from "@/ui/Modal";
 import SpinnerMini from "@/ui/SpinnerMini";
@@ -28,13 +28,19 @@ import { useReverseGeocode } from "@/features/shops/useReverseGeocode";
 import DeleteRestaurantWindow from "./DeleteRestaurantWindow";
 import NearbyRestaurantsLayer from "./NearbyRestaurantsLayer";
 import OpeningHoursEditor from "./OpeningHoursEditor";
-import { openingHoursError, sortSlots } from "./openingHours";
 import StopsList from "./StopsList";
 import RestaurantPhotoGallery from "./RestaurantPhotoGallery";
 import { useNearbyRestaurants } from "./useNearbyRestaurants";
 import { useFeatureRestaurantPhoto } from "./useFeatureRestaurantPhoto";
 import { useModerateRestaurantPhoto } from "./useModerateRestaurantPhoto";
 import { useUploadRestaurantPhoto } from "./useUploadRestaurantPhoto";
+import {
+  MAX_PLANT_MILK_SURCHARGE,
+  findProblems,
+  toFormValues,
+  toOptions,
+  toPayload,
+} from "./restaurantForm";
 import {
   DUPLICATE_RADIUS_METERS,
   MAX_PHOTOS_PER_KIND,
@@ -92,10 +98,19 @@ const FieldRow = styled.div`
   align-items: center;
   gap: 1.2rem;
   padding: 0.6rem 0;
+
+  &:has(textarea) {
+    align-items: start;
+  }
 `;
 
 const FieldLabel = styled.label`
   font-weight: 500;
+`;
+
+const Hint = styled.div`
+  font-size: 1.2rem;
+  color: var(--color-grey-500);
 `;
 
 const InfoGrid = styled.div`
@@ -104,10 +119,21 @@ const InfoGrid = styled.div`
   gap: 0 2.4rem;
 `;
 
-const Tags = styled.div`
+const Inline = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 0.6rem;
+  align-items: center;
+  gap: 0.8rem 1.6rem;
+`;
+
+const LinkRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+
+  & input {
+    flex: 1;
+  }
 `;
 
 const PhotoActions = styled.div`
@@ -115,31 +141,31 @@ const PhotoActions = styled.div`
   gap: 1.2rem;
 `;
 
-function Field({ label, htmlFor, children }) {
+function Field({ label, htmlFor, hint, children }) {
   return (
     <FieldRow>
-      <FieldLabel htmlFor={htmlFor}>{label}</FieldLabel>
+      <div>
+        <FieldLabel htmlFor={htmlFor}>{label}</FieldLabel>
+        {hint && <Hint>{hint}</Hint>}
+      </div>
       {children}
     </FieldRow>
   );
 }
 
-function ExternalLink({ href, children }) {
-  const url = /^https?:\/\//.test(href) ? href : `https://${href}`;
+// An input with a link to open its address, to check it
+function LinkInput({ value, href, ...props }) {
+  const url = href ?? (/^https?:\/\//.test(value) ? value : `https://${value}`);
   return (
-    <a href={url} target="_blank" rel="noreferrer">
-      {children || href}
-    </a>
+    <LinkRow>
+      <Input value={value} {...props} />
+      {value.trim() && (
+        <a href={url} target="_blank" rel="noreferrer" aria-label="Ouvrir">
+          <HiOutlineArrowTopRightOnSquare />
+        </a>
+      )}
+    </LinkRow>
   );
-}
-
-function formatSurcharge(value) {
-  if (value === null || value === undefined) return null;
-  if (value === 0) return "Aucun supplément";
-  const amount = Math.abs(value).toFixed(2).replace(".", ",");
-  return value > 0
-    ? `+${amount} € pour le lait végétal`
-    : `Lait végétal moins cher (−${amount} €)`;
 }
 
 function RestaurantValidatorCard({
@@ -150,28 +176,25 @@ function RestaurantValidatorCard({
 }) {
   const { created_at } = restaurant;
 
-  const [name, setName] = useState(restaurant.name || "");
-  const [address, setAddress] = useState(restaurant.address || "");
-  const [city, setCity] = useState(restaurant.city || "");
-  const [country, setCountry] = useState(restaurant.country || "");
-  const [tags, setTags] = useState(restaurant.tags);
-  const [veganStatus, setVeganStatus] = useState(restaurant.vegan_status);
-  const [veganOptionsDetails, setVeganOptionsDetails] = useState(
-    restaurant.vegan_options_details || "",
-  );
-  const [description, setDescription] = useState(
-    restaurant.description || "",
-  );
-  const [openingHours, setOpeningHours] = useState(
-    restaurant.opening_hours || [],
-  );
-  const [openingHoursNote, setOpeningHoursNote] = useState(
-    restaurant.opening_hours_note || "",
-  );
-  const [position, setPosition] = useState({
-    lat: restaurant.latitude,
-    lng: restaurant.longitude,
-  });
+  // Same form as the restaurant page
+  const [values, setValues] = useState(() => toFormValues(restaurant));
+  const set = (field) => (value) =>
+    setValues((current) => ({ ...current, [field]: value }));
+  const setFromEvent = (field) => (e) => set(field)(e.target.value);
+
+  const payload = toPayload(values);
+  const problems = findProblems(payload);
+  const fullyVegan = values.vegan_status === "FULLY_VEGAN";
+  // A food truck's position, address and hours come from its stops
+  const hasStops = values.stops.length > 0;
+
+  function toggleServiceOption(option) {
+    set("service_options")(
+      values.service_options.includes(option)
+        ? values.service_options.filter((o) => o !== option)
+        : [...values.service_options, option],
+    );
+  }
 
   // Kept locally: the validator works on a snapshot of the restaurants
   const [photos, setPhotos] = useState(restaurant.photos);
@@ -232,69 +255,24 @@ function RestaurantValidatorCard({
   const { fetchAddress, isFetchingAddress } = useReverseGeocode();
 
   function handleFetchAddress() {
-    fetchAddress(position, {
-      onSuccess: (data) => {
-        if (data.address) setAddress(data.address);
-        if (data.city) setCity(data.city);
-        if (data.country) setCountry(data.country);
+    fetchAddress(
+      { lat: values.latitude, lng: values.longitude },
+      {
+        onSuccess: (data) =>
+          setValues((current) => ({
+            ...current,
+            address: data.address || current.address,
+            city: data.city || current.city,
+            country: data.country || current.country,
+          })),
       },
-    });
+    );
   }
-
-  // A food truck's position, address and hours come from its stops
-  const hasStops = restaurant.stops?.length > 0;
-  const hoursError = !hasStops && openingHoursError(openingHours);
-
-  function handleValidate() {
-    onValidate({
-      name,
-      ...(!hasStops && {
-        address,
-        city,
-        latitude: position.lat,
-        longitude: position.lng,
-        // No slot at all: hours unknown
-        opening_hours: openingHours.length ? sortSlots(openingHours) : null,
-      }),
-      opening_hours_note: openingHoursNote,
-      country,
-      tags,
-      vegan_status: veganStatus,
-      vegan_options_details: veganOptionsDetails,
-      description,
-    });
-  }
-
-  const contacts = [
-    restaurant.phone && (
-      <a key="phone" href={`tel:${restaurant.phone}`}>
-        {restaurant.phone}
-      </a>
-    ),
-    restaurant.website && (
-      <ExternalLink key="website" href={restaurant.website} />
-    ),
-    restaurant.facebook && (
-      <ExternalLink key="facebook" href={restaurant.facebook}>
-        Facebook
-      </ExternalLink>
-    ),
-    restaurant.instagram && (
-      <ExternalLink key="instagram" href={restaurant.instagram}>
-        Instagram
-      </ExternalLink>
-    ),
-    restaurant.menu_url && (
-      <ExternalLink key="menu" href={restaurant.menu_url}>
-        Menu
-      </ExternalLink>
-    ),
-  ].filter(Boolean);
 
   return (
     <Card>
       {(duplicates.length > 0 ||
-        (veganStatus === "VEGAN_OPTIONS" && !hasMenuPhoto)) && (
+        (values.vegan_status === "VEGAN_OPTIONS" && !hasMenuPhoto)) && (
         <FullWidth>
           {duplicates.length > 0 && (
             <Admonition variation="danger" icon="warning">
@@ -304,7 +282,7 @@ function RestaurantValidatorCard({
                 .join(", ")}
             </Admonition>
           )}
-          {veganStatus === "VEGAN_OPTIONS" && !hasMenuPhoto && (
+          {values.vegan_status === "VEGAN_OPTIONS" && !hasMenuPhoto && (
             <Admonition variation="warning" icon="warning">
               Aucune photo du menu : l&apos;option végane ne peut pas être
               vérifiée.
@@ -316,16 +294,23 @@ function RestaurantValidatorCard({
       <div>
         <ShopMap
           shopId={restaurant.id}
-          position={position}
-          onPositionChange={setPosition}
+          position={{ lat: values.latitude, lng: values.longitude }}
+          onPositionChange={({ lat, lng }) =>
+            setValues((current) => ({
+              ...current,
+              latitude: lat,
+              longitude: lng,
+            }))
+          }
           existingLayer={<NearbyRestaurantsLayer restaurant={restaurant} />}
           draggable={!hasStops}
         />
 
         {hasStops ? (
           <Admonition variation="info" icon="hint">
-            Food truck à {restaurant.stops.length} emplacements : la carte
-            montre le principal. Position et adresse se corrigent dans la fiche.
+            Food truck à {values.stops.length} emplacements : la carte montre
+            le principal. Position, adresse et horaires se corrigent dans la
+            fiche.
           </Admonition>
         ) : (
           <FetchAddressRow>
@@ -350,8 +335,8 @@ function RestaurantValidatorCard({
         <Field label="Nom" htmlFor="name">
           <NameInput
             id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={values.name}
+            onChange={setFromEvent("name")}
             disabled={isProcessing}
             placeholder="Nom du lieu"
           />
@@ -371,11 +356,11 @@ function RestaurantValidatorCard({
         <Field label="Adresse" htmlFor="address">
           <Input
             id="address"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
+            value={values.address}
+            onChange={setFromEvent("address")}
             disabled={isProcessing || hasStops}
             placeholder={
-              restaurant.has_storefront ? "Adresse du lieu" : "Non publiée"
+              values.has_storefront ? "Adresse du lieu" : "Non publiée"
             }
           />
         </Field>
@@ -383,8 +368,8 @@ function RestaurantValidatorCard({
         <Field label="Ville" htmlFor="city">
           <Input
             id="city"
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
+            value={values.city}
+            onChange={setFromEvent("city")}
             disabled={isProcessing || hasStops}
             placeholder="Ville"
           />
@@ -393,8 +378,8 @@ function RestaurantValidatorCard({
         <Field label="Pays" htmlFor="country">
           <Input
             id="country"
-            value={country}
-            onChange={(e) => setCountry(e.target.value)}
+            value={values.country}
+            onChange={setFromEvent("country")}
             disabled={isProcessing}
             placeholder="Pays"
           />
@@ -403,8 +388,8 @@ function RestaurantValidatorCard({
         <Field label="Type" htmlFor="tags">
           <Select
             name="tags"
-            onChange={setTags}
-            defaultValue={tags}
+            onChange={set("tags")}
+            defaultValue={values.tags}
             defaultOptions={RESTAURANT_TAGS}
             isMulti
             disabled={isProcessing}
@@ -414,11 +399,9 @@ function RestaurantValidatorCard({
         <Field label="Végane" htmlFor="vegan_status">
           <Select
             name="vegan_status"
-            onChange={setVeganStatus}
-            defaultValue={[veganStatus]}
-            defaultOptions={Object.entries(VEGAN_STATUSES).map(
-              ([value, { label }]) => ({ value, label }),
-            )}
+            onChange={set("vegan_status")}
+            defaultValue={[values.vegan_status]}
+            defaultOptions={toOptions(VEGAN_STATUSES)}
             disabled={isProcessing}
           />
         </Field>
@@ -426,13 +409,13 @@ function RestaurantValidatorCard({
         <Field label="Options véganes" htmlFor="vegan_options_details">
           <Textarea
             id="vegan_options_details"
-            value={veganOptionsDetails}
-            onChange={(e) => setVeganOptionsDetails(e.target.value)}
+            value={values.vegan_options_details}
+            onChange={setFromEvent("vegan_options_details")}
             disabled={isProcessing}
             placeholder={
-              veganStatus === "VEGAN_OPTIONS"
-                ? "Obligatoire : quelles options, comment elles sont signalées"
-                : "Facultatif pour un lieu 100 % végane"
+              fullyVegan
+                ? "Facultatif pour un lieu 100 % végane"
+                : "Obligatoire : quelles options, comment elles sont signalées"
             }
           />
         </Field>
@@ -440,12 +423,18 @@ function RestaurantValidatorCard({
         <Field label="Description" htmlFor="description">
           <Textarea
             id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            value={values.description}
+            onChange={setFromEvent("description")}
             disabled={isProcessing}
             placeholder="Description du lieu"
           />
         </Field>
+
+        {problems.length > 0 && (
+          <Admonition variation="danger" icon="warning">
+            {problems.join(" ")}
+          </Admonition>
+        )}
 
         <Actions>
           <Modal>
@@ -457,7 +446,7 @@ function RestaurantValidatorCard({
             <Modal.Window name="delete">
               <DeleteRestaurantWindow
                 restaurant={restaurant}
-                name={name}
+                name={values.name}
                 onDelete={onDelete}
                 disabled={isProcessing}
               />
@@ -465,8 +454,8 @@ function RestaurantValidatorCard({
           </Modal>
 
           <Button
-            onClick={handleValidate}
-            disabled={isProcessing || Boolean(hoursError)}
+            onClick={() => onValidate(payload)}
+            disabled={isProcessing || problems.length > 0}
           >
             <HiCheck /> Valider
           </Button>
@@ -474,82 +463,196 @@ function RestaurantValidatorCard({
       </Details>
 
       <FullWidth>
-        <Heading as="h3">Informations</Heading>
         <InfoGrid>
           <div>
-            <DataItem label="Contacts">
-              {contacts.length ? (
-                <Tags>{contacts}</Tags>
-              ) : (
-                <NoDataItem>--</NoDataItem>
-              )}
-            </DataItem>
-            <DataItem label="Possibilités">
-              {restaurant.service_options?.length ? (
-                SERVICE_OPTIONS.filter((o) =>
-                  restaurant.service_options.includes(o.value),
-                )
-                  .map((o) => o.label)
-                  .join(", ")
-              ) : (
-                <NoDataItem>Inconnues</NoDataItem>
-              )}
-            </DataItem>
-            <DataItem label="Sans gluten">
-              {restaurant.has_gluten_free_options ? (
-                "Options sans gluten"
-              ) : (
-                <NoDataItem>Non indiqué</NoDataItem>
-              )}
-            </DataItem>
+            <Heading as="h3">Le lieu</Heading>
+            <Field label="Possibilités">
+              <Inline>
+                {SERVICE_OPTIONS.map((option) => (
+                  <Checkbox
+                    key={option.value}
+                    name={`service-${option.value}`}
+                    checked={values.service_options.includes(option.value)}
+                    onChange={() => toggleServiceOption(option.value)}
+                    disabled={isProcessing}
+                  >
+                    {option.label}
+                  </Checkbox>
+                ))}
+              </Inline>
+            </Field>
+            <Field label="Sans gluten">
+              <Checkbox
+                name="has_gluten_free_options"
+                checked={values.has_gluten_free_options}
+                onChange={(e) =>
+                  set("has_gluten_free_options")(e.target.checked)
+                }
+                disabled={isProcessing}
+              >
+                Au moins une option végane est aussi sans gluten
+              </Checkbox>
+            </Field>
+            {!fullyVegan && (
+              <Field
+                label="Lait végétal"
+                htmlFor="plant_milk_surcharge"
+                hint="Supplément en €. 0 : aucun, négatif : moins cher. Vide : inconnu."
+              >
+                <div>
+                  <Input
+                    id="plant_milk_surcharge"
+                    type="number"
+                    step="0.05"
+                    min={-MAX_PLANT_MILK_SURCHARGE}
+                    max={MAX_PLANT_MILK_SURCHARGE}
+                    value={
+                      values.no_hot_drinks ? "" : values.plant_milk_surcharge
+                    }
+                    onChange={setFromEvent("plant_milk_surcharge")}
+                    disabled={isProcessing || values.no_hot_drinks}
+                  />
+                  <Checkbox
+                    name="no_hot_drinks"
+                    checked={values.no_hot_drinks}
+                    onChange={(e) => set("no_hot_drinks")(e.target.checked)}
+                    disabled={isProcessing}
+                  >
+                    Pas de boissons chaudes
+                  </Checkbox>
+                </div>
+              </Field>
+            )}
+            <Field label="Boutique">
+              <Checkbox
+                name="has_storefront"
+                checked={values.has_storefront}
+                onChange={(e) => set("has_storefront")(e.target.checked)}
+                disabled={isProcessing}
+              >
+                Accueille du public (décocher pour un traiteur sans boutique)
+              </Checkbox>
+            </Field>
+            {!values.has_storefront && (
+              <Field
+                label="Zone servie"
+                htmlFor="service_area"
+                hint="Adresse non publiée, position arrondie à ~1 km"
+              >
+                <Input
+                  id="service_area"
+                  value={values.service_area}
+                  onChange={setFromEvent("service_area")}
+                  placeholder="Ex : Lyon et alentours"
+                  disabled={isProcessing}
+                />
+              </Field>
+            )}
+            <Field label="Ouverture" htmlFor="operating_status">
+              <Select
+                name="operating_status"
+                onChange={set("operating_status")}
+                defaultValue={[values.operating_status]}
+                defaultOptions={toOptions(OPERATING_STATUSES)}
+                disabled={isProcessing}
+              />
+            </Field>
+            {values.operating_status === "TEMPORARILY_CLOSED" && (
+              <Field label="Fermé du … au">
+                <Inline>
+                  <Input
+                    id="closed_from"
+                    type="date"
+                    aria-label="Fermé du"
+                    value={values.closed_from}
+                    onChange={setFromEvent("closed_from")}
+                    disabled={isProcessing}
+                  />
+                  <Input
+                    id="closed_until"
+                    type="date"
+                    aria-label="Fermé jusqu'au"
+                    value={values.closed_until}
+                    onChange={setFromEvent("closed_until")}
+                    disabled={isProcessing}
+                  />
+                </Inline>
+              </Field>
+            )}
+            {values.operating_status !== "OPEN" && (
+              <Field label="Note fermeture" htmlFor="closure_note">
+                <Input
+                  id="closure_note"
+                  value={values.closure_note}
+                  onChange={setFromEvent("closure_note")}
+                  placeholder="Ex : travaux, changement de propriétaire…"
+                  disabled={isProcessing}
+                />
+              </Field>
+            )}
           </div>
           <div>
-            <DataItem label="Lait végétal">
-              {formatSurcharge(restaurant.plant_milk_surcharge) ||
-                (restaurant.serves_hot_drinks === false ? (
-                  "Pas de boissons chaudes"
-                ) : (
-                  <NoDataItem>Inconnu</NoDataItem>
-                ))}
-            </DataItem>
-            {!restaurant.has_storefront && (
-              <DataItem label="Sans boutique">
-                Zone servie : {restaurant.service_area}
-              </DataItem>
-            )}
-            <DataItem label="Ouverture">
-              <Tags>
-                <Tag type={OPERATING_STATUSES[restaurant.operating_status].color}>
-                  {OPERATING_STATUSES[restaurant.operating_status].label}
-                </Tag>
-                {restaurant.closure_note}
-              </Tags>
-            </DataItem>
+            <Heading as="h3">Contact</Heading>
+            <Field label="Téléphone" htmlFor="phone">
+              <LinkInput
+                id="phone"
+                type="tel"
+                value={values.phone}
+                href={`tel:${values.phone}`}
+                onChange={setFromEvent("phone")}
+                disabled={isProcessing}
+              />
+            </Field>
+            <Field label="Site web" htmlFor="website">
+              <LinkInput
+                id="website"
+                value={values.website}
+                onChange={setFromEvent("website")}
+                disabled={isProcessing}
+              />
+            </Field>
+            <Field label="Facebook" htmlFor="facebook">
+              <LinkInput
+                id="facebook"
+                value={values.facebook}
+                onChange={setFromEvent("facebook")}
+                disabled={isProcessing}
+              />
+            </Field>
+            <Field label="Instagram" htmlFor="instagram">
+              <LinkInput
+                id="instagram"
+                value={values.instagram}
+                onChange={setFromEvent("instagram")}
+                disabled={isProcessing}
+              />
+            </Field>
+            <Field label="Lien du menu" htmlFor="menu_url">
+              <LinkInput
+                id="menu_url"
+                value={values.menu_url}
+                onChange={setFromEvent("menu_url")}
+                disabled={isProcessing}
+              />
+            </Field>
           </div>
         </InfoGrid>
 
         <Heading as="h3">{hasStops ? "Emplacements" : "Horaires"}</Heading>
         {hasStops ? (
-          <StopsList stops={restaurant.stops} />
+          <StopsList stops={values.stops} />
         ) : (
-          <>
-            <OpeningHoursEditor
-              value={openingHours}
-              onChange={setOpeningHours}
-              disabled={isProcessing}
-            />
-            {hoursError && (
-              <Admonition variation="danger" icon="warning">
-                Horaires : {hoursError}.
-              </Admonition>
-            )}
-          </>
+          <OpeningHoursEditor
+            value={values.opening_hours}
+            onChange={set("opening_hours")}
+            disabled={isProcessing}
+          />
         )}
         <Field label="Note" htmlFor="opening_hours_note">
           <Input
             id="opening_hours_note"
-            value={openingHoursNote}
-            onChange={(e) => setOpeningHoursNote(e.target.value)}
+            value={values.opening_hours_note}
+            onChange={setFromEvent("opening_hours_note")}
             disabled={isProcessing}
             placeholder="Ex : horaires du restaurant de l'hôtel, fermé en août…"
           />
