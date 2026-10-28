@@ -151,6 +151,26 @@ export async function updateRestaurantPhotoStatus(photoId, status) {
   }
 }
 
+// A place or menu photo, approved right away when sent by a moderator.
+export async function uploadRestaurantPhoto({ restaurantId, kind, file }) {
+  try {
+    const formData = new FormData();
+    formData.append("kind", kind);
+    formData.append("file", file);
+    const res = await axiosInstance.post(
+      `${API_URL}/restaurants/${restaurantId}/photos`,
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } },
+    );
+    return res.data;
+  } catch (error) {
+    throw toError(
+      `Couldn't upload a photo for restaurant # ${restaurantId}`,
+      error,
+    );
+  }
+}
+
 export async function deleteRestaurantPhoto({ restaurantId, photoId }) {
   try {
     const res = await axiosInstance.delete(

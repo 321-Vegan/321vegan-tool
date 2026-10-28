@@ -53,5 +53,8 @@ export const DAYS = [
   "Dimanche",
 ];
 
+// Same limit as the API, for each kind (place, menu)
+export const MAX_PHOTOS_PER_KIND = 10;
+
 // A restaurant closer than this to another one is probably a duplicate
 export const DUPLICATE_RADIUS_METERS = 50;
