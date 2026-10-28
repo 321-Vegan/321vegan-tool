@@ -148,6 +148,9 @@ function RestaurantValidatorCard({
   const [veganOptionsDetails, setVeganOptionsDetails] = useState(
     restaurant.vegan_options_details || "",
   );
+  const [description, setDescription] = useState(
+    restaurant.description || "",
+  );
   const [position, setPosition] = useState({
     lat: restaurant.latitude,
     lng: restaurant.longitude,
@@ -201,6 +204,7 @@ function RestaurantValidatorCard({
       tags,
       vegan_status: veganStatus,
       vegan_options_details: veganOptionsDetails,
+      description,
     });
   }
 
@@ -376,6 +380,16 @@ function RestaurantValidatorCard({
           />
         </Field>
 
+        <Field label="Description" htmlFor="description">
+          <Textarea
+            id="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            disabled={isProcessing}
+            placeholder="Description du lieu"
+          />
+        </Field>
+
         <Actions>
           <Modal>
             <Modal.Open opens="delete">
@@ -403,9 +417,6 @@ function RestaurantValidatorCard({
         <Heading as="h3">Informations</Heading>
         <InfoGrid>
           <div>
-            <DataItem label="Description">
-              {restaurant.description || <NoDataItem>--</NoDataItem>}
-            </DataItem>
             <DataItem label="Contacts">
               {contacts.length ? (
                 <Tags>{contacts}</Tags>
