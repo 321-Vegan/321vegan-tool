@@ -32,6 +32,7 @@ import StopsList from "./StopsList";
 import RestaurantPhotoGallery from "./RestaurantPhotoGallery";
 import { useNearbyRestaurants } from "./useNearbyRestaurants";
 import { useFeatureRestaurantPhoto } from "./useFeatureRestaurantPhoto";
+import { useModerateRestaurantPhoto } from "./useModerateRestaurantPhoto";
 import {
   DUPLICATE_RADIUS_METERS,
   OPERATING_STATUSES,
@@ -138,7 +139,7 @@ function RestaurantValidatorCard({
   onDelete,
   isProcessing,
 }) {
-  const { created_at, photos } = restaurant;
+  const { created_at } = restaurant;
 
   const [name, setName] = useState(restaurant.name || "");
   const [address, setAddress] = useState(restaurant.address || "");
@@ -164,15 +165,30 @@ function RestaurantValidatorCard({
   });
 
   // Kept locally: the validator works on a snapshot of the restaurants
+  const [photos, setPhotos] = useState(restaurant.photos);
   const [featuredId, setFeaturedId] = useState(
     photos.find((photo) => photo.is_featured)?.id,
   );
   const { featurePhoto, isFeaturing } = useFeatureRestaurantPhoto();
+  const { deletePhoto, isWorking: isDeletingPhoto } =
+    useModerateRestaurantPhoto();
 
   function handleFeature(photo) {
     featurePhoto(
       { restaurantId: restaurant.id, photoId: photo.id },
       { onSuccess: () => setFeaturedId(photo.id) },
+    );
+  }
+
+  function handleDeletePhoto(photo) {
+    deletePhoto(
+      { restaurantId: restaurant.id, photoId: photo.id },
+      {
+        onSuccess: () => {
+          setPhotos((prev) => prev.filter((p) => p.id !== photo.id));
+          if (photo.id === featuredId) setFeaturedId(undefined);
+        },
+      },
     );
   }
 
@@ -514,7 +530,8 @@ function RestaurantValidatorCard({
           photos={photos}
           featuredId={featuredId}
           onFeature={handleFeature}
-          disabled={isProcessing || isFeaturing}
+          onDelete={handleDeletePhoto}
+          disabled={isProcessing || isFeaturing || isDeletingPhoto}
         />
       </FullWidth>
     </Card>
