@@ -26,7 +26,8 @@ import UserInfo from "@/features/users/UserInfo";
 import { useReverseGeocode } from "@/features/shops/useReverseGeocode";
 import DeleteRestaurantWindow from "./DeleteRestaurantWindow";
 import NearbyRestaurantsLayer from "./NearbyRestaurantsLayer";
-import OpeningHoursList from "./OpeningHoursList";
+import OpeningHoursEditor from "./OpeningHoursEditor";
+import { openingHoursError, sortSlots } from "./openingHours";
 import StopsList from "./StopsList";
 import RestaurantPhotoGallery from "./RestaurantPhotoGallery";
 import { useNearbyRestaurants } from "./useNearbyRestaurants";
@@ -151,6 +152,12 @@ function RestaurantValidatorCard({
   const [description, setDescription] = useState(
     restaurant.description || "",
   );
+  const [openingHours, setOpeningHours] = useState(
+    restaurant.opening_hours || [],
+  );
+  const [openingHoursNote, setOpeningHoursNote] = useState(
+    restaurant.opening_hours_note || "",
+  );
   const [position, setPosition] = useState({
     lat: restaurant.latitude,
     lng: restaurant.longitude,
@@ -188,8 +195,9 @@ function RestaurantValidatorCard({
     });
   }
 
-  // A food truck's position and address come from its first stop
+  // A food truck's position, address and hours come from its stops
   const hasStops = restaurant.stops?.length > 0;
+  const hoursError = !hasStops && openingHoursError(openingHours);
 
   function handleValidate() {
     onValidate({
@@ -199,7 +207,10 @@ function RestaurantValidatorCard({
         city,
         latitude: position.lat,
         longitude: position.lng,
+        // No slot at all: hours unknown
+        opening_hours: openingHours.length ? sortSlots(openingHours) : null,
       }),
+      opening_hours_note: openingHoursNote,
       country,
       tags,
       vegan_status: veganStatus,
@@ -407,7 +418,10 @@ function RestaurantValidatorCard({
             </Modal.Window>
           </Modal>
 
-          <Button onClick={handleValidate} disabled={isProcessing}>
+          <Button
+            onClick={handleValidate}
+            disabled={isProcessing || Boolean(hoursError)}
+          >
             <HiCheck /> Valider
           </Button>
         </Actions>
@@ -442,6 +456,8 @@ function RestaurantValidatorCard({
                 <NoDataItem>Non indiqué</NoDataItem>
               )}
             </DataItem>
+          </div>
+          <div>
             <DataItem label="Lait végétal">
               {formatSurcharge(restaurant.plant_milk_surcharge) ||
                 (restaurant.serves_hot_drinks === false ? (
@@ -464,21 +480,34 @@ function RestaurantValidatorCard({
               </Tags>
             </DataItem>
           </div>
-          <div>
-            {hasStops ? (
-              <DataItem label="Emplacements">
-                <StopsList stops={restaurant.stops} />
-              </DataItem>
-            ) : (
-              <DataItem label="Horaires">
-                <OpeningHoursList slots={restaurant.opening_hours} />
-              </DataItem>
-            )}
-            {restaurant.opening_hours_note && (
-              <DataItem label="Note">{restaurant.opening_hours_note}</DataItem>
-            )}
-          </div>
         </InfoGrid>
+
+        <Heading as="h3">{hasStops ? "Emplacements" : "Horaires"}</Heading>
+        {hasStops ? (
+          <StopsList stops={restaurant.stops} />
+        ) : (
+          <>
+            <OpeningHoursEditor
+              value={openingHours}
+              onChange={setOpeningHours}
+              disabled={isProcessing}
+            />
+            {hoursError && (
+              <Admonition variation="danger" icon="warning">
+                Horaires : {hoursError}.
+              </Admonition>
+            )}
+          </>
+        )}
+        <Field label="Note" htmlFor="opening_hours_note">
+          <Input
+            id="opening_hours_note"
+            value={openingHoursNote}
+            onChange={(e) => setOpeningHoursNote(e.target.value)}
+            disabled={isProcessing}
+            placeholder="Ex : horaires du restaurant de l'hôtel, fermé en août…"
+          />
+        </Field>
 
         <Heading as="h3">Photos</Heading>
         <RestaurantPhotoGallery
