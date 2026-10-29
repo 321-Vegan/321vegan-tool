@@ -20,9 +20,9 @@ function DashboardLayout() {
   return (
     <StyledDashboardLayout>
       <ProductStatesAllTimeStats />
-      <ErrorReportsStats />
       {hasAccess("admin") && (
         <>
+          <ErrorReportsStats />
           <ReviewsStats resource="shop-reviews" title="Avis sur les magasins" />
           {/* Ratings without comment are auto-approved: not moderation work */}
           <ReviewsStats

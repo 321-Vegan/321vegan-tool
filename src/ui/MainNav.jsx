@@ -160,11 +160,13 @@ function MainNav() {
                   <HiOutlineEnvelope /> <span>Contacts</span>
                 </NestedNavLink>
               </li>
-              <li>
-                <NestedNavLink to="/error-reports">
-                  <HiOutlineExclamationTriangle /> <span>Signalements</span>
-                </NestedNavLink>
-              </li>
+              {hasAccess("admin") && (
+                <li>
+                  <NestedNavLink to="/error-reports">
+                    <HiOutlineExclamationTriangle /> <span>Signalements</span>
+                  </NestedNavLink>
+                </li>
+              )}
 
               <li>
                 <NestedNavLink to="/shop-reviews">

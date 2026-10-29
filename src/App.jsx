@@ -222,7 +222,7 @@ function App() {
                 <Route
                   path="error-reports"
                   element={
-                    <ProtectedRouteRole role="contributor">
+                    <ProtectedRouteRole role="admin">
                       <ErrorReports />
                     </ProtectedRouteRole>
                   }
