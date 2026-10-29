@@ -1,11 +1,10 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import {
   HiOutlineCalendar,
   HiOutlineUser,
   HiOutlineTrash,
   HiOutlineArrowDownTray,
   HiOutlineArrowTopRightOnSquare,
-  HiOutlinePhoto,
   HiCheck,
 } from "react-icons/hi2";
 import styled from "styled-components";
@@ -33,7 +32,7 @@ import RestaurantPhotoGallery from "./RestaurantPhotoGallery";
 import { useNearbyRestaurants } from "./useNearbyRestaurants";
 import { useFeatureRestaurantPhoto } from "./useFeatureRestaurantPhoto";
 import { useModerateRestaurantPhoto } from "./useModerateRestaurantPhoto";
-import { useUploadRestaurantPhoto } from "./useUploadRestaurantPhoto";
+import AddRestaurantPhotoButtons from "./AddRestaurantPhotoButtons";
 import {
   MAX_PLANT_MILK_SURCHARGE,
   findProblems,
@@ -43,9 +42,7 @@ import {
 } from "./restaurantForm";
 import {
   DUPLICATE_RADIUS_METERS,
-  MAX_PHOTOS_PER_KIND,
   OPERATING_STATUSES,
-  PHOTO_KINDS,
   RESTAURANT_TAGS,
   SERVICE_OPTIONS,
   VEGAN_STATUSES,
@@ -136,11 +133,6 @@ const LinkRow = styled.div`
   }
 `;
 
-const PhotoActions = styled.div`
-  display: flex;
-  gap: 1.2rem;
-`;
-
 function Field({ label, htmlFor, hint, children }) {
   return (
     <FieldRow>
@@ -209,27 +201,6 @@ function RestaurantValidatorCard({
     featurePhoto(
       { restaurantId: restaurant.id, photoId: photo.id },
       { onSuccess: () => setFeaturedId(photo.id) },
-    );
-  }
-
-  // One hidden file input, opened by the button of the kind to add
-  const fileInput = useRef(null);
-  const uploadKind = useRef(null);
-  const { uploadPhoto, isUploading } = useUploadRestaurantPhoto();
-
-  function handleAddPhoto(kind) {
-    uploadKind.current = kind;
-    fileInput.current.click();
-  }
-
-  function handleFileChange(e) {
-    const file = e.target.files[0];
-    // Lets the same file be picked again
-    e.target.value = "";
-    if (!file) return;
-    uploadPhoto(
-      { restaurantId: restaurant.id, kind: uploadKind.current, file },
-      { onSuccess: (photo) => setPhotos((prev) => [...prev, photo]) },
     );
   }
 
@@ -664,40 +635,14 @@ function RestaurantValidatorCard({
           featuredId={featuredId}
           onFeature={handleFeature}
           onDelete={handleDeletePhoto}
-          disabled={
-            isProcessing || isFeaturing || isDeletingPhoto || isUploading
-          }
+          disabled={isProcessing || isFeaturing || isDeletingPhoto}
         />
-        <PhotoActions>
-          {Object.entries(PHOTO_KINDS).map(([kind, { label }]) => (
-            <Button
-              key={kind}
-              $variation="secondary"
-              $size="small"
-              onClick={() => handleAddPhoto(kind)}
-              disabled={
-                isProcessing ||
-                isUploading ||
-                photos.filter((p) => p.kind === kind).length >=
-                  MAX_PHOTOS_PER_KIND
-              }
-            >
-              {isUploading && uploadKind.current === kind ? (
-                <SpinnerMini size="xs" />
-              ) : (
-                <HiOutlinePhoto />
-              )}
-              Ajouter une photo ({label.toLowerCase()})
-            </Button>
-          ))}
-          <input
-            ref={fileInput}
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            onChange={handleFileChange}
-            hidden
-          />
-        </PhotoActions>
+        <AddRestaurantPhotoButtons
+          restaurantId={restaurant.id}
+          photos={photos}
+          onAdded={(photo) => setPhotos((prev) => [...prev, photo])}
+          disabled={isProcessing}
+        />
       </FullWidth>
     </Card>
   );

@@ -46,6 +46,7 @@ import {
 } from "./restaurantForm";
 import RestaurantHistory from "./RestaurantHistory";
 import RestaurantPhotoGallery from "./RestaurantPhotoGallery";
+import AddRestaurantPhotoButtons from "./AddRestaurantPhotoButtons";
 import StopsEditor from "./StopsEditor";
 import { useRestaurant } from "./useRestaurant";
 import { useUpdateRestaurant } from "./useUpdateRestaurant";
@@ -700,6 +701,11 @@ function RestaurantEditForm({ restaurant, history }) {
           onDelete={(photo) =>
             deletePhoto({ restaurantId: restaurant.id, photoId: photo.id })
           }
+          disabled={isWorkingOnPhotos}
+        />
+        <AddRestaurantPhotoButtons
+          restaurantId={restaurant.id}
+          photos={restaurant.photos}
           disabled={isWorkingOnPhotos}
         />
       </Card>
