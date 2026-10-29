@@ -640,7 +640,7 @@ function RestaurantValidatorCard({
         <AddRestaurantPhotoButtons
           restaurantId={restaurant.id}
           photos={photos}
-          onAdded={(photo) => setPhotos((prev) => [...prev, photo])}
+          onAdded={(added) => setPhotos((prev) => [...prev, ...added])}
           disabled={isProcessing}
         />
       </FullWidth>
