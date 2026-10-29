@@ -57,7 +57,7 @@ const Comment = styled.blockquote`
 
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: 3.2rem 16rem 1fr 1fr 1.4fr;
+  grid-template-columns: 3.2rem 16rem 1fr 1.4fr;
   gap: 1rem 1.6rem;
   align-items: start;
   font-size: 1.4rem;
@@ -72,7 +72,6 @@ const Grid = styled.div`
 
 const Value = styled.div`
   overflow-wrap: anywhere;
-  color: ${(props) => (props.$muted ? "var(--color-grey-400)" : "inherit")};
 `;
 
 const DiffText = styled.div`
@@ -209,14 +208,6 @@ function ValueDiff({ field, from, to }) {
   );
 }
 
-/**
- * One suggestion to moderate. An edit shows a row per proposed field
- * (before, now, proposed), each can be left out or retouched before being
- * applied.
- * */
-// Photo fields: shown as thumbnails, never edited by hand
-const PHOTO_FIELDS = ["remove_photo_ids", "featured_photo_id"];
-
 function PhotoLink({ photo }) {
   const url = `${S3_STORAGE_URL}/${photo.path}`;
   return (
@@ -226,14 +217,23 @@ function PhotoLink({ photo }) {
   );
 }
 
-function RestaurantSuggestionCard({ suggestion, onApply, onReject, isWorking }) {
+/**
+ * One suggestion to moderate. An edit shows a row per proposed field
+ * (now, proposed), each can be left out or retouched before being
+ * applied.
+ * */
+function RestaurantSuggestionCard({
+  suggestion,
+  onApply,
+  onReject,
+  isWorking,
+}) {
   const {
     kind,
     status,
     restaurant,
     duplicate_of: duplicateOf,
     changes = {},
-    base_values: baseValues = {},
     current_values: currentValues = {},
     photos_to_remove: photosToRemove = [],
     proposed_featured_photo: proposedFeaturedPhoto,
@@ -312,89 +312,71 @@ function RestaurantSuggestionCard({ suggestion, onApply, onReject, isWorking }) 
         <Grid>
           <div className="head" />
           <div className="head">Champ</div>
-          <div className="head">Avant</div>
           <div className="head">Actuel</div>
           <div className="head">Proposé</div>
-          {proposedFields.map((field) => {
-            const changedSince = !sameValue(
-              currentValues?.[field],
-              baseValues?.[field],
-            );
-            return [
-              <Checkbox
-                key={`${field}-check`}
-                name={`suggestion-${suggestion.id}-${field}`}
-                checked={selected.has(field)}
-                onChange={() => toggle(field)}
-                disabled={!isPending || isWorking}
-              />,
-              <div key={`${field}-label`}>
-                {SUGGESTION_FIELDS[field]?.label || field}
-              </div>,
-              <Value key={`${field}-base`} $muted>
-                {PHOTO_FIELDS.includes(field)
-                  ? "—"
-                  : formatSuggestionValue(field, baseValues?.[field])}
-              </Value>,
-              <Value key={`${field}-current`}>
-                {field === "featured_photo_id" ? (
-                  <Thumbnails>
-                    {currentFeaturedPhoto ? (
-                      <PhotoLink photo={currentFeaturedPhoto} />
-                    ) : (
-                      "Aucune"
-                    )}
-                  </Thumbnails>
-                ) : field === "remove_photo_ids" ? (
-                  "—"
-                ) : (
-                  formatSuggestionValue(field, currentValues?.[field])
-                )}
-                {changedSince && field !== "remove_photo_ids" && (
-                  <>
-                    {" "}
-                    <Tag type="orange">a changé</Tag>
-                  </>
-                )}
-              </Value>,
-              <div key={`${field}-proposed`}>
-                {field === "remove_photo_ids" ? (
-                  <Thumbnails>
-                    {photosToRemove.map((photo) => (
-                      <PhotoLink key={photo.id} photo={photo} />
-                    ))}
-                    {!photosToRemove.length && "Déjà retirées"}
-                  </Thumbnails>
-                ) : field === "featured_photo_id" ? (
-                  <Thumbnails>
-                    {proposedFeaturedPhoto ? (
-                      <PhotoLink photo={proposedFeaturedPhoto} />
-                    ) : (
-                      "Photo retirée"
-                    )}
-                  </Thumbnails>
-                ) : (
-                  <>
-                    {isPending && (
-                      <ProposedInput
-                        field={field}
-                        value={values[field]}
-                        onChange={(value) =>
-                          setValues((prev) => ({ ...prev, [field]: value }))
-                        }
-                        disabled={!selected.has(field) || isWorking}
-                      />
-                    )}
-                    <ValueDiff
+          {proposedFields.map((field) => [
+            <Checkbox
+              key={`${field}-check`}
+              name={`suggestion-${suggestion.id}-${field}`}
+              checked={selected.has(field)}
+              onChange={() => toggle(field)}
+              disabled={!isPending || isWorking}
+            />,
+            <div key={`${field}-label`}>
+              {SUGGESTION_FIELDS[field]?.label || field}
+            </div>,
+            <Value key={`${field}-current`}>
+              {field === "featured_photo_id" ? (
+                <Thumbnails>
+                  {currentFeaturedPhoto ? (
+                    <PhotoLink photo={currentFeaturedPhoto} />
+                  ) : (
+                    "Aucune"
+                  )}
+                </Thumbnails>
+              ) : field === "remove_photo_ids" ? (
+                "—"
+              ) : (
+                formatSuggestionValue(field, currentValues?.[field])
+              )}
+            </Value>,
+            <div key={`${field}-proposed`}>
+              {field === "remove_photo_ids" ? (
+                <Thumbnails>
+                  {photosToRemove.map((photo) => (
+                    <PhotoLink key={photo.id} photo={photo} />
+                  ))}
+                  {!photosToRemove.length && "Déjà retirées"}
+                </Thumbnails>
+              ) : field === "featured_photo_id" ? (
+                <Thumbnails>
+                  {proposedFeaturedPhoto ? (
+                    <PhotoLink photo={proposedFeaturedPhoto} />
+                  ) : (
+                    "Photo retirée"
+                  )}
+                </Thumbnails>
+              ) : (
+                <>
+                  {isPending && (
+                    <ProposedInput
                       field={field}
-                      from={currentValues?.[field]}
-                      to={isPending ? values[field] : changes[field]}
+                      value={values[field]}
+                      onChange={(value) =>
+                        setValues((prev) => ({ ...prev, [field]: value }))
+                      }
+                      disabled={!selected.has(field) || isWorking}
                     />
-                  </>
-                )}
-              </div>,
-            ];
-          })}
+                  )}
+                  <ValueDiff
+                    field={field}
+                    from={currentValues?.[field]}
+                    to={isPending ? values[field] : changes[field]}
+                  />
+                </>
+              )}
+            </div>,
+          ])}
         </Grid>
       )}
 
