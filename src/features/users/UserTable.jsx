@@ -58,6 +58,7 @@ function UserTable() {
                       { value: "all", label: "Tous" },
                       { value: "user", label: "Utilisateurices" },
                       { value: "contributor", label: "Contributeurices" },
+                      { value: "moderator", label: "Modérateurices" },
                       { value: "admin", label: "Administrateurices" },
                     ]}
                   />

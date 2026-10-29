@@ -181,17 +181,19 @@ function MainNav() {
                   <MdOutlineRestaurant /> <span>Avis restaurants</span>
                 </NestedNavLink>
               </li>
-              <li>
-                <NestedNavLink to="/restaurant-suggestions">
-                  <HiOutlinePencilSquare /> <span>Propositions restos</span>
-                </NestedNavLink>
-              </li>
-              {hasAccess("admin") && (
-                <li>
-                  <NestedNavLink to="/places">
-                    <HiOutlineMapPin /> <span>Lieux</span>
-                  </NestedNavLink>
-                </li>
+              {hasAccess("moderator") && (
+                <>
+                  <li>
+                    <NestedNavLink to="/restaurant-suggestions">
+                      <HiOutlinePencilSquare /> <span>Propositions restos</span>
+                    </NestedNavLink>
+                  </li>
+                  <li>
+                    <NestedNavLink to="/places">
+                      <HiOutlineMapPin /> <span>Lieux</span>
+                    </NestedNavLink>
+                  </li>
+                </>
               )}
             </NavList>
           </NavSubItem>
@@ -256,7 +258,7 @@ function MainNav() {
           </StyledNavLink>
         </li>
 
-        {hasAccess("contributor") && (
+        {hasAccess("moderator") && (
           <li>
             <StyledNavLink to="/restaurants">
               <HiOutlineBuildingStorefront />

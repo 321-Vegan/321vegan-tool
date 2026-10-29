@@ -649,7 +649,7 @@ function RestaurantEditForm({ restaurant, history }) {
           </Admonition>
         )}
         <Buttons>
-          {hasAccess("admin") && (
+          {hasAccess("moderator") && (
             <Modal>
               <Modal.Open opens="delete">
                 <Button $variation="danger" disabled={isWorking}>

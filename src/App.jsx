@@ -254,7 +254,7 @@ function App() {
                 <Route
                   path="restaurant-suggestions"
                   element={
-                    <ProtectedRouteRole role="contributor">
+                    <ProtectedRouteRole role="moderator">
                       <RestaurantSuggestions />
                     </ProtectedRouteRole>
                   }
@@ -262,7 +262,7 @@ function App() {
                 <Route
                   path="restaurants"
                   element={
-                    <ProtectedRouteRole role="contributor">
+                    <ProtectedRouteRole role="moderator">
                       <Restaurants />
                     </ProtectedRouteRole>
                   }
@@ -270,7 +270,7 @@ function App() {
                 <Route
                   path="restaurants/:restaurantId"
                   element={
-                    <ProtectedRouteRole role="contributor">
+                    <ProtectedRouteRole role="moderator">
                       <Restaurant />
                     </ProtectedRouteRole>
                   }
@@ -278,7 +278,7 @@ function App() {
                 <Route
                   path="places"
                   element={
-                    <ProtectedRouteRole role="admin">
+                    <ProtectedRouteRole role="moderator">
                       <PlacesValidator />
                     </ProtectedRouteRole>
                   }

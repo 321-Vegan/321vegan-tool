@@ -22,10 +22,15 @@ export const USER_ROLES = {
     label: "Contributeurice",
     roles: ["user", "contributor"],
   },
+  moderator: {
+    color: "green",
+    label: "Modérateurice",
+    roles: ["user", "contributor", "moderator"],
+  },
   admin: {
     color: "blue",
     label: "Administrateurice",
-    roles: ["user", "contributor", "admin"],
+    roles: ["user", "contributor", "moderator", "admin"],
   },
 };
 

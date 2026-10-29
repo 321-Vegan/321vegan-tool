@@ -94,7 +94,7 @@ function RestaurantTableRow({ restaurant }) {
               Voir / éditer
             </Menus.Button>
 
-            {hasAccess("admin") && (
+            {hasAccess("moderator") && (
               <Modal.Open opens="delete">
                 <Menus.Button icon={<HiTrash />}>
                   {validated ? "Supprimer" : "Refuser"}

@@ -34,9 +34,9 @@ function DashboardLayout() {
             resource="restaurant-reviews"
             title="Avis sur les restaurants"
           />
-          <PlacesStats />
         </>
       )}
+      {hasAccess("moderator") && <PlacesStats />}
       <ProductStatusesAllTimeStats />
     </StyledDashboardLayout>
   );
