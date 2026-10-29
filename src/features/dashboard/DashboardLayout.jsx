@@ -20,9 +20,8 @@ function DashboardLayout() {
   return (
     <StyledDashboardLayout>
       <ProductStatesAllTimeStats />
-      {hasAccess("admin") && (
+      {hasAccess("contributor") && (
         <>
-          <ErrorReportsStats />
           <ReviewsStats resource="shop-reviews" title="Avis sur les magasins" />
           {/* Ratings without comment are auto-approved: not moderation work */}
           <ReviewsStats
@@ -30,6 +29,11 @@ function DashboardLayout() {
             title="Avis sur les produits"
             filters={[{ field: "comment__isnull", value: false }]}
           />
+        </>
+      )}
+      {hasAccess("admin") && (
+        <>
+          <ErrorReportsStats />
           <ReviewsStats
             resource="restaurant-reviews"
             title="Avis sur les restaurants"
