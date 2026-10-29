@@ -106,3 +106,79 @@ export function formatSuggestionValue(field, value) {
 export function sameValue(a, b) {
   return JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
 }
+
+// How formatSuggestionValue joins the items of a list field
+const LIST_SEPARATORS = {
+  tags: ", ",
+  service_options: ", ",
+  opening_hours: " · ",
+  stops: " ; ",
+};
+
+// Past this many LCS cells, the whole value is shown as replaced
+const MAX_DIFF_CELLS = 250000;
+
+/** A formatted value cut into the units the diff compares, separators kept. */
+function diffTokens(field, value) {
+  const text = formatSuggestionValue(field, value);
+  if (text === "—") return [];
+  const separator = LIST_SEPARATORS[field];
+  if (separator) return text.split(new RegExp(`(${separator})`));
+  // Free text compares word by word, other values as a whole
+  const input = SUGGESTION_FIELDS[field]?.input;
+  if (input === "text" || input === "textarea") {
+    return text.split(/(\s+)/).filter(Boolean);
+  }
+  return [text];
+}
+
+/**
+ * What a suggestion changes in a field, as [{ type, text }] parts where type
+ * is "same", "removed" (only in `from`) or "added" (only in `to`).
+ * */
+export function diffSuggestionValues(field, from, to) {
+  const a = diffTokens(field, from);
+  const b = diffTokens(field, to);
+  const parts = [];
+  const push = (type, text) => {
+    const last = parts.at(-1);
+    if (last?.type === type) last.text += text;
+    else parts.push({ type, text });
+  };
+
+  if (a.length * b.length > MAX_DIFF_CELLS) {
+    if (a.length) push("removed", a.join(""));
+    if (b.length) push("added", b.join(""));
+    return parts;
+  }
+
+  // lcs[i][j]: longest common subsequence of a[i:] and b[j:]
+  const lcs = Array.from({ length: a.length + 1 }, () =>
+    new Array(b.length + 1).fill(0),
+  );
+  for (let i = a.length - 1; i >= 0; i--) {
+    for (let j = b.length - 1; j >= 0; j--) {
+      lcs[i][j] =
+        a[i] === b[j]
+          ? lcs[i + 1][j + 1] + 1
+          : Math.max(lcs[i + 1][j], lcs[i][j + 1]);
+    }
+  }
+
+  let i = 0;
+  let j = 0;
+  while (i < a.length && j < b.length) {
+    if (a[i] === b[j]) {
+      push("same", a[i]);
+      i++;
+      j++;
+    } else if (lcs[i + 1][j] >= lcs[i][j + 1]) {
+      push("removed", a[i++]);
+    } else {
+      push("added", b[j++]);
+    }
+  }
+  while (i < a.length) push("removed", a[i++]);
+  while (j < b.length) push("added", b[j++]);
+  return parts;
+}

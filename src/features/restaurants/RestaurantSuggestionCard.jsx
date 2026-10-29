@@ -16,6 +16,7 @@ import {
   SUGGESTION_FIELDS,
   SUGGESTION_KINDS,
   SUGGESTION_STATUSES,
+  diffSuggestionValues,
   formatSuggestionValue,
   sameValue,
 } from "./suggestionFields";
@@ -72,6 +73,34 @@ const Grid = styled.div`
 const Value = styled.div`
   overflow-wrap: anywhere;
   color: ${(props) => (props.$muted ? "var(--color-grey-400)" : "inherit")};
+`;
+
+const DiffText = styled.div`
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+
+  & ins,
+  & del {
+    border-radius: var(--border-radius-tiny);
+    padding: 0 0.2rem;
+  }
+
+  & ins {
+    text-decoration: none;
+    background-color: var(--color-green-100);
+    color: var(--color-green-700);
+  }
+
+  & del {
+    background-color: var(--color-red-100);
+    color: var(--color-red-700);
+  }
+
+  input + &,
+  textarea + & {
+    margin-top: 0.6rem;
+    font-size: 1.3rem;
+  }
 `;
 
 const Thumbnails = styled.div`
@@ -153,7 +182,31 @@ function ProposedInput({ field, value, onChange, disabled }) {
       />
     );
   }
-  return <Value>{formatSuggestionValue(field, value)}</Value>;
+  return null;
+}
+
+/** The proposed value against the current one, removals struck out. */
+function ValueDiff({ field, from, to }) {
+  if (sameValue(from, to)) {
+    return (
+      <DiffText>
+        {formatSuggestionValue(field, to)} <Tag type="silver">identique</Tag>
+      </DiffText>
+    );
+  }
+  return (
+    <DiffText>
+      {diffSuggestionValues(field, from, to).map((part, index) =>
+        part.type === "added" ? (
+          <ins key={index}>{part.text}</ins>
+        ) : part.type === "removed" ? (
+          <del key={index}>{part.text}</del>
+        ) : (
+          <span key={index}>{part.text}</span>
+        ),
+      )}
+    </DiffText>
+  );
 }
 
 /**
@@ -320,17 +373,24 @@ function RestaurantSuggestionCard({ suggestion, onApply, onReject, isWorking }) 
                       "Photo retirée"
                     )}
                   </Thumbnails>
-                ) : isPending ? (
-                  <ProposedInput
-                    field={field}
-                    value={values[field]}
-                    onChange={(value) =>
-                      setValues((prev) => ({ ...prev, [field]: value }))
-                    }
-                    disabled={!selected.has(field) || isWorking}
-                  />
                 ) : (
-                  <Value>{formatSuggestionValue(field, changes[field])}</Value>
+                  <>
+                    {isPending && (
+                      <ProposedInput
+                        field={field}
+                        value={values[field]}
+                        onChange={(value) =>
+                          setValues((prev) => ({ ...prev, [field]: value }))
+                        }
+                        disabled={!selected.has(field) || isWorking}
+                      />
+                    )}
+                    <ValueDiff
+                      field={field}
+                      from={currentValues?.[field]}
+                      to={isPending ? values[field] : changes[field]}
+                    />
+                  </>
                 )}
               </div>,
             ];
