@@ -59,26 +59,25 @@ function ReviewTableRow({ resource, review, subject, renderDetails }) {
 
       <Modal>
         <ActionCell>
+          {/* A status can be changed back: no confirmation needed */}
           <Tooltip content="Valider" id={`approve-${reviewId}`}>
-            <Modal.Open opens="approve">
-              <ButtonAction
-                disabled={isWorking || status === "APPROVED"}
-                $variation="confirm"
-              >
-                <HiCheck />
-              </ButtonAction>
-            </Modal.Open>
+            <ButtonAction
+              disabled={isWorking || status === "APPROVED"}
+              $variation="confirm"
+              onClick={() => handleUpdateStatus("APPROVED")}
+            >
+              <HiCheck />
+            </ButtonAction>
           </Tooltip>
 
           <Tooltip content="Rejeter" id={`reject-${reviewId}`}>
-            <Modal.Open opens="reject">
-              <ButtonAction
-                disabled={isWorking || status === "REJECTED"}
-                $variation="accent"
-              >
-                <HiXMark />
-              </ButtonAction>
-            </Modal.Open>
+            <ButtonAction
+              disabled={isWorking || status === "REJECTED"}
+              $variation="accent"
+              onClick={() => handleUpdateStatus("REJECTED")}
+            >
+              <HiXMark />
+            </ButtonAction>
           </Tooltip>
 
           <Tooltip content="Supprimer" id={`delete-${reviewId}`}>
@@ -89,26 +88,6 @@ function ReviewTableRow({ resource, review, subject, renderDetails }) {
             </Modal.Open>
           </Tooltip>
         </ActionCell>
-
-        <Modal.Window name="approve">
-          <ConfirmAction
-            variation="confirm"
-            title="Valider un avis"
-            message="Êtes-vous sûr de vouloir valider cet avis ?"
-            onConfirm={() => handleUpdateStatus("APPROVED")}
-            disabled={isWorking}
-          />
-        </Modal.Window>
-
-        <Modal.Window name="reject">
-          <ConfirmAction
-            variation="delete"
-            title="Rejeter un avis"
-            message="Êtes-vous sûr de vouloir rejeter cet avis ?"
-            onConfirm={() => handleUpdateStatus("REJECTED")}
-            disabled={isWorking}
-          />
-        </Modal.Window>
 
         <Modal.Window name="delete">
           <ConfirmAction
