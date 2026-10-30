@@ -57,6 +57,39 @@ export async function getRestaurant(id) {
   }
 }
 
+// Takes or renews the validation lock: null once it's ours, or the lock of
+// the moderator already on it ({ locked_by, locked_at }).
+export async function lockRestaurant(id) {
+  try {
+    await axiosInstance.post(`${API_URL}/restaurants/${id}/lock`);
+    return null;
+  } catch (error) {
+    if (error.response?.status === 423) return error.response.data.detail;
+    throw toError(`Couldn't lock restaurant # ${id}`, error);
+  }
+}
+
+export async function unlockRestaurant(id) {
+  try {
+    await axiosInstance.delete(`${API_URL}/restaurants/${id}/lock`);
+  } catch (error) {
+    throw toError(`Couldn't unlock restaurant # ${id}`, error);
+  }
+}
+
+// When the tab is closed, axios requests are cancelled: a keepalive fetch can
+// outlive the page. Best effort only, the lock expires on its own otherwise.
+export function unlockRestaurantOnLeave(id) {
+  fetch(`${API_URL}/restaurants/${id}/lock`, {
+    method: "DELETE",
+    keepalive: true,
+    credentials: "include",
+    headers: {
+      Authorization: axiosInstance.defaults.headers.common.Authorization,
+    },
+  }).catch(() => {});
+}
+
 // Changes applied to the restaurant, newest first.
 export async function getRestaurantHistory(id) {
   try {

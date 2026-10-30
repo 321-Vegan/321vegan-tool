@@ -9,7 +9,10 @@ import ValidatorProgress from "@/ui/ValidatorProgress";
 import { useRestaurantsToValidate } from "./useRestaurantsToValidate";
 import { useValidateRestaurant } from "./useValidateRestaurant";
 import { useDeleteRestaurant } from "./useDeleteRestaurant";
+import { useRestaurantLock } from "./useRestaurantLock";
+import { getRestaurant } from "@/services/apiRestaurants";
 import RestaurantValidatorCard from "./RestaurantValidatorCard";
+import RestaurantLockedBox from "./RestaurantLockedBox";
 
 const EmptyContainer = styled.div`
   display: flex;
@@ -51,6 +54,27 @@ function RestaurantValidatorTool() {
     setCurrentIndex(0);
   }
 
+  const currentRestaurant = snapshot?.[currentIndex];
+
+  // Freed by another moderator: reload what they may have changed, or move
+  // on if they validated or refused it
+  async function reloadCurrent() {
+    let fresh = null;
+    try {
+      fresh = await getRestaurant(currentRestaurant.id);
+    } catch (error) {
+      console.error(error);
+    }
+    if (!fresh || fresh.validated) return advance();
+    setSnapshot((prev) => prev.map((r) => (r.id === fresh.id ? fresh : r)));
+  }
+
+  // Lock the restaurant so that no one else validates it at the same time
+  const { isPending: isPendingLock, holder: lockHolder } = useRestaurantLock(
+    currentRestaurant?.id,
+    { enabled: Boolean(currentRestaurant), onFreed: reloadCurrent },
+  );
+
   if (isPending || snapshot === null) return <Spinner />;
 
   if (snapshot.length === 0) {
@@ -75,7 +99,6 @@ function RestaurantValidatorTool() {
     );
   }
 
-  const currentRestaurant = snapshot[currentIndex];
   const isProcessing = isValidating || isDeleting;
 
   return (
@@ -87,23 +110,33 @@ function RestaurantValidatorTool() {
         onQuit={() => setCurrentIndex(snapshot.length)}
         label="Restaurant"
       />
-      <RestaurantValidatorCard
-        key={currentRestaurant.id}
-        restaurant={currentRestaurant}
-        isProcessing={isProcessing}
-        onValidate={(fields) =>
-          validateRestaurant(
-            { id: currentRestaurant.id, ...fields },
-            { onSuccess: advance },
-          )
-        }
-        onDelete={(rejectionReason) =>
-          deleteRestaurant(
-            { id: currentRestaurant.id, rejectionReason },
-            { onSuccess: advance },
-          )
-        }
-      />
+      {isPendingLock ? (
+        <Spinner />
+      ) : lockHolder ? (
+        <RestaurantLockedBox
+          restaurant={currentRestaurant}
+          lock={lockHolder}
+          onSkip={advance}
+        />
+      ) : (
+        <RestaurantValidatorCard
+          key={currentRestaurant.id}
+          restaurant={currentRestaurant}
+          isProcessing={isProcessing}
+          onValidate={(fields) =>
+            validateRestaurant(
+              { id: currentRestaurant.id, ...fields },
+              { onSuccess: advance },
+            )
+          }
+          onDelete={(rejectionReason) =>
+            deleteRestaurant(
+              { id: currentRestaurant.id, rejectionReason },
+              { onSuccess: advance },
+            )
+          }
+        />
+      )}
     </>
   );
 }
