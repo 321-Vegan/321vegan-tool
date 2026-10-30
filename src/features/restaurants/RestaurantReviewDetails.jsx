@@ -1,6 +1,8 @@
+import { useState } from "react";
 import styled from "styled-components";
 
 import { S3_STORAGE_URL } from "@/utils/constants";
+import Lightbox from "@/ui/Lightbox";
 import RatingStars from "@/features/reviews/RatingStars";
 
 const CRITERIA = [
@@ -35,7 +37,15 @@ const Thumbnails = styled.div`
   gap: 0.6rem;
   margin-top: 0.8rem;
 
+  & button {
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: zoom-in;
+  }
+
   & img {
+    display: block;
     width: 14rem;
     height: 14rem;
     object-fit: cover;
@@ -49,6 +59,11 @@ const Thumbnails = styled.div`
 function RestaurantReviewDetails({ review }) {
   const rated = CRITERIA.filter(({ field }) => review[field] !== null);
   const priceRange = review.price_range;
+  const [openIndex, setOpenIndex] = useState(null);
+  const images = review.photos.map((photo) => ({
+    src: `${S3_STORAGE_URL}/${photo.path}`,
+    alt: "Photo de l'avis",
+  }));
 
   return (
     <>
@@ -71,19 +86,20 @@ function RestaurantReviewDetails({ review }) {
       )}
       {review.photos.length > 0 && (
         <Thumbnails>
-          {review.photos.map((photo) => (
-            <a
+          {review.photos.map((photo, index) => (
+            <button
               key={photo.id}
-              href={`${S3_STORAGE_URL}/${photo.path}`}
-              target="_blank"
-              rel="noreferrer"
+              type="button"
+              onClick={() => setOpenIndex(index)}
             >
-              <img
-                src={`${S3_STORAGE_URL}/${photo.path}`}
-                alt="Photo de l'avis"
-              />
-            </a>
+              <img src={images[index].src} alt={images[index].alt} />
+            </button>
           ))}
+          <Lightbox
+            images={images}
+            index={openIndex}
+            onIndexChange={setOpenIndex}
+          />
         </Thumbnails>
       )}
     </>

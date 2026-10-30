@@ -1,3 +1,4 @@
+import { useState } from "react";
 import styled from "styled-components";
 import {
   HiArrowsRightLeft,
@@ -13,6 +14,7 @@ import { S3_STORAGE_URL } from "@/utils/constants";
 import Button from "@/ui/Button";
 import ConfirmAction from "@/ui/ConfirmAction";
 import ImageZoom from "@/ui/ImageZoom";
+import Lightbox from "@/ui/Lightbox";
 import Modal from "@/ui/Modal";
 import NoDataItem from "@/ui/NoDataItem";
 import Tag from "@/ui/Tag";
@@ -72,21 +74,33 @@ function RestaurantPhotoGallery({
   onChangeKind,
   disabled,
 }) {
+  const [openIndex, setOpenIndex] = useState(null);
+
   if (!photos.length) return <NoDataItem>Aucune photo</NoDataItem>;
 
   const sorted = [...photos].sort((a, b) =>
     a.kind === b.kind ? 0 : a.kind === "MENU" ? -1 : 1,
   );
   const shownFeaturedId = effectiveFeaturedId(photos, featuredId);
+  const images = sorted.map((photo) => ({
+    src: `${S3_STORAGE_URL}/${photo.path}`,
+    alt: PHOTO_KINDS[photo.kind]?.label,
+  }));
 
   return (
     <Gallery>
-      {sorted.map((photo) => (
+      <Lightbox
+        images={images}
+        index={openIndex}
+        onIndexChange={setOpenIndex}
+      />
+      {sorted.map((photo, index) => (
         <Photo key={photo.id}>
           <ImageZoom
-            src={`${S3_STORAGE_URL}/${photo.path}`}
-            alt={PHOTO_KINDS[photo.kind]?.label}
+            src={images[index].src}
+            alt={images[index].alt}
             height={30}
+            onClick={() => setOpenIndex(index)}
           />
           <Tags>
             {photo.kind && (

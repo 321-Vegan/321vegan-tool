@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { HiArrowsRightLeft, HiCheck, HiTrash, HiXMark } from "react-icons/hi2";
 import styled from "styled-components";
 
@@ -8,6 +9,7 @@ import ButtonAction from "@/ui/ButtonAction";
 import ConfirmAction from "@/ui/ConfirmAction";
 import Empty from "@/ui/Empty";
 import ImageZoom from "@/ui/ImageZoom";
+import Lightbox from "@/ui/Lightbox";
 import Modal from "@/ui/Modal";
 import Pagination from "@/ui/Pagination";
 import Spinner from "@/ui/Spinner";
@@ -59,19 +61,31 @@ function RestaurantPhotoModeration() {
   const { isPending, photos, count } = usePendingRestaurantPhotos();
   const { isWorking, updatePhotoStatus, updatePhotoKind, deletePhoto } =
     useModerateRestaurantPhoto();
+  const [openIndex, setOpenIndex] = useState(null);
 
   if (isPending) return <Spinner />;
   if (!photos.length) return <Empty message="Aucune photo à valider 💚" />;
 
+  const images = photos.map((photo) => ({
+    src: `${S3_STORAGE_URL}/${photo.path}`,
+    alt: photo.restaurant.name,
+  }));
+
   return (
     <>
+      <Lightbox
+        images={images}
+        index={openIndex}
+        onIndexChange={setOpenIndex}
+      />
       <Grid>
-        {photos.map((photo) => (
+        {photos.map((photo, index) => (
           <Card key={photo.id}>
             <ImageZoom
-              src={`${S3_STORAGE_URL}/${photo.path}`}
-              alt={photo.restaurant.name}
+              src={images[index].src}
+              alt={images[index].alt}
               height={38}
+              onClick={() => setOpenIndex(index)}
             />
             <Title>
               {photo.restaurant.name}

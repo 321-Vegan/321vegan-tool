@@ -8,6 +8,7 @@ import { formatDate, formatDistanceFromNow } from "@/utils/helpers";
 import Button from "@/ui/Button";
 import Checkbox from "@/ui/Checkbox";
 import Input from "@/ui/Input";
+import Lightbox from "@/ui/Lightbox";
 import Modal from "@/ui/Modal";
 import Tag from "@/ui/Tag";
 import Textarea from "@/ui/Textarea";
@@ -107,7 +108,15 @@ const Thumbnails = styled.div`
   flex-wrap: wrap;
   gap: 0.6rem;
 
+  & button {
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: zoom-in;
+  }
+
   & img {
+    display: block;
     width: 18rem;
     height: 18rem;
     object-fit: cover;
@@ -209,11 +218,19 @@ function ValueDiff({ field, from, to }) {
 }
 
 function PhotoLink({ photo }) {
+  const [isOpen, setIsOpen] = useState(false);
   const url = `${S3_STORAGE_URL}/${photo.path}`;
   return (
-    <a href={url} target="_blank" rel="noreferrer">
-      <img src={url} alt="" />
-    </a>
+    <>
+      <button type="button" onClick={() => setIsOpen(true)}>
+        <img src={url} alt="" />
+      </button>
+      <Lightbox
+        images={[{ src: url }]}
+        index={isOpen ? 0 : null}
+        onIndexChange={(index) => setIsOpen(index !== null)}
+      />
+    </>
   );
 }
 

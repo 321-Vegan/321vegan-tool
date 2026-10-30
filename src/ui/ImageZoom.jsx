@@ -53,7 +53,15 @@ const RotationWrapper = styled.div`
   transition: transform 0.2s ease;
 `;
 
-const ImageZoom = ({ src, width, height, alt = "", scaleInit = 1.5 }) => {
+// onClick: optional, replaces the click to zoom further (e.g. to open the photo)
+const ImageZoom = ({
+  src,
+  width,
+  height,
+  alt = "",
+  scaleInit = 1.5,
+  onClick,
+}) => {
   const containerRef = useRef(null);
   const temporizerRef = useRef(null);
   const lastPositionRef = useRef(null);
@@ -155,14 +163,20 @@ const ImageZoom = ({ src, width, height, alt = "", scaleInit = 1.5 }) => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onMouseMove={handleMouseMove}
-      onClick={handleIncreaseScale}
+      onClick={onClick || handleIncreaseScale}
     >
       <RotationWrapper $rotation={rotation}>
         <StyledImageZoom src={src} alt={alt} style={imageStyle} />
       </RotationWrapper>
 
       <Controls>
-        <ButtonIcon onClick={handleIncreaseScale}>
+        <ButtonIcon
+          onClick={(e) => {
+            // Without onClick, the click also bubbles up to zoom (as before)
+            if (onClick) e.stopPropagation();
+            handleIncreaseScale();
+          }}
+        >
           <AiOutlineZoomIn />
         </ButtonIcon>
         <ButtonIcon
