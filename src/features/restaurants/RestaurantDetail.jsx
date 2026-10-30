@@ -162,6 +162,7 @@ function RestaurantEditForm({ restaurant, history }) {
   const {
     isWorking: isModeratingPhoto,
     updatePhotoStatus,
+    updatePhotoKind,
     deletePhoto,
   } = useModerateRestaurantPhoto();
   const { fetchAddress, isFetchingAddress } = useReverseGeocode();
@@ -700,6 +701,9 @@ function RestaurantEditForm({ restaurant, history }) {
           }
           onDelete={(photo) =>
             deletePhoto({ restaurantId: restaurant.id, photoId: photo.id })
+          }
+          onChangeKind={(photo, kind) =>
+            updatePhotoKind({ photoId: photo.id, kind })
           }
           disabled={isWorkingOnPhotos}
         />

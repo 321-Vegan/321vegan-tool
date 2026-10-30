@@ -36,6 +36,9 @@ export const PHOTO_KINDS = {
   MENU: { color: "indigo", label: "Menu" },
 };
 
+// The kind a misfiled photo is moved to
+export const otherKind = (kind) => (kind === "MENU" ? "PLACE" : "MENU");
+
 export const PHOTO_STATUSES = {
   PENDING: { color: "silver", label: "En attente" },
   APPROVED: { color: "green", label: "Approuvée" },

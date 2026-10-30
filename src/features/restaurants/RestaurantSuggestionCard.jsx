@@ -108,8 +108,8 @@ const Thumbnails = styled.div`
   gap: 0.6rem;
 
   & img {
-    width: 8rem;
-    height: 8rem;
+    width: 18rem;
+    height: 18rem;
     object-fit: cover;
     border-radius: var(--border-radius-sm);
     border: 1px solid var(--color-grey-200);

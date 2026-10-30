@@ -151,6 +151,19 @@ export async function updateRestaurantPhotoStatus(photoId, status) {
   }
 }
 
+// Moves a place photo to the menu photos or the other way round.
+export async function updateRestaurantPhotoKind(photoId, kind) {
+  try {
+    const res = await axiosInstance.patch(
+      `${API_URL}/restaurants/photos/${photoId}/kind`,
+      { kind },
+    );
+    return res.data;
+  } catch (error) {
+    throw toError(`Couldn't update restaurant photo # ${photoId}`, error);
+  }
+}
+
 // A place or menu photo, approved right away when sent by a moderator.
 export async function uploadRestaurantPhoto({ restaurantId, kind, file }) {
   try {

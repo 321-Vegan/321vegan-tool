@@ -36,8 +36,8 @@ const Thumbnails = styled.div`
   margin-top: 0.8rem;
 
   & img {
-    width: 6.4rem;
-    height: 6.4rem;
+    width: 14rem;
+    height: 14rem;
     object-fit: cover;
     border-radius: var(--border-radius-sm);
     border: 1px solid var(--color-grey-200);
@@ -78,7 +78,10 @@ function RestaurantReviewDetails({ review }) {
               target="_blank"
               rel="noreferrer"
             >
-              <img src={`${S3_STORAGE_URL}/${photo.path}`} alt="Photo de l'avis" />
+              <img
+                src={`${S3_STORAGE_URL}/${photo.path}`}
+                alt="Photo de l'avis"
+              />
             </a>
           ))}
         </Thumbnails>

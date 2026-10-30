@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import {
+  HiArrowsRightLeft,
   HiCheck,
   HiOutlineStar,
   HiOutlineTrash,
@@ -15,12 +16,12 @@ import ImageZoom from "@/ui/ImageZoom";
 import Modal from "@/ui/Modal";
 import NoDataItem from "@/ui/NoDataItem";
 import Tag from "@/ui/Tag";
-import { PHOTO_KINDS, PHOTO_STATUSES } from "./restaurantConstants";
+import { PHOTO_KINDS, PHOTO_STATUSES, otherKind } from "./restaurantConstants";
 
 const Gallery = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
-  gap: 1.2rem;
+  grid-template-columns: repeat(auto-fill, minmax(30rem, 1fr));
+  gap: 1.6rem;
 `;
 
 const Photo = styled.div`
@@ -53,12 +54,14 @@ function effectiveFeaturedId(photos, featuredId) {
 /**
  * Place and menu photos, menu first (they are the proof of the vegan
  * options). With onFeature, each photo can be made the featured one; with
- * onModerate and onDelete, approved, rejected or deleted.
+ * onModerate and onDelete, approved, rejected or deleted; with onChangeKind,
+ * moved from place to menu or the other way round.
  *
  * @param {Number} featuredId: the photo chosen as featured, if any
  * @param {Function} onFeature: optional (photo) => void
  * @param {Function} onModerate: optional (photo, status) => void
  * @param {Function} onDelete: optional (photo) => void
+ * @param {Function} onChangeKind: optional (photo, kind) => void
  * */
 function RestaurantPhotoGallery({
   photos,
@@ -66,6 +69,7 @@ function RestaurantPhotoGallery({
   onFeature,
   onModerate,
   onDelete,
+  onChangeKind,
   disabled,
 }) {
   if (!photos.length) return <NoDataItem>Aucune photo</NoDataItem>;
@@ -82,7 +86,7 @@ function RestaurantPhotoGallery({
           <ImageZoom
             src={`${S3_STORAGE_URL}/${photo.path}`}
             alt={PHOTO_KINDS[photo.kind]?.label}
-            height={18}
+            height={30}
           />
           <Tags>
             {photo.kind && (
@@ -116,8 +120,19 @@ function RestaurantPhotoGallery({
               <HiStar /> Photo principale
             </Button>
           )}
-          {(onModerate || onDelete) && (
+          {(onModerate || onDelete || onChangeKind) && (
             <Actions>
+              {onChangeKind && photo.kind && (
+                <Button
+                  $variation="secondary"
+                  $size="small"
+                  disabled={disabled}
+                  onClick={() => onChangeKind(photo, otherKind(photo.kind))}
+                >
+                  <HiArrowsRightLeft /> Passer en{" "}
+                  {PHOTO_KINDS[otherKind(photo.kind)].label}
+                </Button>
+              )}
               {onModerate && photo.status !== "APPROVED" && (
                 <Button
                   $size="small"

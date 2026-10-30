@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
 import {
+  updateRestaurantPhotoKind,
   updateRestaurantPhotoStatus,
   deleteRestaurantPhoto as deleteRestaurantPhotoApi,
 } from "@/services/apiRestaurants";
@@ -23,6 +24,16 @@ export function useModerateRestaurantPhoto() {
       onError: (err) => toast.error(err.message),
     });
 
+  const { isPending: isUpdatingKind, mutate: updatePhotoKind } = useMutation({
+    mutationFn: ({ photoId, kind }) => updateRestaurantPhotoKind(photoId, kind),
+    onSuccess: () => {
+      toast.success("La catégorie de la photo a bien été modifiée");
+      // The restaurant page lists its photos too
+      queryClient.invalidateQueries({ queryKey: restaurantsKeys.all() });
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
   const { isPending: isDeleting, mutate: deletePhoto } = useMutation({
     mutationFn: deleteRestaurantPhotoApi,
     onSuccess: () => onSuccess("La photo a bien été supprimée"),
@@ -30,8 +41,9 @@ export function useModerateRestaurantPhoto() {
   });
 
   return {
-    isWorking: isUpdatingStatus || isDeleting,
+    isWorking: isUpdatingStatus || isUpdatingKind || isDeleting,
     updatePhotoStatus,
+    updatePhotoKind,
     deletePhoto,
   };
 }

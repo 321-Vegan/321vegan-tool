@@ -1,4 +1,4 @@
-import { HiCheck, HiTrash, HiXMark } from "react-icons/hi2";
+import { HiArrowsRightLeft, HiCheck, HiTrash, HiXMark } from "react-icons/hi2";
 import styled from "styled-components";
 
 import { S3_STORAGE_URL } from "@/utils/constants";
@@ -14,13 +14,13 @@ import Spinner from "@/ui/Spinner";
 import Tag from "@/ui/Tag";
 import Tooltip from "@/ui/Tooltip";
 
-import { PHOTO_KINDS, VEGAN_STATUSES } from "./restaurantConstants";
+import { PHOTO_KINDS, VEGAN_STATUSES, otherKind } from "./restaurantConstants";
 import { usePendingRestaurantPhotos } from "./usePendingRestaurantPhotos";
 import { useModerateRestaurantPhoto } from "./useModerateRestaurantPhoto";
 
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(26rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(38rem, 1fr));
   gap: 2.4rem;
   margin-bottom: 2.4rem;
 `;
@@ -57,7 +57,7 @@ const Actions = styled.div`
 // Place and menu photos added to validated restaurants, oldest first.
 function RestaurantPhotoModeration() {
   const { isPending, photos, count } = usePendingRestaurantPhotos();
-  const { isWorking, updatePhotoStatus, deletePhoto } =
+  const { isWorking, updatePhotoStatus, updatePhotoKind, deletePhoto } =
     useModerateRestaurantPhoto();
 
   if (isPending) return <Spinner />;
@@ -71,7 +71,7 @@ function RestaurantPhotoModeration() {
             <ImageZoom
               src={`${S3_STORAGE_URL}/${photo.path}`}
               alt={photo.restaurant.name}
-              height={24}
+              height={38}
             />
             <Title>
               {photo.restaurant.name}
@@ -117,6 +117,23 @@ function RestaurantPhotoModeration() {
                     }
                   >
                     <HiXMark />
+                  </ButtonAction>
+                </Tooltip>
+                <Tooltip
+                  content={`Passer en ${PHOTO_KINDS[otherKind(photo.kind)].label}`}
+                  id={`kind-photo-${photo.id}`}
+                >
+                  <ButtonAction
+                    $variation="info"
+                    disabled={isWorking}
+                    onClick={() =>
+                      updatePhotoKind({
+                        photoId: photo.id,
+                        kind: otherKind(photo.kind),
+                      })
+                    }
+                  >
+                    <HiArrowsRightLeft />
                   </ButtonAction>
                 </Tooltip>
                 <Tooltip content="Supprimer" id={`delete-photo-${photo.id}`}>

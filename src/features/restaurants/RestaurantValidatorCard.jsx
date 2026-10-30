@@ -194,13 +194,28 @@ function RestaurantValidatorCard({
     photos.find((photo) => photo.is_featured)?.id,
   );
   const { featurePhoto, isFeaturing } = useFeatureRestaurantPhoto();
-  const { deletePhoto, isWorking: isDeletingPhoto } =
-    useModerateRestaurantPhoto();
+  const {
+    deletePhoto,
+    updatePhotoKind,
+    isWorking: isDeletingPhoto,
+  } = useModerateRestaurantPhoto();
 
   function handleFeature(photo) {
     featurePhoto(
       { restaurantId: restaurant.id, photoId: photo.id },
       { onSuccess: () => setFeaturedId(photo.id) },
+    );
+  }
+
+  function handleChangePhotoKind(photo, kind) {
+    updatePhotoKind(
+      { photoId: photo.id, kind },
+      {
+        onSuccess: (updated) =>
+          setPhotos((prev) =>
+            prev.map((p) => (p.id === photo.id ? { ...p, ...updated } : p)),
+          ),
+      },
     );
   }
 
@@ -279,9 +294,8 @@ function RestaurantValidatorCard({
 
         {hasStops ? (
           <Admonition variation="info" icon="hint">
-            Food truck à {values.stops.length} emplacements : la carte montre
-            le principal. Position, adresse et horaires se corrigent dans la
-            fiche.
+            Food truck à {values.stops.length} emplacements : la carte montre le
+            principal. Position, adresse et horaires se corrigent dans la fiche.
           </Admonition>
         ) : (
           <FetchAddressRow>
@@ -635,6 +649,7 @@ function RestaurantValidatorCard({
           featuredId={featuredId}
           onFeature={handleFeature}
           onDelete={handleDeletePhoto}
+          onChangeKind={handleChangePhotoKind}
           disabled={isProcessing || isFeaturing || isDeletingPhoto}
         />
         <AddRestaurantPhotoButtons
