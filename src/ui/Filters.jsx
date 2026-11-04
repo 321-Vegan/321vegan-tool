@@ -5,7 +5,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 
 import Input from "@/ui/Input";
 
-import { HiMiniFunnel, HiOutlineFunnel } from "react-icons/hi2";
+import { HiEnvelope, HiOutlineEnvelope, HiMiniFunnel, HiOutlineFunnel } from "react-icons/hi2";
 import styled, { css } from "styled-components";
 
 const StyledFilter = styled.div`
@@ -112,7 +112,7 @@ function Filter({ children }) {
   return <StyledFilter>{children}</StyledFilter>;
 }
 
-function Toggle({ id, filterField, defaultValue }) {
+function Toggle({ id, filterField, defaultValue, activeIcon = <HiMiniFunnel />, inactiveIcon = <HiOutlineFunnel /> }) {
   const { openId, close, open, setPosition, searchParams } =
     useContext(FiltersContext);
   const currentFilter = searchParams.get(filterField) || defaultValue || null;
@@ -130,7 +130,7 @@ function Toggle({ id, filterField, defaultValue }) {
 
   return (
     <StyledToggle onClick={handleClick} $active={isActive ? 1 : 0}>
-      {isActive ? <HiMiniFunnel /> : <HiOutlineFunnel />}
+      {isActive ? activeIcon : inactiveIcon}
     </StyledToggle>
   );
 }
