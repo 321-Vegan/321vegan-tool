@@ -51,6 +51,7 @@ const InfoBox = styled.div`
   grid-template-areas:
     "name name parent"
     "logo logo email"
+    "logo logo contact"
     "bkg bkg bkg"
     "score score boycott";
   gap: 4rem;
@@ -69,13 +70,16 @@ const InfoBox = styled.div`
     grid-area: email;
   }
   & div:nth-child(5) {
+    grid-area: contact;
+  }
+  & div:nth-child(6) {
     grid-area: bkg;
     white-space: pre-wrap;
   }
-  & div:nth-child(6) {
+  & div:nth-child(7) {
     grid-area: score;
   }
-  & div:nth-child(7) {
+  & div:nth-child(8) {
     grid-area: boycott;
   }
 `;
@@ -104,6 +108,7 @@ function BrandDetail() {
     updated_at,
     name,
     email,
+    contact_form_url,
     parent,
     score,
     boycott,
@@ -181,6 +186,25 @@ function BrandDetail() {
               type="horizontal"
             >
               {email || <NoDataItem>--</NoDataItem>}
+            </DataItem>
+
+            <DataItem
+              icon={<HiOutlineCheckCircle />}
+              label="Formulaire de contact :"
+              type="horizontal"
+            >
+              {contact_form_url ? (
+                <ButtonText
+                  as="a"
+                  href={contact_form_url}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Ouvrir le formulaire
+                </ButtonText>
+              ) : (
+                <NoDataItem>--</NoDataItem>
+              )}
             </DataItem>
 
             <DataItem
