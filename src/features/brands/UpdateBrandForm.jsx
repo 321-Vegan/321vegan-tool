@@ -100,6 +100,23 @@ function UpdateBrandForm({ brandToUpdate, onCloseModal }) {
       </FormRow>
 
       <FormRow
+        label="Formulaire de contact"
+        error={errors.contact_form_url?.message}
+      >
+        <Input
+          type="url"
+          id="contact_form_url"
+          {...register("contact_form_url", {
+            pattern: {
+              value: /^https?:\/\/\S+$/,
+              message: "Lien invalide (doit commencer par http:// ou https://)",
+            },
+          })}
+          disabled={isUpdating}
+        />
+      </FormRow>
+
+      <FormRow
         label="Informations générales"
         error={errors.background?.message}
       >

@@ -20,6 +20,7 @@ import UpdateCheckingForm from "./UpdateCheckingForm";
 import CheckingTable from "./CheckingTable";
 import GenerateCheckingMessage from "./GenerateCheckingMessage";
 import {
+  HiArrowTopRightOnSquare,
   HiEye,
   HiListBullet,
   HiOutlineEnvelope,
@@ -80,6 +81,22 @@ function CheckingProductTableRow({ product }) {
                   onClick={() => copyToClipboard(brand.root_email)}
                 >
                   {isCopying ? <SpinnerMini size="xs" /> : <HiAtSymbol />}
+                </small>
+              </Tooltip>
+            )}
+            {brand.root_contact_form_url && (
+              <Tooltip
+                content="Ouvrir le formulaire de contact"
+                id="root_contact_form_url"
+              >
+                <small aria-describedby="root_contact_form_url">
+                  <a
+                    href={brand.root_contact_form_url}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <HiArrowTopRightOnSquare />
+                  </a>
                 </small>
               </Tooltip>
             )}
