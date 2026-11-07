@@ -8,12 +8,14 @@ export function useUpdateBrand() {
 
   const { isPending: isUpdating, mutate: updateBrand } = useMutation({
     mutationFn: ({ id, newData }) => {
-      const { parent_id, name, boycott, email, background } = newData;
+      const { parent_id, name, boycott, email, contact_form_url, background } =
+        newData;
       return updateBrandApi(id, {
         parent_id: parent_id,
         name: name,
         boycott: boycott,
         email: email || null,
+        contact_form_url: contact_form_url || null,
         background: background || null,
       });
     },
