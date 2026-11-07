@@ -1,4 +1,5 @@
 import { useSearchCheckingProducts } from "./useSearchCheckingProducts";
+import { useState } from "react";
 
 import Table from "@/ui/Table";
 import Menus from "@/ui/Menus";
@@ -11,6 +12,11 @@ import CheckingProductTableRow from "./CheckingProductTableRow";
 
 function CheckingProductTable() {
   const { isPending, products, count } = useSearchCheckingProducts();
+  const [filterBrandName, setFilterBrandName] = useState("");
+
+  const handleFilterBrandNameChange = (value) => {
+    setFilterBrandName(value);
+  };
 
   if (isPending) return <Spinner />;
 
@@ -30,7 +36,7 @@ function CheckingProductTable() {
 
               <div>
                 Dénomination
-                <SortBy.Sort sortByField="name" />
+                {filterBrandName === "" && <SortBy.Sort sortByField="name" />}
                 <Filters.Filter>
                   <Filters.Toggle id="filterName" filterField="name" />
                   <Filters.Search id="filterName" filterField="name" />
@@ -39,10 +45,14 @@ function CheckingProductTable() {
 
               <div>
                 Marque
-                <SortBy.Sort sortByField="brand_name" />
+                {filterBrandName === "" && <SortBy.Sort sortByField="brand_name" />}
                 <Filters.Filter>
                   <Filters.Toggle id="filterBrandName" filterField="brand" />
-                  <Filters.Search id="filterBrandName" filterField="brand" />
+                  <Filters.Search
+                    id="filterBrandName"
+                    filterField="brand"
+                    onChange={handleFilterBrandNameChange}
+                  />
                 </Filters.Filter>
               </div>
 
@@ -50,7 +60,7 @@ function CheckingProductTable() {
 
               <div>
                 Contacté le
-                <SortBy.Sort sortByField="last_requested_on" />
+                {filterBrandName === "" && <SortBy.Sort sortByField="last_requested_on" />}
               </div>
 
               <div>

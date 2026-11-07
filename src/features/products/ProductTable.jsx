@@ -4,6 +4,7 @@ import {
   PRODUCT_STATES,
   PRODUCT_TYPES,
 } from "@/utils/constants";
+import { useState } from "react";
 
 import Table from "@/ui/Table";
 import Menus from "@/ui/Menus";
@@ -15,6 +16,11 @@ import ProductTableRow from "./ProductTableRow";
 
 function ProductTable() {
   const { isPending, products, count } = useSearchProducts();
+  const [filterBrandName, setFilterBrandName] = useState("");
+
+  const handleFilterBrandNameChange = (value) => {
+    setFilterBrandName(value);
+  };
 
   if (isPending) return <Spinner />;
 
@@ -34,7 +40,7 @@ function ProductTable() {
 
               <div>
                 Dénomination
-                <SortBy.Sort sortByField="name" />
+                {filterBrandName === "" && <SortBy.Sort sortByField="name" />}
                 <Filters.Filter>
                   <Filters.Toggle id="filterName" filterField="name" />
                   <Filters.Search id="filterName" filterField="name" />
@@ -43,21 +49,22 @@ function ProductTable() {
 
               <div>
                 Marque
-                <SortBy.Sort sortByField="brand_name" />
+                {filterBrandName === "" && <SortBy.Sort sortByField="brand_name" />}
                 <Filters.Filter>
                   <Filters.Toggle id="filterBrandName" filterField="brand" />
-                  <Filters.Search id="filterBrandName" filterField="brand" />
+                  <Filters.Search id="filterBrandName" filterField="brand"
+                    onChange={handleFilterBrandNameChange} />
                 </Filters.Filter>
               </div>
 
               <div>
                 Date de création
-                <SortBy.Sort sortByField="created_at" />
+                {filterBrandName === "" && <SortBy.Sort sortByField="created_at" />}
               </div>
 
               <div>
                 Mise à jour
-                <SortBy.Sort sortByField="updated_at" />
+                {filterBrandName === "" && <SortBy.Sort sortByField="updated_at" />}
               </div>
 
               <div>

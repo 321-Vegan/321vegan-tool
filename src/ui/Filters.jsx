@@ -176,7 +176,7 @@ function List({ id, filterField, options, defaultValue }) {
   );
 }
 
-function Search({ id, filterField }) {
+function Search({ id, filterField, onChange }) {
   const { openId, position, close, searchParams, setSearchParams } =
     useContext(FiltersContext);
   const debounce = useDebounce(1000);
@@ -188,6 +188,7 @@ function Search({ id, filterField }) {
 
   function handleSearch(value) {
     setCurrentFilter(value);
+    if (onChange) onChange(value);
     debounce(() => {
       if (value.trim()) {
         searchParams.set(
