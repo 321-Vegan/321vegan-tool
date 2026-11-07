@@ -15,6 +15,7 @@ const filterFields = [
   { field: "brand", operator: "___name__lookalike", value: null },
   { field: "checkings", operator: "___user___nickname__contains", value: null },
   { field: "last_requested_by", operator: "__contains", value: null },
+  { field: "brand_contact", value: null },
 ];
 
 export function useSearchCheckingProducts() {

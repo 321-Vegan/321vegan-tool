@@ -1,5 +1,4 @@
 import { useSearchCheckingProducts } from "./useSearchCheckingProducts";
-import { useSearchParams } from "react-router-dom";
 import { HiEnvelope, HiOutlineEnvelope } from "react-icons/hi2";
 import { useState } from "react";
 
@@ -13,23 +12,12 @@ import SortBy from "@/ui/SortBy";
 import CheckingProductTableRow from "./CheckingProductTableRow";
 
 function CheckingProductTable() {
-  const { isPending, products = [], count } = useSearchCheckingProducts();
-  const [searchParams] = useSearchParams();
+  const { isPending, products, count } = useSearchCheckingProducts();
   const [filterBrandName, setFilterBrandName] = useState("");
 
   const handleFilterBrandNameChange = (value) => {
     setFilterBrandName(value);
   };
-
-  // Get the brandContact filter value from the URL
-  const brandContactFilter = searchParams.get("brandContact") || "all";
-
-  // Filter products based on the brandContact filter value
-  const filteredProducts = products.filter((product) => {
-    if (brandContactFilter === "true") return !!product.brand?.root_email;
-    if (brandContactFilter === "false") return !product.brand?.root_email;
-    return true;
-  });
 
   if (isPending) return <Spinner />;
 
@@ -70,17 +58,18 @@ function CheckingProductTable() {
                 <Filters.Filter>
                   <Filters.Toggle
                     id="filterBrandContact"
-                    filterField="brandContact"
+                    filterField="brand_contact"
                     activeIcon={<HiEnvelope />}
                     inactiveIcon={<HiOutlineEnvelope />}
                   />
                   <Filters.List
                     id="filterBrandContact"
-                    filterField="brandContact"
+                    filterField="brand_contact"
                     options={[
                       { value: "all", label: "Tous" },
-                      { value: "true", label: "Avec email" },
-                      { value: "false", label: "Sans email" },
+                      { value: "email", label: "Avec email" },
+                      { value: "form", label: "Avec formulaire" },
+                      { value: "none", label: "Sans contact" },
                     ]}
                   />
                 </Filters.Filter>
@@ -129,7 +118,7 @@ function CheckingProductTable() {
         </Filters>
 
         <Table.Body
-          data={filteredProducts}
+          data={products}
           render={(product) => (
             <CheckingProductTableRow key={product.id} product={product} />
           )}
