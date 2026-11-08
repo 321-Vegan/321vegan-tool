@@ -9,6 +9,7 @@ import ValidatorProgress from "@/ui/ValidatorProgress";
 import { useRestaurantsToValidate } from "./useRestaurantsToValidate";
 import { useValidateRestaurant } from "./useValidateRestaurant";
 import { useDeleteRestaurant } from "./useDeleteRestaurant";
+import { useSetRestaurantAside } from "./useSetRestaurantAside";
 import { useRestaurantLock } from "./useRestaurantLock";
 import { getRestaurant } from "@/services/apiRestaurants";
 import RestaurantValidatorCard from "./RestaurantValidatorCard";
@@ -37,6 +38,7 @@ function RestaurantValidatorTool() {
   const { isPending, restaurants } = useRestaurantsToValidate();
   const { validateRestaurant, isValidating } = useValidateRestaurant();
   const { deleteRestaurant, isDeleting } = useDeleteRestaurant();
+  const { setRestaurantAside, isSettingAside } = useSetRestaurantAside();
 
   const [snapshot, setSnapshot] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -57,7 +59,7 @@ function RestaurantValidatorTool() {
   const currentRestaurant = snapshot?.[currentIndex];
 
   // Freed by another moderator: reload what they may have changed, or move
-  // on if they validated or refused it
+  // on if they validated, refused or put it aside
   async function reloadCurrent() {
     let fresh = null;
     try {
@@ -65,7 +67,7 @@ function RestaurantValidatorTool() {
     } catch (error) {
       console.error(error);
     }
-    if (!fresh || fresh.validated) return advance();
+    if (!fresh || fresh.validated || fresh.validation_issue) return advance();
     setSnapshot((prev) => prev.map((r) => (r.id === fresh.id ? fresh : r)));
   }
 
@@ -99,7 +101,7 @@ function RestaurantValidatorTool() {
     );
   }
 
-  const isProcessing = isValidating || isDeleting;
+  const isProcessing = isValidating || isDeleting || isSettingAside;
 
   return (
     <>
@@ -132,6 +134,12 @@ function RestaurantValidatorTool() {
           onDelete={(rejectionReason) =>
             deleteRestaurant(
               { id: currentRestaurant.id, rejectionReason },
+              { onSuccess: advance },
+            )
+          }
+          onSetAside={(fields) =>
+            setRestaurantAside(
+              { id: currentRestaurant.id, ...fields },
               { onSuccess: advance },
             )
           }

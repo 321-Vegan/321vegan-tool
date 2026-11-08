@@ -105,6 +105,7 @@ function RestaurantTable() {
                       ALL,
                       { value: "1", label: "Oui" },
                       { value: "0", label: "En attente" },
+                      { value: "aside", label: "Mis de côté" },
                     ]}
                   />
                 </Filters.Filter>

@@ -10,6 +10,7 @@ const FIELD_LABELS = {
     ]),
   ),
   validated: "Validé",
+  validation_issue: "Mis de côté",
 };
 
 function formatValue(field, value) {

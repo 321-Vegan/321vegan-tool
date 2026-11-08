@@ -7,7 +7,11 @@ import { restaurantsKeys } from "./queryKeyFactory";
 const VALIDATOR_PAGE_SIZE = 100;
 
 export function useRestaurantsToValidate() {
-  const filters = [{ field: "validated", value: false }];
+  // Not the ones put aside with an issue
+  const filters = [
+    { field: "validated", value: false },
+    { field: "validation_issue__isnull", value: true },
+  ];
   const sortBy = "created_at-asc";
 
   const {

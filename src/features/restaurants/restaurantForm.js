@@ -53,6 +53,7 @@ export function toFormValues(restaurant) {
     closed_until: text(restaurant.closed_until),
     closure_note: text(restaurant.closure_note),
     validated: restaurant.validated,
+    validation_issue: text(restaurant.validation_issue),
   };
 }
 
@@ -114,6 +115,8 @@ export function toPayload(values) {
     closed_until: temporarilyClosed ? values.closed_until || null : null,
     closure_note: text(values.closure_note),
     validated: values.validated,
+    // The API clears it when the restaurant is validated
+    validation_issue: values.validated ? null : text(values.validation_issue),
   };
 }
 

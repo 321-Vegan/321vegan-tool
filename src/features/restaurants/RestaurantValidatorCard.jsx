@@ -5,6 +5,7 @@ import {
   HiOutlineTrash,
   HiOutlineArrowDownTray,
   HiOutlineArrowTopRightOnSquare,
+  HiOutlinePauseCircle,
   HiCheck,
 } from "react-icons/hi2";
 import styled from "styled-components";
@@ -29,6 +30,7 @@ import NearbyRestaurantsLayer from "./NearbyRestaurantsLayer";
 import OpeningHoursEditor from "./OpeningHoursEditor";
 import StopsList from "./StopsList";
 import RestaurantPhotoGallery from "./RestaurantPhotoGallery";
+import SetAsideRestaurantWindow from "./SetAsideRestaurantWindow";
 import { useNearbyRestaurants } from "./useNearbyRestaurants";
 import { useFeatureRestaurantPhoto } from "./useFeatureRestaurantPhoto";
 import { useModerateRestaurantPhoto } from "./useModerateRestaurantPhoto";
@@ -164,6 +166,7 @@ function RestaurantValidatorCard({
   restaurant,
   onValidate,
   onDelete,
+  onSetAside,
   isProcessing,
 }) {
   const { created_at } = restaurant;
@@ -433,6 +436,28 @@ function RestaurantValidatorCard({
                 restaurant={restaurant}
                 name={values.name}
                 onDelete={onDelete}
+                disabled={isProcessing}
+              />
+            </Modal.Window>
+          </Modal>
+
+          <Modal>
+            <Modal.Open opens="set-aside">
+              <Button $variation="secondary" disabled={isProcessing}>
+                <HiOutlinePauseCircle /> Mettre de côté
+              </Button>
+            </Modal.Open>
+            <Modal.Window name="set-aside">
+              <SetAsideRestaurantWindow
+                name={values.name}
+                // Keeps the corrections made so far, when the API accepts them
+                onSetAside={(issue) =>
+                  onSetAside(
+                    problems.length > 0
+                      ? { validation_issue: issue }
+                      : { ...payload, validation_issue: issue },
+                  )
+                }
                 disabled={isProcessing}
               />
             </Modal.Window>

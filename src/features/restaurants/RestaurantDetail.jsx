@@ -247,6 +247,8 @@ function RestaurantEditForm({ restaurant, history }) {
       <Meta>
         {restaurant.validated ? (
           <Tag type="green">Validé</Tag>
+        ) : restaurant.validation_issue ? (
+          <Tag type="yellow">Mis de côté</Tag>
         ) : (
           <Tag type="silver">En attente de validation</Tag>
         )}
@@ -641,6 +643,22 @@ function RestaurantEditForm({ restaurant, history }) {
             Validé (visible de tous dans l&apos;appli)
           </Checkbox>
         </Field>
+        {!values.validated && (
+          <Field
+            label="Mis de côté"
+            htmlFor="validation_issue"
+            hint="Ce qui empêche de le valider. Rempli, le lieu n'est plus proposé à la validation ; vide, il y revient."
+          >
+            <Textarea
+              id="validation_issue"
+              value={values.validation_issue}
+              onChange={setFromEvent("validation_issue")}
+              placeholder="Ex : à contacter pour confirmer les options véganes"
+              maxLength={1000}
+              disabled={isWorking}
+            />
+          </Field>
+        )}
       </Card>
 
       <ActionBar>

@@ -13,14 +13,30 @@ const filterFields = [
   { field: "tags", value: null },
   { field: "vegan_status", value: null },
   { field: "operating_status", value: null },
-  { field: "validated", value: null },
 ];
+
+// The "validated" param: the pending restaurants put aside with an issue
+// are apart from the ones to validate
+const VALIDATION_FILTERS = {
+  1: [{ field: "validated", value: true }],
+  0: [
+    { field: "validated", value: false },
+    { field: "validation_issue__isnull", value: true },
+  ],
+  aside: [
+    { field: "validated", value: false },
+    { field: "validation_issue__isnull", value: false },
+  ],
+};
 
 export function useSearchRestaurants() {
   const [searchParams] = useSearchParams();
 
   // FILTERS
-  const filters = buildQueryFilters(filterFields, searchParams);
+  const filters = [
+    ...buildQueryFilters(filterFields, searchParams),
+    ...(VALIDATION_FILTERS[searchParams.get("validated")] || []),
+  ];
 
   // SORT
   const sortBy = searchParams.get("sortBy") || "created_at-desc";

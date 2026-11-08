@@ -7,7 +7,11 @@ import {
 } from "@/services/apiRestaurants";
 import { restaurantsKeys } from "@/features/restaurants/queryKeyFactory";
 
-const PENDING_RESTAURANTS = [{ field: "validated", value: false }];
+// Same as the validator: not the ones put aside with an issue
+const PENDING_RESTAURANTS = [
+  { field: "validated", value: false },
+  { field: "validation_issue__isnull", value: true },
+];
 const PENDING_PHOTOS = [{ field: "status", value: "PENDING" }];
 const PENDING_SUGGESTIONS = [{ field: "status", value: "PENDING" }];
 
