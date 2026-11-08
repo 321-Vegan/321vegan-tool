@@ -46,8 +46,10 @@ import {
   DUPLICATE_RADIUS_METERS,
   OPERATING_STATUSES,
   RESTAURANT_TAGS,
+  ENTRANCE_ACCESS,
   SERVICE_OPTIONS,
   VEGAN_STATUSES,
+  YES_NO_UNKNOWN,
 } from "./restaurantConstants";
 
 const Card = styled.div`
@@ -557,6 +559,54 @@ function RestaurantValidatorCard({
                   disabled={isProcessing}
                 />
               </Field>
+            )}
+            {values.has_storefront && (
+              <>
+                <Field label="Entrée (PMR)" htmlFor="entrance_access">
+                  <Select
+                    name="entrance_access"
+                    onChange={set("entrance_access")}
+                    defaultValue={[values.entrance_access]}
+                    defaultOptions={[
+                      YES_NO_UNKNOWN[0],
+                      ...toOptions(ENTRANCE_ACCESS),
+                    ]}
+                    disabled={isProcessing}
+                  />
+                </Field>
+                <Field label="Toilettes" htmlFor="has_toilets">
+                  <Select
+                    name="has_toilets"
+                    onChange={set("has_toilets")}
+                    defaultValue={[values.has_toilets]}
+                    defaultOptions={YES_NO_UNKNOWN}
+                    disabled={isProcessing}
+                  />
+                </Field>
+                {values.has_toilets !== "no" && (
+                  <Field label="Toilettes PMR" htmlFor="has_accessible_toilets">
+                    <Select
+                      name="has_accessible_toilets"
+                      onChange={set("has_accessible_toilets")}
+                      defaultValue={[values.has_accessible_toilets]}
+                      defaultOptions={YES_NO_UNKNOWN}
+                      disabled={isProcessing}
+                    />
+                  </Field>
+                )}
+                <Field
+                  label="Remarque accessibilité"
+                  htmlFor="accessibility_note"
+                >
+                  <Input
+                    id="accessibility_note"
+                    value={values.accessibility_note}
+                    onChange={setFromEvent("accessibility_note")}
+                    placeholder="Ex : porte étroite, une marche pour les toilettes"
+                    disabled={isProcessing}
+                  />
+                </Field>
+              </>
             )}
             <Field label="Ouverture" htmlFor="operating_status">
               <Select

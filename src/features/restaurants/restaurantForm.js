@@ -7,6 +7,7 @@ import {
   withKey,
   withoutKey,
 } from "./openingHours";
+import { UNKNOWN } from "./restaurantConstants";
 
 export const MAX_PLANT_MILK_SURCHARGE = 5;
 const CONTACT_FIELDS = ["phone", "website", "facebook", "instagram"];
@@ -16,6 +17,11 @@ export const text = (value) => value?.trim() || null;
 
 export const toOptions = (statuses) =>
   Object.entries(statuses).map(([value, { label }]) => ({ value, label }));
+
+// Nullable boolean ↔ "yes" / "no" / UNKNOWN select value
+const toYesNo = (value) =>
+  value === null || value === undefined ? UNKNOWN : value ? "yes" : "no";
+const fromYesNo = (value) => (value === UNKNOWN ? null : value === "yes");
 
 // API restaurant → form values (text inputs want strings)
 export function toFormValues(restaurant) {
@@ -40,6 +46,10 @@ export function toFormValues(restaurant) {
     no_hot_drinks: restaurant.serves_hot_drinks === false,
     has_storefront: restaurant.has_storefront,
     service_area: text(restaurant.service_area),
+    entrance_access: restaurant.entrance_access || UNKNOWN,
+    has_toilets: toYesNo(restaurant.has_toilets),
+    has_accessible_toilets: toYesNo(restaurant.has_accessible_toilets),
+    accessibility_note: text(restaurant.accessibility_note),
     opening_hours: restaurant.opening_hours || [],
     opening_hours_note: text(restaurant.opening_hours_note),
     stops: (restaurant.stops || []).map(withKey),
@@ -79,6 +89,10 @@ export function toPayload(values) {
   let servesHotDrinks = null;
   if (!fullyVegan && values.no_hot_drinks) servesHotDrinks = false;
   else if (!fullyVegan && surcharge) servesHotDrinks = true;
+  // No place to welcome customers without storefront, nor accessible toilets
+  // without toilets
+  const storefront = values.has_storefront;
+  const hasToilets = storefront ? fromYesNo(values.has_toilets) : null;
   return {
     name: values.name.trim(),
     latitude: firstStop ? firstStop.latitude : values.latitude,
@@ -96,6 +110,16 @@ export function toPayload(values) {
     serves_hot_drinks: servesHotDrinks,
     has_storefront: values.has_storefront,
     service_area: values.has_storefront ? null : text(values.service_area),
+    entrance_access:
+      storefront && values.entrance_access !== UNKNOWN
+        ? values.entrance_access
+        : null,
+    has_toilets: hasToilets,
+    has_accessible_toilets:
+      storefront && hasToilets !== false
+        ? fromYesNo(values.has_accessible_toilets)
+        : null,
+    accessibility_note: storefront ? text(values.accessibility_note) : null,
     opening_hours: firstStop
       ? stopSlots.length
         ? stopSlots

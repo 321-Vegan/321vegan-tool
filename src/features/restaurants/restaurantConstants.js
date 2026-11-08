@@ -20,6 +20,22 @@ export const SERVICE_OPTIONS = [
   { value: "delivery", label: "Livraison" },
 ];
 
+// Accessibility (PMR): how a wheelchair user gets in
+export const ENTRANCE_ACCESS = {
+  step_free: { color: "green", label: "De plain-pied" },
+  ramp_on_request: { color: "yellow", label: "Rampe sur demande" },
+  not_accessible: { color: "red", label: "Non accessible" },
+};
+
+// Form value of an unknown accessibility answer (null in the API)
+export const UNKNOWN = "unknown";
+
+export const YES_NO_UNKNOWN = [
+  { value: UNKNOWN, label: "Inconnu" },
+  { value: "yes", label: "Oui" },
+  { value: "no", label: "Non" },
+];
+
 export const VEGAN_STATUSES = {
   FULLY_VEGAN: { color: "green", label: "100 % végane" },
   VEGAN_OPTIONS: { color: "yellow", label: "Options véganes" },

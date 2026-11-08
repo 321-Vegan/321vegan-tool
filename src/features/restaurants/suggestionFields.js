@@ -1,5 +1,6 @@
 import {
   DAYS,
+  ENTRANCE_ACCESS,
   OPERATING_STATUSES,
   RESTAURANT_TAGS,
   SERVICE_OPTIONS,
@@ -39,6 +40,10 @@ export const SUGGESTION_FIELDS = {
   serves_hot_drinks: { label: "Boissons chaudes" },
   has_storefront: { label: "Avec boutique" },
   service_area: { label: "Zone servie", input: "text" },
+  entrance_access: { label: "Entrée (PMR)" },
+  has_toilets: { label: "Toilettes" },
+  has_accessible_toilets: { label: "Toilettes PMR" },
+  accessibility_note: { label: "Remarque accessibilité", input: "text" },
   opening_hours: { label: "Horaires" },
   opening_hours_note: { label: "Note horaires", input: "text" },
   stops: { label: "Emplacements" },
@@ -66,6 +71,8 @@ export function formatSuggestionValue(field, value) {
       return VEGAN_STATUSES[value]?.label || value;
     case "operating_status":
       return OPERATING_STATUSES[value]?.label || value;
+    case "entrance_access":
+      return ENTRANCE_ACCESS[value]?.label || value;
     case "tags":
       return value.map(tagLabel).join(", ") || "—";
     case "service_options":
@@ -77,6 +84,8 @@ export function formatSuggestionValue(field, value) {
     case "has_storefront":
     case "has_gluten_free_options":
     case "serves_hot_drinks":
+    case "has_toilets":
+    case "has_accessible_toilets":
       return value ? "Oui" : "Non";
     case "plant_milk_surcharge":
       return `${value > 0 ? "+" : ""}${String(value).replace(".", ",")} €`;
