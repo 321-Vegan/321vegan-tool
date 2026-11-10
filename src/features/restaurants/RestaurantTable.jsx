@@ -93,6 +93,7 @@ function RestaurantTable() {
 
               <div>
                 Validé
+                <SortBy.Sort sortByField="contacted" />
                 <Filters.Filter>
                   <Filters.Toggle
                     id="filterValidated"
@@ -106,6 +107,7 @@ function RestaurantTable() {
                       { value: "1", label: "Oui" },
                       { value: "0", label: "En attente" },
                       { value: "aside", label: "Mis de côté" },
+                      { value: "contacted", label: "Contacté" },
                     ]}
                   />
                 </Filters.Filter>

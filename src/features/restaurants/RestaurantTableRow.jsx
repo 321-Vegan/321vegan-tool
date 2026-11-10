@@ -41,6 +41,7 @@ function RestaurantTableRow({ restaurant }) {
     has_storefront,
     validated,
     validation_issue,
+    contacted,
     updated_at,
     featured_photo,
   } = restaurant;
@@ -76,8 +77,8 @@ function RestaurantTableRow({ restaurant }) {
       {validated ? (
         <Tag type="green">Oui</Tag>
       ) : validation_issue ? (
-        <Tag type="yellow" title={validation_issue}>
-          Mis de côté
+        <Tag type={contacted ? "blue" : "yellow"} title={validation_issue}>
+          {contacted ? "Contacté" : "Mis de côté"}
         </Tag>
       ) : (
         <Tag type="silver">En attente</Tag>

@@ -16,7 +16,8 @@ const filterFields = [
 ];
 
 // The "validated" param: the pending restaurants put aside with an issue
-// are apart from the ones to validate
+// are apart from the ones to validate, and the contacted ones apart from
+// the ones still to contact
 const VALIDATION_FILTERS = {
   1: [{ field: "validated", value: true }],
   0: [
@@ -26,6 +27,11 @@ const VALIDATION_FILTERS = {
   aside: [
     { field: "validated", value: false },
     { field: "validation_issue__isnull", value: false },
+    { field: "contacted", value: false },
+  ],
+  contacted: [
+    { field: "validated", value: false },
+    { field: "contacted", value: true },
   ],
 };
 

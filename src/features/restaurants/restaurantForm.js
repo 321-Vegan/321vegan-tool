@@ -64,6 +64,7 @@ export function toFormValues(restaurant) {
     closure_note: text(restaurant.closure_note),
     validated: restaurant.validated,
     validation_issue: text(restaurant.validation_issue),
+    contacted: restaurant.contacted,
   };
 }
 
@@ -141,6 +142,9 @@ export function toPayload(values) {
     validated: values.validated,
     // The API clears it when the restaurant is validated
     validation_issue: values.validated ? null : text(values.validation_issue),
+    // Cleared with the issue by the API too
+    contacted:
+      !values.validated && !!text(values.validation_issue) && values.contacted,
   };
 }
 

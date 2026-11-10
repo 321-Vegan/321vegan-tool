@@ -250,7 +250,9 @@ function RestaurantEditForm({ restaurant, history }) {
         {restaurant.validated ? (
           <Tag type="green">Validé</Tag>
         ) : restaurant.validation_issue ? (
-          <Tag type="yellow">Mis de côté</Tag>
+          <Tag type="yellow">
+            Mis de côté{restaurant.contacted && " · contacté"}
+          </Tag>
         ) : (
           <Tag type="silver">En attente de validation</Tag>
         )}
@@ -704,6 +706,18 @@ function RestaurantEditForm({ restaurant, history }) {
               maxLength={1000}
               disabled={isWorking}
             />
+          </Field>
+        )}
+        {!values.validated && values.validation_issue.trim() && (
+          <Field label="Contact">
+            <Checkbox
+              name="contacted"
+              checked={values.contacted}
+              onChange={(e) => set("contacted")(e.target.checked)}
+              disabled={isWorking}
+            >
+              Le lieu a été contacté
+            </Checkbox>
           </Field>
         )}
       </Card>

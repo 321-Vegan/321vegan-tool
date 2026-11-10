@@ -11,10 +11,12 @@ const FIELD_LABELS = {
   ),
   validated: "Validé",
   validation_issue: "Mis de côté",
+  contacted: "Contacté",
 };
 
 function formatValue(field, value) {
-  if (field === "validated") return value ? "Oui" : "Non";
+  if (field === "validated" || field === "contacted")
+    return value ? "Oui" : "Non";
   return formatSuggestionValue(field, value);
 }
 
