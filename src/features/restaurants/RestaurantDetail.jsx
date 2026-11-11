@@ -28,7 +28,7 @@ import Select from "@/ui/Select";
 import Spinner from "@/ui/Spinner";
 import SpinnerMini from "@/ui/SpinnerMini";
 import Tag from "@/ui/Tag";
-import Textarea from "@/ui/Textarea";
+import AutoResizeTextarea from "@/ui/AutoResizeTextarea";
 import ShopMap from "@/features/shops/ShopMap";
 import { useReverseGeocode } from "@/features/shops/useReverseGeocode";
 import UserInfo from "@/features/users/UserInfo";
@@ -409,7 +409,7 @@ function RestaurantEditForm({ restaurant, history }) {
               : "Obligatoire : quelles options, comment elles sont signalées"
           }
         >
-          <Textarea
+          <AutoResizeTextarea
             id="vegan_options_details"
             value={values.vegan_options_details}
             onChange={setFromEvent("vegan_options_details")}
@@ -427,7 +427,7 @@ function RestaurantEditForm({ restaurant, history }) {
           </Checkbox>
         </Field>
         <Field label="Description" htmlFor="description">
-          <Textarea
+          <AutoResizeTextarea
             id="description"
             value={values.description}
             onChange={setFromEvent("description")}
@@ -698,7 +698,7 @@ function RestaurantEditForm({ restaurant, history }) {
             htmlFor="validation_issue"
             hint="Ce qui empêche de le valider. Rempli, le lieu n'est plus proposé à la validation ; vide, il y revient."
           >
-            <Textarea
+            <AutoResizeTextarea
               id="validation_issue"
               value={values.validation_issue}
               onChange={setFromEvent("validation_issue")}
