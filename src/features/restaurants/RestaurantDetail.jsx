@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import styled from "styled-components";
 import {
   HiOutlineArrowDownTray,
@@ -49,6 +50,9 @@ import RestaurantPhotoGallery from "./RestaurantPhotoGallery";
 import AddRestaurantPhotoButtons from "./AddRestaurantPhotoButtons";
 import StopsEditor from "./StopsEditor";
 import { useRestaurant } from "./useRestaurant";
+import { useRestaurantLock } from "./useRestaurantLock";
+import RestaurantLockedBox from "./RestaurantLockedBox";
+import { restaurantsKeys } from "./queryKeyFactory";
 import { useUpdateRestaurant } from "./useUpdateRestaurant";
 import { useDeleteRestaurant } from "./useDeleteRestaurant";
 import DeleteRestaurantWindow from "./DeleteRestaurantWindow";
@@ -803,10 +807,51 @@ function RestaurantEditForm({ restaurant, history }) {
 
 // Detail page of a restaurant, editable by the moderators.
 function RestaurantDetail() {
+  const { restaurantId } = useParams();
+  const queryClient = useQueryClient();
+  const goBack = useGoBack();
   const { isPending, restaurant, history } = useRestaurant();
 
-  if (isPending) return <Spinner />;
+  // Lock the restaurant so that no one else validates or edits it at the same
+  // time. Freed by another moderator: reload what they may have changed.
+  const {
+    isPending: isPendingLock,
+    holder: lockHolder,
+    renew: renewLock,
+  } = useRestaurantLock(restaurantId, {
+    onFreed: () =>
+      queryClient.invalidateQueries({
+        queryKey: restaurantsKeys.detail(restaurantId),
+      }),
+  });
+
+  // Saving releases the lock on the API side: take it back while we stay here
+  const updatedAt = restaurant?.updated_at;
+  useEffect(() => {
+    if (updatedAt) renewLock();
+  }, [updatedAt, renewLock]);
+
+  if (isPending || isPendingLock) return <Spinner />;
   if (!restaurant) return <Empty message="Lieu inconnu" />;
+
+  if (lockHolder) {
+    return (
+      <>
+        <Row type="horizontal">
+          <Heading as="h1">
+            {restaurant.name} <small>#{restaurant.id}</small>
+          </Heading>
+          <ButtonText onClick={goBack}>&larr; Retour</ButtonText>
+        </Row>
+        <RestaurantLockedBox
+          restaurant={restaurant}
+          lock={lockHolder}
+          onSkip={goBack}
+          skipLabel="Retour"
+        />
+      </>
+    );
+  }
 
   // Started again from the saved restaurant after each update
   return (

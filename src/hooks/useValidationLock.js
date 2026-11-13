@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 // The API locks expire after 10 minutes without being renewed.
 const RENEW_INTERVAL = 2 * 60 * 1000;
@@ -10,10 +10,13 @@ const RETRY_INTERVAL = 30 * 1000;
 // the user already on it ({ locked_by, locked_at }), or null once it's ours.
 // "holder" is that other user's lock, or null if it's ours.
 // "onFreed" is awaited when the item is freed by someone else, to reload what they may have changed.
+// "renew" takes the lock again at once if it's ours, e.g. after a save that released it on the API side.
 export function useValidationLock(id, api, { enabled = true, onFreed } = {}) {
   const [lock, setLock] = useState({ isPending: true, holder: null });
   const onFreedRef = useRef(onFreed);
   onFreedRef.current = onFreed;
+  const renewRef = useRef(() => {});
+  const renew = useCallback(() => renewRef.current(), []);
 
   useEffect(() => {
     if (!enabled || !id) return;
@@ -52,17 +55,24 @@ export function useValidationLock(id, api, { enabled = true, onFreed } = {}) {
       if (isOwner) api.unlockOnLeave(id);
     }
 
+    renewRef.current = () => {
+      if (!isOwner || isCancelled) return;
+      clearTimeout(timer);
+      takeLock();
+    };
+
     takeLock();
     window.addEventListener("pagehide", releaseOnLeave);
 
     return () => {
       isCancelled = true;
+      renewRef.current = () => {};
       clearTimeout(timer);
       window.removeEventListener("pagehide", releaseOnLeave);
       if (isOwner) api.unlock(id).catch(console.error);
     };
   }, [id, api, enabled]);
 
-  if (!enabled) return { isPending: false, holder: null };
-  return lock;
+  if (!enabled) return { isPending: false, holder: null, renew };
+  return { ...lock, renew };
 }
