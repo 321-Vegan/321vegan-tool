@@ -132,6 +132,12 @@ function RegisterProductForm({ productToCheckedIn, onClose, onSelectBrand }) {
     onSelectBrand(brands.find((b) => b.value === watchFields[3]));
   }, [watchFields, onSelectBrand, brands]);
 
+  // "Cosmétique à vérif" only concerns cosmetics: select the type for the user
+  function handleStateChange(value) {
+    stateField.onChange(value);
+    if (value === "TO_INVESTIGATE") setValue("product_type", "COSMETIC");
+  }
+
   async function getSearchedBrand(searchedName) {
     try {
       const searchedBrands = await getBrandsForSelect(searchedName);
@@ -165,7 +171,7 @@ function RegisterProductForm({ productToCheckedIn, onClose, onSelectBrand }) {
       <FormRow label="État" error={errors.state?.message}>
         <Radios
           id="state"
-          onChange={stateField.onChange}
+          onChange={handleStateChange}
           defaultValue={watchFields[0]}
           required={true}
         >
@@ -297,7 +303,11 @@ function RegisterProductForm({ productToCheckedIn, onClose, onSelectBrand }) {
           hint="Raison pour laquelle le produit n'est pas vegan"
           error={errors.problem_description?.message}
         >
-          <ProblemBox defaultValue={watchFields[2]} onChange={setValue}>
+          <ProblemBox
+            defaultValue={watchFields[2]}
+            onChange={setValue}
+            productType={watchFields[4]}
+          >
             <Textarea
               id="problem_description"
               {...register("problem_description", {

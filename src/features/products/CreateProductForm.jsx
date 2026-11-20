@@ -62,6 +62,12 @@ function CreateProductForm({ onCloseModal }) {
     }
   }, [isStatusLocked, statusField.value, setValue]);
 
+  // "Cosmétique à vérif" only concerns cosmetics: select the type for the user
+  function handleStateChange(value) {
+    stateField.onChange(value);
+    if (value === "TO_INVESTIGATE") setValue("product_type", "COSMETIC");
+  }
+
   const { field: isByodinamicField } = useController({
     name: "biodynamic",
     control,
@@ -92,7 +98,7 @@ function CreateProductForm({ onCloseModal }) {
       <FormRow label="État" error={errors.state?.message}>
         <Select
           name="state"
-          onChange={stateField.onChange}
+          onChange={handleStateChange}
           isSearchable={true}
           defaultValue={[stateField.value]}
           defaultOptions={Object.entries(PRODUCT_STATES).map(([key, o]) => {
@@ -122,6 +128,9 @@ function CreateProductForm({ onCloseModal }) {
       </FormRow>
       <FormRow label="Type" error={errors.product_type?.message}>
         <Select
+          // Select does not follow defaultValue: remount it when the type is
+          // set programmatically (see handleStateChange)
+          key={productTypeField.value}
           name="product_type"
           onChange={productTypeField.onChange}
           isSearchable={true}

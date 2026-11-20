@@ -1,4 +1,3 @@
-import { useState } from "react";
 import styled from "styled-components";
 
 const StyledProblemBox = styled.div`
@@ -43,72 +42,86 @@ const IngredientLabel = styled.label`
   }
 `;
 
-function ProblemBox({ children, defaultValue, onChange }) {
-  const [ingredients, setIngredients] = useState([
-    { label: "lait", checked: false },
-    { label: "œuf", checked: false },
-    { label: "miel", checked: false },
-    { label: "viande", checked: false },
-    { label: "poisson", checked: false },
-    { label: "gélatine", checked: false },
-    { label: "arômes", checked: false },
-    { label: "arômes naturels", checked: false },
-    { label: "vitamines", checked: false },
-    { label: "cire d'abeille", checked: false },
-    { label: "ingrédients inconnus", checked: false },
-  ]);
+const FOOD_PROBLEMS = [
+  "lait",
+  "œuf",
+  "miel",
+  "viande",
+  "poisson",
+  "gélatine",
+  "arômes",
+  "arômes naturels",
+  "vitamines",
+  "cire d'abeille",
+  "ingrédients inconnus",
+];
 
-  function handleToggleIngredient(e) {
-    const checked = e.target.checked;
-    const value = e.target.value;
-    setIngredients((ingredients) =>
-      ingredients.map((ingredient) =>
-        ingredient.label === value
-          ? { ...ingredient, checked: checked }
-          : ingredient,
-      ),
-    );
-    const valueToCheck = value
-      .normalize("NFD")
-      .replace(/\p{Diacritic}/gu, "")
-      .replace(/\u0153/g, "oe");
-    let valuesArray = (defaultValue || "")
-      .split(/[,;]+/)
-      .map((v) => v.trim())
-      .filter((v) => v);
+const COSMETIC_PROBLEMS = [
+  "marque non cruelty free",
+  "lait",
+  "œuf",
+  "miel",
+  "parfum",
+  "cire d'abeille",
+  "ingrédients inconnus",
+  "formule vegan ?",
+  "marque cruelty free ?"
+];
+
+const PROBLEMS_BY_PRODUCT_TYPE = {
+  FOOD: FOOD_PROBLEMS,
+  COSMETIC: COSMETIC_PROBLEMS,
+};
+
+function normalize(value) {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/œ/g, "oe");
+}
+
+function splitProblems(value) {
+  return (value || "")
+    .split(/[,;]+/)
+    .map((v) => v.trim())
+    .filter((v) => v);
+}
+
+function ProblemBox({ children, defaultValue, onChange, productType }) {
+  const problems = PROBLEMS_BY_PRODUCT_TYPE[productType] || FOOD_PROBLEMS;
+  // Chips reflect the textarea content, so they stay in sync when the text
+  // is edited by hand or when the product type (and thus the list) changes.
+  const selectedProblems = splitProblems(defaultValue).map(normalize);
+
+  function handleToggleProblem(e) {
+    const { checked, value } = e.target;
+    const valueToCheck = normalize(value);
+    let valuesArray = splitProblems(defaultValue);
     const isIncluded = valuesArray.some(
-      (val) =>
-        val
-          .toLowerCase()
-          .normalize("NFD")
-          .replace(/\p{Diacritic}/gu, "")
-          .replace(/\u0153/g, "oe") === valueToCheck,
+      (val) => normalize(val) === valueToCheck,
     );
     if (checked && !isIncluded) {
       valuesArray.push(`${value.charAt(0).toUpperCase()}${value.slice(1)}`);
     } else if (!checked && isIncluded) {
       valuesArray = valuesArray.filter(
-        (val) =>
-          val
-            .toLowerCase()
-            .normalize("NFD")
-            .replace(/\p{Diacritic}/gu, "")
-            .replace(/\u0153/g, "oe") !== valueToCheck,
+        (val) => normalize(val) !== valueToCheck,
       );
     }
     onChange("problem_description", valuesArray.join(", "));
   }
+
   return (
     <StyledProblemBox>
       {children}
       <IngredientBox>
-        {ingredients.map(({ label, checked }) => (
-          <IngredientLabel key={label} checked={checked}>
+        {problems.map((label) => (
+          <IngredientLabel key={label}>
             <input
               type="checkbox"
               value={label}
-              checked={checked}
-              onChange={handleToggleIngredient}
+              checked={selectedProblems.includes(normalize(label))}
+              onChange={handleToggleProblem}
             />
             {label}
           </IngredientLabel>

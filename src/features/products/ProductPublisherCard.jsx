@@ -262,6 +262,7 @@ function PublisherForm({ product, onClose, onSkip }) {
                 <ProblemBox
                   defaultValue={problems}
                   onChange={(_, value) => setProblems(value)}
+                  productType={productType}
                 >
                   <Textarea
                     id="problem_description"
