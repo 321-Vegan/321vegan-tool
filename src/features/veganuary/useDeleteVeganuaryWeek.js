@@ -13,9 +13,7 @@ export function useDeleteVeganuaryWeek() {
   const { isPending: isDeleting, mutate: deleteVeganuaryWeek } = useMutation({
     mutationFn: deleteVeganuaryWeekApi,
     onSuccess: () => {
-      toast.success(
-        "La semaine a été supprimée : l'app reprend sa version embarquée",
-      );
+      toast.success("La semaine a bien été supprimée");
       queryClient.invalidateQueries({ queryKey: veganuaryKeys.all() });
     },
     onError: (err) => toast.error(err.message),

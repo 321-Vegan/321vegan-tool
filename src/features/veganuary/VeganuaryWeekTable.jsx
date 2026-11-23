@@ -30,7 +30,7 @@ function VeganuaryWeekTable() {
 
   if (!weeks?.length)
     return (
-      <Empty message="Aucune semaine sur l'API : l'app utilise celles qu'elle embarque." />
+      <Empty message="Aucune semaine sur l'API : le Veganuary de l'app est vide." />
     );
 
   return (
@@ -101,7 +101,7 @@ function WeekRow({ week }) {
           <ConfirmAction
             variation="delete"
             title={`Supprimer la semaine ${number}`}
-            message="L'app reviendra à la version de cette semaine qu'elle embarque, à sa prochaine ouverture du Veganuary."
+            message="Ses jours disparaîtront de l'app à sa prochaine ouverture du Veganuary. Téléchargez son JSON avant pour en garder une copie."
             onConfirm={() => deleteVeganuaryWeek(number)}
             disabled={isDeleting}
           />

@@ -2,6 +2,8 @@ import { useState } from "react";
 
 import AutoResizeTextarea from "@/ui/AutoResizeTextarea";
 
+import { imageUrl, isImagePath } from "./weekFile";
+
 import { HiChevronDown, HiChevronRight } from "react-icons/hi2";
 import styled from "styled-components";
 
@@ -147,6 +149,22 @@ const Field = styled.label`
   }
 `;
 
+const FieldRow = styled.div`
+  display: flex;
+  gap: 1.2rem;
+  align-items: flex-start;
+`;
+
+// An image of the bucket, to see which one a path is
+const Preview = styled.img`
+  width: 8rem;
+  height: 8rem;
+  object-fit: contain;
+  flex-shrink: 0;
+  background-color: var(--color-grey-50);
+  border-radius: var(--border-radius-sm);
+`;
+
 const Text = styled(AutoResizeTextarea)`
   min-height: 4rem;
   font-size: 1.4rem;
@@ -168,16 +186,21 @@ function Collapsible({ title, children, initiallyOpen = false }) {
 }
 
 function Node({ value, path, label, onChange }) {
-  if (typeof value === "string")
+  if (typeof value === "string") {
+    const preview = isImagePath(value) ? imageUrl(value) : null;
     return (
       <Field>
         <span>{label}</span>
-        <Text
-          value={value}
-          onChange={(e) => onChange(path, e.target.value)}
-        />
+        <FieldRow>
+          {preview && <Preview src={preview} alt="" loading="lazy" />}
+          <Text
+            value={value}
+            onChange={(e) => onChange(path, e.target.value)}
+          />
+        </FieldRow>
       </Field>
     );
+  }
 
   if (Array.isArray(value))
     return value.map((child, i) =>

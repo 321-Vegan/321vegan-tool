@@ -8,6 +8,7 @@ import { useSaveVeganuaryWeek } from "./useSaveVeganuaryWeek";
 import { validateWeek } from "./validateWeek";
 import { downloadWeek, setAt } from "./weekFile";
 import WeekTextFields from "./WeekTextFields";
+import VeganuaryImages from "./VeganuaryImages";
 
 import Admonition from "@/ui/Admonition";
 import Button from "@/ui/Button";
@@ -109,10 +110,9 @@ function WeekEditor() {
 
       <Admonition variation="info" icon="hint">
         Les apps téléchargent la semaine enregistrée à leur prochaine ouverture
-        du Veganuary. Pensez à reporter les modifications dans le repo de
-        l&apos;app (« Télécharger le JSON » → lib/assets/veganuary/), qui reste
-        la référence. Corriger des textes ne pose pas de problème ; évitez de
+        du Veganuary. Corriger des textes ne pose pas de problème ; évitez de
         réorganiser les pages d&apos;un jour pendant que des gens le font.
+        « Télécharger le JSON » en garde une copie.
       </Admonition>
 
       <Row type="horizontal">
@@ -129,6 +129,13 @@ function WeekEditor() {
             onClick={() => showTab("json")}
           >
             JSON
+          </Button>
+          <Button
+            $variation={tab === "images" ? "primary" : "secondary"}
+            disabled={tab === "json" && jsonError !== null}
+            onClick={() => showTab("images")}
+          >
+            Images
           </Button>
         </ButtonGroup>
 
@@ -174,11 +181,11 @@ function WeekEditor() {
         </Admonition>
       )}
 
-      {tab === "texts" ? (
-        <WeekTextFields week={week} onChange={handleText} />
-      ) : (
+      {tab === "texts" && <WeekTextFields week={week} onChange={handleText} />}
+      {tab === "json" && (
         <JsonArea value={json ?? ""} onChange={handleJson} spellCheck={false} />
       )}
+      {tab === "images" && <VeganuaryImages />}
     </>
   );
 }

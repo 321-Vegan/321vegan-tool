@@ -78,7 +78,7 @@ function ImportForm({ onCloseModal }) {
     <StyledImport>
       <Heading as="h3">Importer des semaines</Heading>
       <p>
-        Les fichiers weekN.json de l&apos;app (lib/assets/veganuary/). Une
+        Des fichiers weekN.json (par exemple ceux téléchargés ici). Une
         semaine déjà sur l&apos;API est remplacée. Les apps téléchargent le
         nouveau contenu à leur prochaine ouverture du Veganuary.
       </p>

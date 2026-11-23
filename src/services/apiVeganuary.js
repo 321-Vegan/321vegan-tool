@@ -46,3 +46,28 @@ export async function deleteVeganuaryWeek(number) {
     throw apiError(`Couldn't delete week ${number}`, error);
   }
 }
+
+// The course's images in the bucket (veganuary/), newest first
+export async function getVeganuaryImages() {
+  try {
+    const res = await axiosInstance.get(`${API_URL}/veganuary-weeks/images`);
+    return res.data;
+  } catch (error) {
+    throw apiError("Couldn't load the Veganuary images", error);
+  }
+}
+
+export async function uploadVeganuaryImage(imageFile) {
+  try {
+    const formData = new FormData();
+    formData.append("file", imageFile);
+    const res = await axiosInstance.post(
+      `${API_URL}/veganuary-weeks/images`,
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } },
+    );
+    return res.data;
+  } catch (error) {
+    throw apiError(`Couldn't upload ${imageFile.name}`, error);
+  }
+}

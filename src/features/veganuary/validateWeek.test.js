@@ -83,8 +83,8 @@ describe("validateWeek", () => {
   });
 });
 
-// The app's own weeks, when its repository is next to this one: they must
-// all pass, or the checks are stricter than the app
+// A local copy of the weeks in the app's repository (git-ignored), when
+// there's one: they must all pass, or the checks are stricter than the app
 const appWeeks = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "../../../../321vegan-app/flutter_app/lib/assets/veganuary",
