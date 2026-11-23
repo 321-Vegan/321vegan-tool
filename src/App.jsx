@@ -47,6 +47,8 @@ import RestaurantSuggestions from "@/pages/RestaurantSuggestions";
 import ScoringCategories from "@/pages/ScoringCategories";
 import ShopReviews from "@/pages/ShopReviews";
 import Users from "@/pages/Users";
+import Veganuary from "@/pages/Veganuary";
+import VeganuaryWeek from "@/pages/VeganuaryWeek";
 import Validator from "@/pages/Validator";
 
 import ProtectedRoute from "@/ui/ProtectedRoute";
@@ -207,6 +209,23 @@ function App() {
                   element={
                     <ProtectedRouteRole role="admin">
                       <PartnerCategories />
+                    </ProtectedRouteRole>
+                  }
+                />
+
+                <Route
+                  path="veganuary"
+                  element={
+                    <ProtectedRouteRole role="admin">
+                      <Veganuary />
+                    </ProtectedRouteRole>
+                  }
+                />
+                <Route
+                  path="veganuary/:weekNumber"
+                  element={
+                    <ProtectedRouteRole role="admin">
+                      <VeganuaryWeek />
                     </ProtectedRouteRole>
                   }
                 />

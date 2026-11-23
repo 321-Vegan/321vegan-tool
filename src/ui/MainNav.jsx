@@ -20,6 +20,7 @@ import {
   HiOutlineBuildingStorefront,
   HiOutlineMapPin,
   HiOutlinePencilSquare,
+  HiOutlineCalendarDays,
   HiChevronDown,
   HiChevronUp,
 } from "react-icons/hi2";
@@ -288,6 +289,15 @@ function MainNav() {
               </li>
             </NavList>
           </NavSubItem>
+        )}
+
+        {hasAccess("admin") && (
+          <li>
+            <StyledNavLink to="/veganuary">
+              <HiOutlineCalendarDays />
+              <span>Veganuary</span>
+            </StyledNavLink>
+          </li>
         )}
 
         {hasAccess("admin") && (
