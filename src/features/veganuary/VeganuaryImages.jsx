@@ -52,26 +52,35 @@ const Card = styled.li`
     width: 100%;
     aspect-ratio: 1;
     object-fit: contain;
-    background-color: var(--color-grey-50);
+    /* As in the app: transparent images are drawn on white, even in the
+       dark theme */
+    background-color: white;
     border-radius: var(--border-radius-sm);
   }
 `;
 
 const Path = styled.button`
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.4rem;
   background: none;
   border: none;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   color: var(--color-grey-600);
   text-align: left;
-  word-break: break-all;
 
   & svg {
     flex-shrink: 0;
     width: 1.6rem;
     height: 1.6rem;
+  }
+
+  /* Buttons with an icon have no line height (GlobalStyles): the name's
+     lines would overlap when it wraps */
+  & span {
+    min-width: 0;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
   }
 
   &:hover {
@@ -138,7 +147,7 @@ function VeganuaryImages() {
               <img src={imageUrl(image.path)} alt="" loading="lazy" />
               <Path
                 type="button"
-                title="Copier le chemin"
+                title={`Copier « ${image.path} »`}
                 onClick={() => copyToClipboard(image.path)}
               >
                 {copied === image.path ? (
@@ -146,7 +155,8 @@ function VeganuaryImages() {
                 ) : (
                   <HiOutlineClipboardDocument />
                 )}
-                {image.path}
+                {/* Always in veganuary/: the name is enough to tell them apart */}
+                <span>{image.path.replace(/^veganuary\//, "")}</span>
               </Path>
             </Card>
           ))}

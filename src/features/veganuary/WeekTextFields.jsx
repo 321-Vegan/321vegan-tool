@@ -161,7 +161,7 @@ const Preview = styled.img`
   height: 8rem;
   object-fit: contain;
   flex-shrink: 0;
-  background-color: var(--color-grey-50);
+  background-color: white;
   border-radius: var(--border-radius-sm);
 `;
 
