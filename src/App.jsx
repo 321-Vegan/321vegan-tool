@@ -49,6 +49,7 @@ import ShopReviews from "@/pages/ShopReviews";
 import Users from "@/pages/Users";
 import Veganuary from "@/pages/Veganuary";
 import VeganuaryWeek from "@/pages/VeganuaryWeek";
+import Notifications from "@/pages/Notifications";
 import Validator from "@/pages/Validator";
 
 import ProtectedRoute from "@/ui/ProtectedRoute";
@@ -226,6 +227,14 @@ function App() {
                   element={
                     <ProtectedRouteRole role="admin">
                       <VeganuaryWeek />
+                    </ProtectedRouteRole>
+                  }
+                />
+                <Route
+                  path="notifications"
+                  element={
+                    <ProtectedRouteRole role="admin">
+                      <Notifications />
                     </ProtectedRouteRole>
                   }
                 />

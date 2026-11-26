@@ -21,6 +21,7 @@ import {
   HiOutlineMapPin,
   HiOutlinePencilSquare,
   HiOutlineCalendarDays,
+  HiOutlineBellAlert,
   HiChevronDown,
   HiChevronUp,
 } from "react-icons/hi2";
@@ -316,6 +317,15 @@ function MainNav() {
               </li>
             </NavList>
           </NavSubItem>
+        )}
+
+        {hasAccess("admin") && (
+          <li>
+            <StyledNavLink to="/notifications">
+              <HiOutlineBellAlert />
+              <span>Notifications</span>
+            </StyledNavLink>
+          </li>
         )}
 
         {hasAccess("admin") && (
